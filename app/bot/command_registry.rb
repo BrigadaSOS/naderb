@@ -1,6 +1,6 @@
 class CommandRegistry
   def self.register_commands(bot)
-    server_id = ENV["SERVER_ID"] || nil
+    server_id = ENV["GUILD_ID"] || nil
     Rails.logger.info "Using server ID: #{server_id}"
 
     bot.register_application_command(:hora, "Muestra la hora", server_id: server_id) do |option|
