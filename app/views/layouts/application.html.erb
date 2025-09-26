@@ -29,10 +29,25 @@
         <%= notice %>
       </div>
     <% end %>
-    <% if alert %>
+    <% if alert && !params[:discord_popup] %>
       <div class="bg-red-500 text-white px-4 py-2 text-sm relative z-50 flex-shrink-0">
         <%= alert %>
       </div>
+    <% end %>
+
+    <!-- Discord Popup -->
+    <% if params[:discord_popup] && session[:discord_invite_url] %>
+      <%= render 'shared/discord_popup', invite_url: session[:discord_invite_url] %>
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          const popup = document.getElementById('discord-popup');
+          if (popup) {
+            popup.classList.remove('hidden');
+            popup.classList.add('flex');
+          }
+        });
+      </script>
+      <% session.delete(:discord_invite_url) %>
     <% end %>
 
     <%= render "shared/navbar" %>

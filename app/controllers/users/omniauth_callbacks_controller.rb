@@ -6,8 +6,8 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     verification_service = DiscordServerVerificationService.new(access_token)
 
     unless verification_service.user_in_required_server?
-      redirect_to root_path,
-                  alert: "You must be a member of our Discord server to log in. #{view_context.link_to('Join here', verification_service.invite_url, target: '_blank', class: 'underline')}.".html_safe
+      session[:discord_invite_url] = verification_service.invite_url
+      redirect_to root_path(discord_popup: true)
       return
     end
 

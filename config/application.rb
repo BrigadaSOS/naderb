@@ -17,6 +17,9 @@ require "rails/test_unit/railtie"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
+# Load environment variables early, before initializers
+Dotenv.load
+
 module Nadeshikorb
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
@@ -34,5 +37,13 @@ module Nadeshikorb
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # OAuth configuration for Discord (loaded early for Devise)
+    config.x.app.oauth_client_id = ENV.fetch("DISCORD_OAUTH_CLIENT_ID")
+    config.x.app.oauth_client_secret = ENV.fetch("DISCORD_OAUTH_CLIENT_SECRET")
+    config.x.app.server_id = ENV.fetch("DISCORD_SERVER_ID")
+    config.x.app.server_invite_url = ENV.fetch("DISCORD_SERVER_INVITE_URL", "https://discord.gg/ajWm26ADEj")
+
+    config.x.discord_bot.token = ENV.fetch("DISCORD_TOKEN")
   end
 end
