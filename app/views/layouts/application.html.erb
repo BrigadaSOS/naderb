@@ -22,22 +22,22 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="bg-gray-900 text-white min-h-screen">
+  <body class="bg-gray-900 text-white h-screen overflow-hidden flex flex-col">
     <!-- Flash Messages -->
     <% if notice %>
-      <div class="bg-green-500 text-white px-4 py-2 text-sm relative z-50">
+      <div class="bg-green-500 text-white px-4 py-2 text-sm relative z-50 flex-shrink-0">
         <%= notice %>
       </div>
     <% end %>
     <% if alert %>
-      <div class="bg-red-500 text-white px-4 py-2 text-sm relative z-50">
+      <div class="bg-red-500 text-white px-4 py-2 text-sm relative z-50 flex-shrink-0">
         <%= alert %>
       </div>
     <% end %>
 
-    <%= render 'shared/navbar' %>
+    <%= render "shared/navbar" %>
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
       <%= yield %>
     </main>
   </body>
