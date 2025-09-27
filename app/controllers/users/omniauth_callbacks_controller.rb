@@ -7,7 +7,7 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
     unless verification_service.user_in_required_server?
       session[:discord_invite_url] = verification_service.invite_url
-      redirect_to root_path(discord_popup: true)
+      redirect_to root_path join_server_required: true
       return
     end
 

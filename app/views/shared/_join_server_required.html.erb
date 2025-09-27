@@ -1,0 +1,53 @@
+<!-- Discord Login Failure Popup -->
+<div
+  id="discord-popup"
+  class="hidden fixed inset-0 z-50 items-center justify-center p-4"
+  data-controller="discord-popup"
+>
+  <!-- Overlay -->
+  <div
+    class="fixed inset-0 bg-black bg-opacity-79 transition-opacity"
+    data-discord-popup-target="overlay"
+    data-action="click->discord-popup#close"
+  ></div>
+  <!-- Popup Content -->
+  <div class="relative bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-auto">
+    <!-- Header -->
+    <div
+      class="
+        flex items-center justify-between py-4 px-6 border-b border-gray-700
+      "
+    >
+      <h3 class="text-lg font-semibold text-white">Action Required</h3>
+    </div>
+    <!-- Body -->
+    <div class="p-6">
+      <p class="text-gray-300 mb-6">
+        You must be a member of our Discord server to log in. Join our
+        community and try again!
+      </p>
+      <!-- Action Buttons -->
+      <div class="flex flex-col gap-3">
+        <%= discord_button(
+          "Join Discord Server",
+          Rails.application.config.x.app.server_invite_url,
+        ) %>
+
+        <%= button_to user_discord_omniauth_authorize_path,
+            method: :post,
+            data: { turbo: false },
+            class: "w-full inline-flex items-center justify-center px-4 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-lg transition-colors duration-200 border-0" do %>
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          </svg>
+          Try Again
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

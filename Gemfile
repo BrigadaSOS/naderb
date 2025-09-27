@@ -78,4 +78,4 @@ gem "omniauth-rails_csrf_protection", "~> 1.0"
 
 gem "tailwindcss-rails", "~> 4.3"
 
-gem "rails_live_reload", "~> 0.5.0", group: :development
+gem "hotwire-livereload", "~> 2.0", group: :development
