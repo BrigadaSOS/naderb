@@ -1,4 +1,4 @@
 <div class="text-center py-8">
-  <h1 class="text-3xl font-bold text-white mb-4">Welcome back, <%= current_user.username %>!</h1>
-  <p class="text-gray-300">You're successfully logged in to Brigada SOS</p>
+  <h1 class="text-3xl font-bold text-white mb-4"><%= t('dashboard.welcome_back', username: current_user.username) %></h1>
+  <p class="text-gray-300"><%= t('dashboard.success_message') %></p>
 </div>

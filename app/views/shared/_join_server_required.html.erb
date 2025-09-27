@@ -18,18 +18,15 @@
         flex items-center justify-between py-4 px-6 border-b border-gray-700
       "
     >
-      <h3 class="text-lg font-semibold text-white">Action Required</h3>
+      <h3 class="text-lg font-semibold text-white"><%= t("discord.action_required") %></h3>
     </div>
     <!-- Body -->
     <div class="p-6">
-      <p class="text-gray-300 mb-6">
-        You must be a member of our Discord server to log in. Join our
-        community and try again!
-      </p>
+      <%= simple_format(t("discord.must_join_server"), class: "text-gray-300 mb-6") %>
       <!-- Action Buttons -->
       <div class="flex flex-col gap-3">
         <%= discord_button(
-          "Join Discord Server",
+          t("discord.join_server"),
           Rails.application.config.x.app.server_invite_url,
         ) %>
 
@@ -45,7 +42,7 @@
               d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
             />
           </svg>
-          Try Again
+          <%= t("discord.try_again") %>
         <% end %>
       </div>
     </div>

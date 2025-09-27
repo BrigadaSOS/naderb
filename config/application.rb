@@ -38,6 +38,12 @@ module Nadeshikorb
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
+    # I18n configuration
+    config.i18n.load_path += Dir[Rails.root.join("config", "locales", "**", "*.{rb,yml}")]
+    config.i18n.available_locales = [ :es ]
+    config.i18n.default_locale = :es
+    config.i18n.fallbacks = [ I18n.default_locale ]
+
     # OAuth configuration for Discord (loaded early for Devise)
     config.x.app.oauth_client_id = ENV.fetch("DISCORD_OAUTH_CLIENT_ID")
     config.x.app.oauth_client_secret = ENV.fetch("DISCORD_OAUTH_CLIENT_SECRET")

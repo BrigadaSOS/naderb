@@ -1,0 +1,38 @@
+es:
+  app:
+    title: "Brigada SOS"
+    name: "Brigada SOS"
+
+  # Home page
+  home:
+    welcome_title: "Bienvenido a la Brigada SOS"
+    welcome_subtitle: "Conéctate con Discord para comenzar"
+    login_with_discord: "Iniciar sesión con Discord"
+
+  # Dashboard
+  dashboard:
+    welcome_back: "¡Bienvenido de vuelta, %{username}!"
+    success_message: "Has iniciado sesión exitosamente en Brigada SOS"
+
+  # Discord integration
+  discord:
+    join_server: "Unirse al servidor de Discord"
+    try_again: "Intentar de nuevo"
+    action_required: "Acción requerida"
+    must_join_server: "Debes ser miembro de nuestro servidor de Discord para iniciar sesión.\n¡Únete a nuestra comunidad e inténtalo de nuevo!"
+
+  # # Common actions
+  # actions:
+  #   save: "Guardar"
+  #   cancel: "Cancelar"
+  #   edit: "Editar"
+  #   delete: "Eliminar"
+  #   create: "Crear"
+  #   update: "Actualizar"
+  #
+  # # Messages
+  # messages:
+  #   success: "Operación completada exitosamente"
+  #   error: "Ocurrió un error"
+  #   confirm_delete: "¿Estás seguro de que quieres eliminar esto?"
+  #
