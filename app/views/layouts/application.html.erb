@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || t('app.title') %></title>
+    <title><%= content_for(:title) || t("app.title") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -58,7 +58,7 @@
 
     <%= render "shared/navbar" %>
     <!-- Main Content -->
-    <main class="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+    <main class="flex-1 flex">
       <%= yield %>
     </main>
   </body>

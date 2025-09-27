@@ -1,0 +1,26 @@
+<div class="w-64 bg-gray-800 h-full p-4 flex-shrink-0">
+  <nav class="space-y-6">
+    <!-- Profile Settings Section -->
+    <div>
+      <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Profile</h3>
+      <div class="space-y-1">
+        <%= link_to dashboard_path(view: "profile"),
+            class: "flex items-center space-x-3 w-full p-3 rounded-lg transition-colors #{'bg-gray-700 text-white' if params[:view] == 'profile'} hover:bg-gray-700 text-gray-300 hover:text-white" do %>
+          <span class="text-lg">👤</span>
+          <span>Profile</span>
+        <% end %>
+      </div>
+    </div>
+    <!-- Server Settings Section -->
+    <div>
+      <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Server</h3>
+      <div class="space-y-1">
+        <%= link_to dashboard_path(view: "tags"),
+            class: "flex items-center space-x-3 w-full p-3 rounded-lg transition-colors #{'bg-gray-700 text-white' if params[:view] == 'tags'} hover:bg-gray-700 text-gray-300 hover:text-white" do %>
+          <span class="text-lg">🏷️</span>
+          <span>Tags</span>
+        <% end %>
+      </div>
+    </div>
+  </nav>
+</div>

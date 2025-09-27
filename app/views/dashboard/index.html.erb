@@ -1,4 +1,16 @@
-<div class="text-center py-8">
-  <h1 class="text-3xl font-bold text-white mb-4"><%= t('dashboard.welcome_back', username: current_user.username) %></h1>
-  <p class="text-gray-300"><%= t('dashboard.success_message') %></p>
+<div class="flex h-full w-full">
+  <%= render "sidebar" %>
+
+  <div class="flex-1 p-6 overflow-y-auto">
+    <% case params[:view] %>
+    <% when 'profile' %>
+      <%= render "profile_content" %>
+    <% when 'tags' %>
+      <%= render "tags_content" %>
+    <% else %>
+      <div class="mx-auto my-auto text-center py-8">
+        <h1 class="text-3xl font-bold text-white mb-4"><%= t("dashboard.welcome_back", username: current_user.username) %></h1>
+      </div>
+    <% end %>
+  </div>
 </div>
