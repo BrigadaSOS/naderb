@@ -20,42 +20,27 @@ class Dashboard::TagsController < ApplicationController
   def new
     @tag = Tag.new
 
-    if turbo_frame_request?
-      render partial: "form", locals: { tag: @tag, title: "Create New Tag", submit_text: "Create Tag" }
-    else
-      # Regular request - render full page with modal open
-      @tags = Tag.all.order(created_at: :desc)
-      @modal_open = true
-      @new_tag = @tag
-      render "index"
+    respond_to do |format|
+      format.html do
+        @tags = Tag.all.order(created_at: :desc)
+        @modal_open = true
+        @new_tag = @tag
+        render "index"
+      end
+
+      format.turbo_stream do
+        render partial: "form", locals: { tag: @tag, title: "Create New Tag", submit_text: "Create Tag" }
+      end
     end
   end
 
   def show
-    edit
+    render_edit_form(@tag)
   end
 
+
   def edit
-    if turbo_frame_request?
-      if can_edit_tag?(@tag)
-        render partial: "form", locals: {
-          tag: @tag,
-          title: "Edit Tag",
-          submit_text: "Update Tag"
-        }
-      else
-        render partial: "form", locals: {
-          tag: @tag,
-          title: "View Tag",
-          read_only: true
-        }
-      end
-    else
-      @tags = Tag.all.order(created_at: :desc)
-      @modal_open = true
-      @edit_tag = @tag
-      render "index"
-    end
+    render_edit_form(@tag)
   end
 
   def create
@@ -89,7 +74,6 @@ class Dashboard::TagsController < ApplicationController
         ]
       )
     else
-      # Preserve the form state when there are errors
       render_edit_form(result[:tag])
       response.status = :unprocessable_entity
     end
@@ -107,11 +91,11 @@ class Dashboard::TagsController < ApplicationController
         ]
       )
     else
-      # Preserve the form state when there are errors
       render_edit_form(@tag)
       response.status = :unprocessable_entity
     end
   end
+
 
   private
 
@@ -149,19 +133,16 @@ class Dashboard::TagsController < ApplicationController
 
   def render_edit_form(tag)
     if turbo_frame_request?
-      if can_edit_tag?(tag)
-        render partial: "form", locals: {
-          tag: tag,
-          title: "Edit Tag",
-          submit_text: "Update Tag"
-        }
-      else
-        render partial: "form", locals: {
-          tag: tag,
-          title: "View Tag",
-          read_only: true
-        }
-      end
+      read_only = true unless can_edit_tag?(@tag)
+
+      locals = {
+        tag: @tag,
+        title: read_only ? "View Tag" : "Edit Tag"
+      }
+      locals[:submit_text] = "Update Tag" unless read_only
+      locals[:read_only] = true if read_only
+
+      render partial: "form", locals: locals
     else
       @tags = Tag.all.order(created_at: :desc)
       @modal_open = true

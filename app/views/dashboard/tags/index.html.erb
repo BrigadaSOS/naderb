@@ -59,7 +59,7 @@
     >
       <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
         <div data-modal-target="form">
-          <%= turbo_frame_tag "tag_form" do %>
+          <%= turbo_frame_tag "tag_form", data: { turbo_action: "advance" } do %>
             <% if @modal_open && @edit_tag %>
               <% if can_edit_tag?(@edit_tag) %>
                 <%= render "form", tag: @edit_tag, title: "Edit Tag", submit_text: "Update Tag" %>
