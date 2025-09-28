@@ -10,20 +10,38 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_27_033017) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_27_043319) do
+  create_table "tags", force: :cascade do |t|
+    t.string "guild_id", null: false
+    t.integer "user_id", null: false
+    t.string "name", null: false
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name", "guild_id"], name: "index_tags_on_name_and_guild_id", unique: true
+    t.index ["user_id"], name: "index_tags_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "username"
-    t.string "provider"
-    t.string "uid"
     t.integer "sign_in_count", default: 0, null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.string "current_sign_in_ip"
     t.string "last_sign_in_ip"
+    t.string "provider"
+    t.string "discord_uid"
+    t.string "discord_access_token"
+    t.string "discord_refresh_token"
+    t.datetime "discord_token_expires_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["discord_uid"], name: "index_users_on_discord_uid", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["provider", "discord_uid"], name: "index_users_on_provider_and_discord_uid", unique: true
   end
+
+  add_foreign_key "tags", "users"
 end

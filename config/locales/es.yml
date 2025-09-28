@@ -36,3 +36,29 @@ es:
   #   error: "Ocurrió un error"
   #   confirm_delete: "¿Estás seguro de que quieres eliminar esto?"
   #
+
+  # ActiveRecord validation errors
+  activerecord:
+    attributes:
+      tag:
+        name: "Nombre"
+        content: "Contenido"
+    errors:
+      messages:
+        blank: "no puede estar en blanco"
+        too_long: "es demasiado largo (máximo %{count} caracteres)"
+        taken: "ya está en uso"
+        invalid: "no es válido"
+      models:
+        tag:
+          attributes:
+            name:
+              blank: "es requerido"
+              too_long: "es demasiado largo (máximo %{count} caracteres)"
+              invalid: "solo puede contener letras, números, guiones bajos y guiones"
+              taken: "ya existe en este servidor"
+            content:
+              blank: "es requerido"
+              too_long: "es demasiado largo (máximo %{count} caracteres)"
+            discord_uid:
+              not_found: "Usuario con Discord UID '%{discord_uid}' no encontrado"

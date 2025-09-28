@@ -1,0 +1,116 @@
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center space-x-3">
+          <h3 class="text-lg font-semibold text-white"><%= title %></h3>
+          <% if current_user.admin_or_mod? && tag.persisted? %>
+            <button
+              data-form-toggle-target="toggleButton"
+              data-action="click->form-toggle#toggle"
+              class="<%= local_assigns[:read_only] ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-600 hover:bg-gray-700' %> text-white px-3 py-1 rounded text-sm transition-colors"
+            >
+              <%= local_assigns[:read_only] ? "Edit" : "View" %>
+            </button>
+          <% end %>
+        </div>
+        <button data-action="click->modal#close" class="text-gray-400 hover:text-white">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            ></path>
+          </svg>
+        </button>
+      </div>
+
+      <%= form_with model: [:dashboard, tag], class: "space-y-4" do |form| %>
+        <% if tag.errors.any? %>
+          <div class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm">
+            <% tag.errors.full_messages.each do |message| %>
+              <%= message %><br>
+            <% end %>
+          </div>
+        <% end %>
+
+        <div>
+          <%= form.label :name,
+                     "Tag Name",
+                     class: "block text-sm font-medium text-gray-300 mb-1" %>
+          <%= form.text_field :name,
+                          disabled: local_assigns[:read_only],
+                          data: { form_toggle_target: "field" },
+                          class:
+                            "w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 #{'cursor-not-allowed opacity-60' if local_assigns[:read_only]} #{'focus:outline-none focus:ring-2 focus:ring-blue-500' unless local_assigns[:read_only]}",
+                          placeholder: "Enter tag name" %>
+        </div>
+
+        <div>
+          <%= form.label :content,
+                     "Content",
+                     class: "block text-sm font-medium text-gray-300 mb-1" %>
+          <% if tag.persisted? && tag.image_url? %>
+            <div class="mb-3">
+              <img
+                src="<%= tag.content.strip %>"
+                alt="<%= tag.name %>"
+                class="
+                  max-w-full max-h-64 object-contain rounded border border-gray-600
+                "
+              >
+            </div>
+          <% end %>
+          <%= form.text_area :content,
+                         rows: 4,
+                         disabled: local_assigns[:read_only],
+                         data: { form_toggle_target: "field" },
+                         class:
+                           "w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 #{'cursor-not-allowed opacity-60' if local_assigns[:read_only]} #{'focus:outline-none focus:ring-2 focus:ring-blue-500' unless local_assigns[:read_only]}",
+                         placeholder: "Enter tag content" %>
+        </div>
+
+        <% if current_user.admin_or_mod? && tag.persisted? %>
+          <div>
+            <%= form.label :discord_uid,
+                       "Owner Discord UID (Admin Only)",
+                       class: "block text-sm font-medium text-gray-300 mb-1" %>
+            <%= text_field :tag,
+            :discord_uid,
+            value: params.dig(:tag, :discord_uid) || tag.user.discord_uid,
+            disabled: local_assigns[:read_only],
+            data: { form_toggle_target: "field" },
+            class:
+              "w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 #{'cursor-not-allowed opacity-60' if local_assigns[:read_only]} #{'focus:outline-none focus:ring-2 focus:ring-blue-500' unless local_assigns[:read_only]}",
+            placeholder: "Enter Discord UID to change owner" %>
+            <p class="text-xs text-gray-400 mt-1">Current owner:
+              <%= tag.user.username %></p>
+          </div>
+        <% end %>
+
+        <div class="flex justify-end space-x-3 pt-4">
+          <button
+            type="button"
+            data-action="click->modal#close"
+            class="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+          >
+            <%= local_assigns[:read_only] ? "Close" : "Cancel" %>
+          </button>
+          <% unless local_assigns[:read_only] %>
+            <%= form.submit submit_text,
+                        data: { form_toggle_target: "submitButton" },
+                        class:
+                          "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors" %>
+            <% if tag.persisted? %>
+              <%= link_to "Delete",
+              dashboard_tag_path(tag),
+              method: :delete,
+              data: {
+                confirm: "Are you sure?",
+                turbo_method: :delete,
+                form_toggle_target: "deleteButton"
+              },
+              class:
+                "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors" %>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>

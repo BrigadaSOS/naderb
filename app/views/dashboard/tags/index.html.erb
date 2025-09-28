@@ -1,0 +1,80 @@
+<div class="flex h-full w-full">
+  <%= render "dashboard/sidebar" %>
+
+  <div class="flex-1 p-6 overflow-y-auto">
+    <div>
+      <div class="mb-6 flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-bold text-white mb-2">Tags</h2>
+          <p class="text-gray-400">Manage and organize your tags</p>
+        </div>
+        <%= link_to "Add New Tag",
+        new_dashboard_tag_path,
+        data: { turbo_frame: "tag_form" },
+        class:
+          "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors" %>
+      </div>
+      <!-- Search Form -->
+      <%= form_with url: dashboard_tags_path, method: :get, data: {
+            turbo_frame: "tags_container",
+            turbo: "true",
+            controller: "search-filter",
+            search_filter_target: "form"
+          }, class: "mb-4" do |form| %>
+        <div class="flex gap-2">
+          <%= form.text_field :search,
+                          value: params[:search],
+                          placeholder: "Search tags by name...",
+                          id: "tags_search_input",
+                          data: {
+                            search_filter_target: "input",
+                            action: "input->search-filter#filter",
+                            turbo_permanent: true
+                          },
+                          class:
+                            "flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+          <% if params[:search].present? %>
+            <%= link_to "Clear",
+            dashboard_tags_path,
+            data: {
+              turbo_frame: "tags_container",
+            },
+            class:
+              "bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors" %>
+          <% end %>
+        </div>
+      <% end %>
+
+
+      <div class="bg-gray-800 rounded-lg p-6">
+        <%= render "tags_list", tags: @tags %>
+      </div>
+    </div>
+    <!-- Tag Modal (Create/Edit/View) -->
+    <div
+      id="tagModal"
+      class="fixed inset-0 bg-black/80 <%= @modal_open ? 'flex' : 'hidden' %> items-center justify-center z-50"
+      data-controller="modal"
+      data-action="click->modal#closeOnBackdrop"
+    >
+      <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
+        <div data-modal-target="form">
+          <%= turbo_frame_tag "tag_form" do %>
+            <% if @modal_open && @edit_tag %>
+              <% if can_edit_tag?(@edit_tag) %>
+                <%= render "form", tag: @edit_tag, title: "Edit Tag", submit_text: "Update Tag" %>
+              <% else %>
+                <%= render "form", tag: @edit_tag, title: "View Tag", read_only: true %>
+              <% end %>
+            <% elsif @modal_open && @new_tag %>
+              <%= render "form", tag: @new_tag, title: "Create New Tag", submit_text: "Create Tag" %>
+            <% else %>
+              <!-- Initial empty state - will be replaced by controller -->
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

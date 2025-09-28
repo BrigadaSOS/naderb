@@ -2,7 +2,7 @@
   <%= render "sidebar" %>
 
   <div class="flex-1 p-6 overflow-y-auto">
-    <% case params[:view] %>
+    <% case action_name %>
     <% when 'profile' %>
       <%= render "profile_content" %>
     <% when 'tags' %>

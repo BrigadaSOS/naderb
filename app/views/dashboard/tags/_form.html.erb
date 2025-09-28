@@ -1,0 +1,13 @@
+<% if turbo_frame_request? %>
+  <%= turbo_frame_tag "tag_form" do %>
+    <div data-controller="form-toggle"
+         data-form-toggle-read-only-value="<%= local_assigns[:read_only] || false %>">
+      <%= render "form_content", tag: tag, title: title, submit_text: submit_text, read_only: local_assigns[:read_only] %>
+    </div>
+  <% end %>
+<% else %>
+  <div data-controller="form-toggle"
+       data-form-toggle-read-only-value="<%= local_assigns[:read_only] || false %>">
+    <%= render "form_content", tag: tag, title: title, submit_text: submit_text, read_only: local_assigns[:read_only] %>
+  </div>
+<% end %>
