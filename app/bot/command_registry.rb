@@ -17,5 +17,34 @@ class CommandRegistry
         sub.string("mes", "Mes del año (1-12)", required: true)
       end
     end
+
+    bot.register_application_command(:tag, "Gestiona tags del servidor", server_id: server_id) do |cmd|
+      cmd.subcommand(:create, "Crea un nuevo tag") do |sub|
+        sub.string("name", "Nombre del tag", required: true)
+        sub.string("content", "Contenido del tag", required: true)
+      end
+
+      cmd.subcommand(:get, "Obtiene un tag existente") do |sub|
+        sub.string("name", "Nombre del tag", required: true)
+      end
+
+      cmd.subcommand(:edit, "Edita un tag existente") do |sub|
+        sub.string("name", "Nombre del tag actual", required: true)
+        sub.string("content", "Nuevo contenido del tag", required: true)
+        sub.string("new_name", "Nuevo nombre del tag (opcional)", required: false)
+      end
+
+      cmd.subcommand(:delete, "Elimina un tag") do |sub|
+        sub.string("name", "Nombre del tag a eliminar", required: true)
+      end
+
+      cmd.subcommand(:raw, "Obtiene el contenido crudo de un tag") do |sub|
+        sub.string("name", "Nombre del tag", required: true)
+      end
+    end
+
+    bot.register_application_command(:tags, "Lista todos los tags del servidor", server_id: server_id) do |option|
+      option.string("search", "Buscar tags por nombre (opcional)", required: false)
+    end
   end
 end

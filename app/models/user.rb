@@ -5,30 +5,68 @@ class User < ApplicationRecord
 
   has_many :tags, dependent: :destroy
 
+  def discord_only?
+    discord_only == true
+  end
+
+  def web_enabled?
+    !discord_only? && email.present?
+  end
+
+  def self.find_or_create_from_discord(discord_uid:, username: nil)
+    where(discord_uid: discord_uid).first_or_create do |user|
+      user.discord_uid = discord_uid
+      user.username = username || "User#{discord_uid}"
+      user.provider = 'discord_bot'
+      user.discord_only = true
+      user.password = Devise.friendly_token[0, 20]
+    end
+  end
+
   def self.from_omniauth(auth)
     Rails.logger.debug "User.from_omniauth called with provider: #{auth.provider}, uid: #{auth.uid}"
 
     expires_at = Time.at(auth.credentials.expires_at)
 
-    user = where(provider: auth.provider, discord_uid: auth.uid).first_or_create do |new_user|
-      new_user.provider = auth.provider
-      new_user.discord_uid = auth.uid
-      new_user.username = auth.info.name
-      new_user.email = auth.info.email
-      new_user.password = Devise.friendly_token[0, 20]
-      new_user.discord_access_token = auth.credentials.token
-      new_user.discord_refresh_token = auth.credentials.refresh_token
-      new_user.discord_token_expires_at = expires_at
+    # First, look for ANY user with this discord_uid (regardless of provider)
+    user = where(discord_uid: auth.uid).first
 
-      Rails.logger.info "New user created with Discord UID: #{auth.uid}"
-    end
-
-    if user.persisted?
-      user.update!(
+    if user
+      if user.discord_only?
+        # CLAIM: Convert Discord-only user to full OAuth user
+        user.update!(
+          provider: auth.provider,
+          username: auth.info.name,
+          email: auth.info.email,
+          discord_access_token: auth.credentials.token,
+          discord_refresh_token: auth.credentials.refresh_token,
+          discord_token_expires_at: expires_at,
+          discord_only: false
+        )
+        Rails.logger.info "Discord-only user #{user.discord_uid} claimed via OAuth"
+      else
+        # EXISTING: Just update tokens for existing OAuth user
+        user.update!(
+          discord_access_token: auth.credentials.token,
+          discord_refresh_token: auth.credentials.refresh_token,
+          discord_token_expires_at: expires_at
+        )
+        Rails.logger.info "Updated existing OAuth user #{user.id} tokens"
+      end
+    else
+      # NEW: Create fresh OAuth user
+      user = create!(
+        provider: auth.provider,
+        discord_uid: auth.uid,
+        username: auth.info.name,
+        email: auth.info.email,
+        password: Devise.friendly_token[0, 20],
         discord_access_token: auth.credentials.token,
         discord_refresh_token: auth.credentials.refresh_token,
-        discord_token_expires_at: expires_at
+        discord_token_expires_at: expires_at,
+        discord_only: false
       )
+      Rails.logger.info "New OAuth user created with Discord UID: #{auth.uid}"
     end
 
     Rails.logger.info "Successfully processed user #{user.id} (#{user.username}) from Discord OAuth"

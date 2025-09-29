@@ -22,6 +22,7 @@ class DiscordBotJob < ApplicationJob
 
       bot.include!(AdminCommands)
       bot.include!(ProfileCommands)
+      bot.include!(TagCommands)
 
       bot.run
     raise StandardError => e
