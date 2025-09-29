@@ -9,13 +9,13 @@
           <p class="text-gray-400">Manage and organize your tags</p>
         </div>
         <%= link_to "Add New Tag",
-        new_dashboard_tag_path,
+        new_dashboard_server_tag_path,
         data: { turbo_frame: "tag_form" },
         class:
           "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors" %>
       </div>
       <!-- Search Form -->
-      <%= form_with url: dashboard_tags_path, method: :get, data: {
+      <%= form_with url: dashboard_server_tags_path, method: :get, data: {
             turbo_frame: "tags_container",
             turbo: "true",
             controller: "search-filter",
@@ -35,7 +35,7 @@
                             "flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
           <% if params[:search].present? %>
             <%= link_to "Clear",
-            dashboard_tags_path,
+            dashboard_server_tags_path,
             data: {
               turbo_frame: "tags_container",
             },

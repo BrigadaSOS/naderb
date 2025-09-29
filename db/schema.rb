@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_28_135311) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_29_134846) do
   create_table "tags", force: :cascade do |t|
     t.string "guild_id", null: false
     t.integer "user_id", null: false
@@ -39,9 +39,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_28_135311) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "discord_only", default: false, null: false
+    t.integer "role", default: 0, null: false
     t.index ["discord_uid"], name: "index_users_on_discord_uid", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["provider", "discord_uid"], name: "index_users_on_provider_and_discord_uid", unique: true
+    t.index ["role"], name: "index_users_on_role"
   end
 
   add_foreign_key "tags", "users"

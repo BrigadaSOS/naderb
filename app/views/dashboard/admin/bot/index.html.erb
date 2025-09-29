@@ -1,0 +1,111 @@
+<div class="flex h-full w-full">
+  <%= render "dashboard/sidebar" %>
+
+  <div class="flex-1 p-6 overflow-y-auto">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-white mb-2">Discord Bot Management</h1>
+      <p class="text-gray-400">Monitor and configure the Discord bot</p>
+    </div>
+
+    <div class="space-y-6">
+  <div class="bg-gray-800 rounded-lg p-6">
+    <h2 class="text-xl font-semibold text-white mb-4">Bot Status</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="text-gray-300">Connection Status</span>
+          <span class="text-green-400 bg-green-400/20 px-2 py-1 rounded text-sm">Connected</span>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <span class="text-gray-300">Bot Token</span>
+          <span class="<%= ENV['DISCORD_BOT_TOKEN'].present? ? 'text-green-400' : 'text-red-400' %>">
+            <%= ENV['DISCORD_BOT_TOKEN'].present? ? 'Configured' : 'Missing' %>
+          </span>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <span class="text-gray-300">Server ID</span>
+          <span class="text-blue-400 font-mono text-sm">
+            <%= Rails.application.config.x.app&.server_id || 'Not configured' %>
+          </span>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="text-gray-300">OAuth Client ID</span>
+          <span class="<%= ENV['DISCORD_CLIENT_ID'].present? ? 'text-green-400' : 'text-red-400' %>">
+            <%= ENV['DISCORD_CLIENT_ID'].present? ? 'Configured' : 'Missing' %>
+          </span>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <span class="text-gray-300">OAuth Secret</span>
+          <span class="<%= ENV['DISCORD_CLIENT_SECRET'].present? ? 'text-green-400' : 'text-red-400' %>">
+            <%= ENV['DISCORD_CLIENT_SECRET'].present? ? 'Configured' : 'Missing' %>
+          </span>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <span class="text-gray-300">Registered Commands</span>
+          <span class="text-yellow-400">Available</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-gray-800 rounded-lg p-6">
+    <h2 class="text-xl font-semibold text-white mb-4">Bot Configuration</h2>
+
+    <div class="space-y-4">
+      <div class="bg-gray-700 rounded-lg p-4">
+        <h3 class="text-white font-medium mb-2">Role Configuration</h3>
+        <div class="text-sm text-gray-300 space-y-2">
+          <div class="flex items-center justify-between">
+            <span>Admin Role ID</span>
+            <code class="text-red-400 bg-gray-800 px-2 py-1 rounded">
+              <%= Rails.application.config.x.app&.server_admin_role_id || 'Not set' %>
+            </code>
+          </div>
+          <div class="flex items-center justify-between">
+            <span>Moderator Role ID</span>
+            <code class="text-yellow-400 bg-gray-800 px-2 py-1 rounded">
+              <%= Rails.application.config.x.app&.server_moderator_role_id || 'Not set' %>
+            </code>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gray-700 rounded-lg p-4">
+        <h3 class="text-white font-medium mb-2">Available Commands</h3>
+        <div class="text-sm text-gray-300 space-y-1">
+          <div>• <code class="text-blue-400">/tag create</code> - Create a new tag</div>
+          <div>• <code class="text-blue-400">/tag get</code> - Retrieve a tag</div>
+          <div>• <code class="text-blue-400">/tag edit</code> - Edit an existing tag</div>
+          <div>• <code class="text-blue-400">/tag delete</code> - Delete a tag</div>
+          <div>• <code class="text-blue-400">/tag raw</code> - Get raw tag content</div>
+          <div>• <code class="text-blue-400">/tags</code> - List all available tags</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6 text-sm text-gray-400">
+      <p><strong>Note:</strong> Bot management features like restart, command registration, and live configuration editing will be added in future updates.</p>
+    </div>
+  </div>
+
+  <div class="bg-gray-800 rounded-lg p-6">
+    <h2 class="text-xl font-semibold text-white mb-4">Usage Statistics</h2>
+
+    <div class="text-center py-8 text-gray-400">
+      <svg class="w-16 h-16 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+      </svg>
+      <p>Bot usage statistics and analytics coming soon</p>
+    </div>
+  </div>
+</div>
+  </div>
+</div>

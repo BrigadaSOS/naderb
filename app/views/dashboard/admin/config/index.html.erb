@@ -1,0 +1,55 @@
+<div class="flex h-full w-full">
+  <%= render "dashboard/sidebar" %>
+
+  <div class="flex-1 p-6 overflow-y-auto">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-white mb-2">System Configuration</h1>
+      <p class="text-gray-400">Manage service configuration and settings</p>
+    </div>
+
+    <div class="bg-gray-800 rounded-lg p-6">
+  <h2 class="text-xl font-semibold text-white mb-4">Configuration Sections</h2>
+
+  <div class="space-y-4">
+    <div class="bg-gray-700 rounded-lg p-4">
+      <h3 class="text-lg font-medium text-white mb-2">Application Settings</h3>
+      <p class="text-gray-400 text-sm mb-3">Core application configuration and environment variables</p>
+      <div class="text-gray-300 text-sm space-y-1">
+        <div>Environment: <span class="text-green-400"><%= Rails.env %></span></div>
+        <div>Rails Version: <span class="text-blue-400"><%= Rails.version %></span></div>
+        <div>Ruby Version: <span class="text-purple-400"><%= RUBY_VERSION %></span></div>
+      </div>
+    </div>
+
+    <div class="bg-gray-700 rounded-lg p-4">
+      <h3 class="text-lg font-medium text-white mb-2">Discord Integration</h3>
+      <p class="text-gray-400 text-sm mb-3">Discord bot and OAuth configuration</p>
+      <div class="text-gray-300 text-sm space-y-1">
+        <div>Server ID: <span class="text-yellow-400"><%= Rails.application.config.x.app&.server_id || 'Not configured' %></span></div>
+        <div>Bot Token: <span class="text-yellow-400"><%= ENV['DISCORD_BOT_TOKEN'].present? ? 'Configured' : 'Missing' %></span></div>
+        <div>OAuth Client ID: <span class="text-yellow-400"><%= ENV['DISCORD_CLIENT_ID'].present? ? 'Configured' : 'Missing' %></span></div>
+      </div>
+    </div>
+
+    <div class="bg-gray-700 rounded-lg p-4">
+      <h3 class="text-lg font-medium text-white mb-2">Database Configuration</h3>
+      <p class="text-gray-400 text-sm mb-3">Database connection and settings</p>
+      <div class="text-gray-300 text-sm space-y-1">
+        <div>Adapter: <span class="text-cyan-400"><%= ActiveRecord::Base.connection.adapter_name %></span></div>
+        <div>Database: <span class="text-cyan-400">
+          <% begin %>
+            <%= ActiveRecord::Base.connection.current_database %>
+          <% rescue %>
+            <%= Rails.configuration.database_configuration[Rails.env]['database'] || 'Database info unavailable' %>
+          <% end %>
+        </span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-6 text-sm text-gray-400">
+    <p><strong>Note:</strong> This section will be expanded to allow editing configuration values in future updates.</p>
+  </div>
+</div>
+  </div>
+</div>

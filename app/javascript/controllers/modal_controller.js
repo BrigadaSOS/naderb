@@ -36,7 +36,7 @@ export default class extends Controller {
     this.lastClickTime = now
 
     if (this.turboFrame) {
-      this.turboFrame.src = '/dashboard/tags'
+      this.turboFrame.src = '/dashboard/server/tags'
     }
   }
 

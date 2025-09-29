@@ -1,4 +1,4 @@
-class Dashboard::TagsController < ApplicationController
+class Dashboard::Server::TagsController < ApplicationController
   include TurboFrameOnly
 
   before_action :authenticate_user!
@@ -104,12 +104,12 @@ class Dashboard::TagsController < ApplicationController
     @tag = Tag.find_by(id: params[:id])
 
     unless @tag
-      redirect_to dashboard_tags_path, alert: "Tag not found"
+      redirect_to dashboard_server_tags_path, alert: "Tag not found"
     end
   end
 
   def tag_params
-    if current_user.admin_or_mod?
+    if current_user.discord_admin_or_mod?
       params.require(:tag).permit(:name, :content, :discord_uid)
     else
       params.require(:tag).permit(:name, :content)
@@ -123,7 +123,7 @@ class Dashboard::TagsController < ApplicationController
   end
 
   def can_edit_tag?(tag)
-    tag.user == current_user || current_user.admin_or_mod?
+    tag.user == current_user || current_user.discord_admin_or_mod?
   end
   helper_method :can_edit_tag?
 

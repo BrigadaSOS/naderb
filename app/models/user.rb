@@ -5,6 +5,17 @@ class User < ApplicationRecord
 
   has_many :tags, dependent: :destroy
 
+  enum :role, { regular_user: 0, admin: 1 }
+
+  def can_admin?
+    admin?
+  end
+
+  # Alias for convenience
+  def user?
+    regular_user?
+  end
+
   def discord_only?
     discord_only == true
   end
@@ -77,17 +88,17 @@ class User < ApplicationRecord
     raise e
   end
 
-  def has_role?(role_id)
+  def has_discord_role?(role_id)
     discord_roles.any? { |role| role["id"] == role_id }
   end
 
-  def has_any_role?(role_ids)
-    role_ids.any? { |role_id| has_role?(role_id) }
+  def has_any_discord_role?(role_ids)
+    role_ids.any? { |role_id| has_discord_role?(role_id) }
   end
 
-  def admin_or_mod?
+  def discord_admin_or_mod?
     config_roles = [ Rails.application.config.x.app.server_moderator_role_id, Rails.application.config.x.app.server_admin_role_id ].compact
-    has_any_role?(config_roles)
+    has_any_discord_role?(config_roles)
   end
 
   private

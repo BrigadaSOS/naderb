@@ -15,11 +15,23 @@ Rails.application.routes.draw do
   namespace :dashboard do
     resources :profile, only: [ :index ]
 
-    resources :tags do
-      collection do
-        get :search
-        get :by_name
+    namespace :server do
+      resources :tags do
+        collection do
+          get :search
+          get :by_name
+        end
       end
+    end
+
+    namespace :admin do
+      resources :config, only: [ :index ]
+      resources :data, only: [ :index ] do
+        member do
+          get :inspect
+        end
+      end
+      resources :bot, only: [ :index ]
     end
   end
 

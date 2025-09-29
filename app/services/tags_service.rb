@@ -23,7 +23,7 @@ class TagsService
       tag.assign_attributes(update_params)
 
       # Handle owner change if discord_uid is provided and user is admin/mod
-      if tag_params[:discord_uid].present? && @user.admin_or_mod?
+      if tag_params[:discord_uid].present? && @user.discord_admin_or_mod?
         new_owner = User.find_by(discord_uid: tag_params[:discord_uid])
         unless new_owner
           tag.errors.add(

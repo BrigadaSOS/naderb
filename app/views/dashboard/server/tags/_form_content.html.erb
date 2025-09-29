@@ -1,7 +1,7 @@
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center space-x-3">
           <h3 class="text-lg font-semibold text-white"><%= title %></h3>
-          <% if current_user.admin_or_mod? && tag.persisted? %>
+          <% if current_user.discord_admin_or_mod? && tag.persisted? %>
             <button
               data-form-toggle-target="toggleButton"
               data-action="click->form-toggle#toggle"
@@ -23,7 +23,7 @@
         </button>
       </div>
 
-      <%= form_with model: [:dashboard, tag], class: "space-y-4" do |form| %>
+      <%= form_with model: [:dashboard, :server, tag], class: "space-y-4" do |form| %>
         <% if tag.errors.any? %>
           <div class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm">
             <% tag.errors.full_messages.each do |message| %>
@@ -68,7 +68,7 @@
                          placeholder: "Enter tag content" %>
         </div>
 
-        <% if current_user.admin_or_mod? && tag.persisted? %>
+        <% if current_user.discord_admin_or_mod? && tag.persisted? %>
           <div>
             <%= form.label :discord_uid,
                        "Owner Discord UID (Admin Only)",
@@ -101,7 +101,7 @@
                           "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors" %>
             <% if tag.persisted? %>
               <%= link_to "Delete",
-              dashboard_tag_path(tag),
+              dashboard_server_tag_path(tag),
               method: :delete,
               data: {
                 confirm: "Are you sure?",

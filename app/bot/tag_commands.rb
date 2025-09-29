@@ -75,7 +75,7 @@ module TagCommands
       end
 
       # Check if user owns the tag or is admin/mod
-      unless tag.user == user || user.admin_or_mod?
+      unless tag.user == user || user.discord_admin_or_mod?
         event.edit_response(content: "❌ Solo puedes editar tus propios tags")
         next
       end
@@ -121,7 +121,7 @@ module TagCommands
       end
 
       # Check if user owns the tag or is admin/mod
-      unless tag.user == user || user.admin_or_mod?
+      unless tag.user == user || user.discord_admin_or_mod?
         event.edit_response(content: "❌ Solo puedes eliminar tus propios tags")
         next
       end
