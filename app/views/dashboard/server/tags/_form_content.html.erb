@@ -95,7 +95,7 @@
             <%= local_assigns[:read_only] ? "Close" : "Cancel" %>
           </button>
           <% unless local_assigns[:read_only] %>
-            <%= form.submit submit_text,
+            <%= form.submit local_assigns[:submit_text] || "Submit",
                         data: { form_toggle_target: "submitButton" },
                         class:
                           "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors" %>

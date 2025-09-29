@@ -5,7 +5,7 @@ class User < ApplicationRecord
 
   has_many :tags, dependent: :destroy
 
-  enum :role, { regular_user: 0, admin: 1 }
+  enum :role, { regular_user: 0, admin: 1 }, default: :regular_user
 
   def can_admin?
     admin?
