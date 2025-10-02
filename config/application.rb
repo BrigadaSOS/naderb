@@ -43,15 +43,5 @@ module Nadeshikorb
     config.i18n.available_locales = [ :es ]
     config.i18n.default_locale = :es
     config.i18n.fallbacks = [ I18n.default_locale ]
-
-    # OAuth configuration for Discord (loaded early for Devise)
-    config.x.app.oauth_client_id = ENV.fetch("DISCORD_OAUTH_CLIENT_ID")
-    config.x.app.oauth_client_secret = ENV.fetch("DISCORD_OAUTH_CLIENT_SECRET")
-    config.x.app.server_id = ENV.fetch("DISCORD_SERVER_ID")
-    config.x.app.server_invite_url = ENV.fetch("DISCORD_SERVER_INVITE_URL", "https://discord.gg/ajWm26ADEj")
-    config.x.app.server_moderator_role_id = ENV.fetch("DISCORD_SERVER_MODERATOR_ROLE_ID")
-    config.x.app.server_admin_role_id = ENV.fetch("DISCORD_SERVER_ADMIN_ROLE_ID")
-
-    config.x.discord_bot.token = ENV.fetch("DISCORD_TOKEN")
   end
 end

@@ -23,7 +23,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "discord_only users work correctly" do
     discord_user = User.new(discord_only: true)
-    web_user = User.new(discord_only: false, email: 'test@example.com')
+    web_user = User.new(discord_only: false, email: "test@example.com")
 
     assert discord_user.discord_only?
     assert_not discord_user.web_enabled?
@@ -36,12 +36,12 @@ class UserTest < ActiveSupport::TestCase
     user = User.new(role: :admin)
 
     # Mock discord roles method
-    user.stub :discord_roles, [{"id" => "test_role"}] do
+    user.stub :discord_roles, [ { "id" => "test_role" } ] do
       assert user.has_discord_role?("test_role")
       assert_not user.has_discord_role?("other_role")
 
-      assert user.has_any_discord_role?(["test_role", "another_role"])
-      assert_not user.has_any_discord_role?(["other_role", "different_role"])
+      assert user.has_any_discord_role?([ "test_role", "another_role" ])
+      assert_not user.has_any_discord_role?([ "other_role", "different_role" ])
     end
   end
 end

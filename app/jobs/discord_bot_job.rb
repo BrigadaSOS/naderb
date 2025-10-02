@@ -14,7 +14,7 @@ class DiscordBotJob < ApplicationJob
     logger.info "Starintg Discord bot..."
 
     begin
-      token = Rails.application.config.x.discord_bot.token
+      token = Setting.discord_bot_token
 
       bot = Discordrb::Bot.new(token: token, intents: [ :server_messages ])
 

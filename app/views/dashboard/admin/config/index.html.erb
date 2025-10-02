@@ -25,9 +25,9 @@
       <h3 class="text-lg font-medium text-white mb-2">Discord Integration</h3>
       <p class="text-gray-400 text-sm mb-3">Discord bot and OAuth configuration</p>
       <div class="text-gray-300 text-sm space-y-1">
-        <div>Server ID: <span class="text-yellow-400"><%= Rails.application.config.x.app&.server_id || 'Not configured' %></span></div>
-        <div>Bot Token: <span class="text-yellow-400"><%= ENV['DISCORD_BOT_TOKEN'].present? ? 'Configured' : 'Missing' %></span></div>
-        <div>OAuth Client ID: <span class="text-yellow-400"><%= ENV['DISCORD_CLIENT_ID'].present? ? 'Configured' : 'Missing' %></span></div>
+        <div>Server ID: <span class="text-yellow-400"><%= Setting.discord_server_id || 'Not configured' %></span></div>
+        <div>Bot Token: <span class="text-yellow-400"><%= Setting.discord_bot_token.present? ? 'Configured' : 'Missing' %></span></div>
+        <div>OAuth Client ID: <span class="text-yellow-400"><%= Setting.discord_oauth_client_id.present? ? 'Configured' : 'Missing' %></span></div>
       </div>
     </div>
 

@@ -28,7 +28,7 @@
         <div class="flex items-center justify-between">
           <span class="text-gray-300">Server ID</span>
           <span class="text-blue-400 font-mono text-sm">
-            <%= Rails.application.config.x.app&.server_id || 'Not configured' %>
+            <%= Setting.discord_server_id || 'Not configured' %>
           </span>
         </div>
       </div>
@@ -64,15 +64,21 @@
         <h3 class="text-white font-medium mb-2">Role Configuration</h3>
         <div class="text-sm text-gray-300 space-y-2">
           <div class="flex items-center justify-between">
-            <span>Admin Role ID</span>
+            <span>Admin Role IDs</span>
             <code class="text-red-400 bg-gray-800 px-2 py-1 rounded">
-              <%= Rails.application.config.x.app&.server_admin_role_id || 'Not set' %>
+              <%= Setting.discord_admin_roles.join(', ').presence || 'Not set' %>
             </code>
           </div>
           <div class="flex items-center justify-between">
-            <span>Moderator Role ID</span>
+            <span>Moderator Role IDs</span>
             <code class="text-yellow-400 bg-gray-800 px-2 py-1 rounded">
-              <%= Rails.application.config.x.app&.server_moderator_role_id || 'Not set' %>
+              <%= Setting.discord_moderator_roles.join(', ').presence || 'Not set' %>
+            </code>
+          </div>
+          <div class="flex items-center justify-between">
+            <span>Trusted Role IDs</span>
+            <code class="text-blue-400 bg-gray-800 px-2 py-1 rounded">
+              <%= Setting.discord_trusted_roles.join(', ').presence || 'Not set' %>
             </code>
           </div>
         </div>

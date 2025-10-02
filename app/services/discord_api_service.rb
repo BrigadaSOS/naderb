@@ -6,19 +6,18 @@ class DiscordApiService
 
   def initialize(discord_uid:)
     @user = User.find_by(discord_uid: discord_uid)
-    # @guild_id = Rails.application.config.x.app.server_id
   end
 
   def user_in_required_server?
     user_guilds = fetch_user_guilds()
     return false unless user_guilds
 
-    required_server_id = Rails.application.config.x.app.server_id
+    required_server_id = Setting.discord_server_id
     user_guilds.any? { |guild| guild["id"] == required_server_id }
   end
 
   def fetch_user_roles
-    required_server_id = Rails.application.config.x.app.server_id
+    required_server_id = Setting.discord_server_id
 
     # Use the guilds.members.read scope endpoint to get user's member info in the specific guild
     member_response = self.class.get("#{BASE_URL}/users/@me/guilds/#{required_server_id}/member", {

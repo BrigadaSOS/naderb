@@ -17,7 +17,7 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     unless discord_service.user_in_required_server?
       Rails.logger.info "User #{auth.uid} not in required Discord server, redirecting to join"
 
-      session[:discord_invite_url] = Rails.application.config.x.app.server_invite_url
+      session[:discord_invite_url] = Setting.discord_server_invite_url
       redirect_to root_path join_server_required: true
       return
     end

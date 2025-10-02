@@ -4,7 +4,7 @@ class TagsService
   end
 
   def create_tag(tag_params)
-    tag = @user.tags.build(tag_params.merge(guild_id: Rails.application.config.x.app.server_id))
+    tag = @user.tags.build(tag_params.merge(guild_id: Setting.discord_server_id))
 
     with_error_handling(tag) do
       if tag.save

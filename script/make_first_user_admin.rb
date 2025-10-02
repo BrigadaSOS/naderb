@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 # Script to promote the first user in the database to admin role
-# Usage: rails runner lib/scripts/make_first_user_admin.rb
+# Usage: rails runner script/make_first_user_admin.rb
 
-user = User.first
+user = User.find_by(email: "davafons@gmail.com")
 
 if user.nil?
   puts "❌ No users found in the database"

@@ -272,7 +272,7 @@ Devise.setup do |config|
   # Add a new OmniAuth provider. Check the wiki for more information on setting
   # up on your models and hooks.
   # config.omniauth :github, 'APP_ID', 'APP_SECRET', scope: 'user,public_repo'
-  config.omniauth :discord, Rails.application.config.x.app.oauth_client_id, Rails.application.config.x.app.oauth_client_secret, scope: "email identify guilds guilds.members.read"
+  config.omniauth :discord, ENV["DISCORD_OAUTH_CLIENT_ID"], ENV["DISCORD_OAUTH_CLIENT_SECRET"], scope: "email identify guilds guilds.members.read"
 
   # ==> Warden configuration
   # If you want to use other strategies, that are not supported by Devise, or

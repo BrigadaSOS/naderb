@@ -15,19 +15,18 @@ module TagCommands
         username: event.user.username
       )
 
-      # Create tag using TagsService
       tags_service = TagsService.new(user)
       result = tags_service.create_tag(name: name, content: content)
 
       if result[:success]
-        event.edit_response(content: "✅ Tag `#{result[:tag].name}` creado exitosamente")
+        event.edit_response(content: "✅ Se ha creado la tag `#{result[:tag].name}`")
       else
         errors = result[:tag].errors.full_messages.join(", ")
         event.edit_response(content: "❌ Error creando tag: #{errors}")
       end
     rescue => e
       Rails.logger.error "Error in tag create command: #{e.message}"
-      event.edit_response(content: "❌ Error inesperado creando tag. Inténtalo de nuevo.")
+      event.edit_response(content: "❌ Error inesperado. Inténtalo de nuevo.")
     end
   end
 
@@ -44,11 +43,11 @@ module TagCommands
           event.respond(content: "**#{tag.name}**: #{tag.content}")
         end
       else
-        event.respond(content: "❌ Tag `#{name}` no encontrado", ephemeral: true)
+        event.respond(content: "❌ No existe una tag con el nombre de `#{name}`", ephemeral: true)
       end
     rescue => e
       Rails.logger.error "Error in tag get command: #{e.message}"
-      event.respond(content: "❌ Error obteniendo tag. Inténtalo de nuevo.", ephemeral: true)
+      event.respond(content: "❌ Error inesperado. Inténtalo de nuevo.", ephemeral: true)
     end
   end
 
@@ -61,16 +60,14 @@ module TagCommands
     discord_uid = event.user.id.to_s
 
     begin
-      # Find Discord-only user
-      user = User.find_by(discord_uid: discord_uid)
-      if user.nil?
-        event.edit_response(content: "❌ Usuario no encontrado. Debes crear un tag primero.")
-        next
-      end
+      user = User.find_or_create_from_discord(
+        discord_uid: discord_uid,
+        username: event.user.username
+      )
 
       tag = Tag.find_by_name(name)
       if tag.nil?
-        event.edit_response(content: "❌ Tag `#{name}` no encontrado")
+        event.edit_response(content: "❌ No existe una tag con el nombre de `#{name}`")
         next
       end
 
@@ -89,7 +86,7 @@ module TagCommands
 
       if result[:success]
         updated_name = result[:tag].name
-        event.edit_response(content: "✅ Tag `#{updated_name}` actualizado exitosamente")
+        event.edit_response(content: "✅ Tag `#{updated_name}` actualizada")
       else
         errors = result[:tag].errors.full_messages.join(", ")
         event.edit_response(content: "❌ Error actualizando tag: #{errors}")
@@ -107,22 +104,20 @@ module TagCommands
     discord_uid = event.user.id.to_s
 
     begin
-      # Find Discord-only user
-      user = User.find_by(discord_uid: discord_uid)
-      if user.nil?
-        event.edit_response(content: "❌ Usuario no encontrado")
-        next
-      end
+      user = User.find_or_create_from_discord(
+        discord_uid: discord_uid,
+        username: event.user.username
+      )
 
       tag = Tag.find_by_name(name)
       if tag.nil?
-        event.edit_response(content: "❌ Tag `#{name}` no encontrado")
+        event.edit_response(content: "❌ No existe una tag llamada `#{name}`")
         next
       end
 
       # Check if user owns the tag or is admin/mod
       unless tag.user == user || user.discord_admin_or_mod?
-        event.edit_response(content: "❌ Solo puedes eliminar tus propios tags")
+        event.edit_response(content: "❌ Solo puedes eliminar tus propias tags")
         next
       end
 
@@ -131,7 +126,7 @@ module TagCommands
       result = tags_service.destroy_tag(tag)
 
       if result[:success]
-        event.edit_response(content: "✅ Tag `#{name}` eliminado exitosamente")
+        event.edit_response(content: "✅ Tag `#{name}` eliminada exitosamente")
       else
         errors = result[:tag].errors.full_messages.join(", ")
         event.edit_response(content: "❌ Error eliminando tag: #{errors}")
@@ -149,7 +144,6 @@ module TagCommands
       tag = Tag.find_by_name(name)
 
       if tag
-        # Wrap content in code block for raw display
         raw_content = "```\n#{tag.content}\n```"
         event.respond(content: raw_content)
       else
@@ -157,7 +151,7 @@ module TagCommands
       end
     rescue => e
       Rails.logger.error "Error in tag raw command: #{e.message}"
-      event.respond(content: "❌ Error obteniendo tag. Inténtalo de nuevo.", ephemeral: true)
+      event.respond(content: "❌ Error inesperado. Inténtalo de nuevo.", ephemeral: true)
     end
   end
 
@@ -165,7 +159,7 @@ module TagCommands
     search = event.options["search"]
 
     begin
-      guild_id = Rails.application.config.x.app.server_id
+      guild_id = Setting.discord_server_id
 
       # Get all tags for this guild
       tags = Tag.where(guild_id: guild_id)
@@ -175,12 +169,12 @@ module TagCommands
         tags = tags.where("LOWER(name) LIKE ?", "%#{search.downcase}%")
       end
 
-      tags = tags.order(:name).limit(25) # Discord embed field limit
+      tags = tags.order(:name)
 
       if tags.empty?
         message = search.present? ?
           "❌ No se encontraron tags que coincidan con '#{search}'" :
-          "❌ No hay tags creados en este servidor"
+          "❌ No hay tags en este servidor"
         event.respond(content: message, ephemeral: true)
         next
       end
@@ -189,16 +183,12 @@ module TagCommands
       if search.present?
         title = "🔍 Tags que coinciden con '#{search}' (#{tags.count})"
       else
-        total_count = Tag.where(guild_id: guild_id).count
-        showing = tags.count
-        title = showing == total_count ?
-          "📋 Todos los tags (#{total_count})" :
-          "📋 Tags (mostrando #{showing} de #{total_count})"
+        title = "📋 Todos los tags (#{total_count})"
       end
 
       # Format tag list
       tag_list = tags.map do |tag|
-        owner_name = tag.user.username || "Usuario desconocido"
+        owner_name = tag.user.username || "???"
         "• `#{tag.name}` (por #{owner_name})"
       end.join("\n")
 
@@ -213,7 +203,8 @@ module TagCommands
 
     rescue => e
       Rails.logger.error "Error in tags list command: #{e.message}"
-      event.respond(content: "❌ Error obteniendo lista de tags. Inténtalo de nuevo.", ephemeral: true)
+      event.respond(content: "❌ Error inesperado. Inténtalo de nuevo.", ephemeral: true)
     end
   end
 end
+

@@ -7,10 +7,6 @@ class User < ApplicationRecord
 
   enum :role, { regular_user: 0, admin: 1 }, default: :regular_user
 
-  def can_admin?
-    admin?
-  end
-
   # Alias for convenience
   def user?
     regular_user?
@@ -28,7 +24,7 @@ class User < ApplicationRecord
     where(discord_uid: discord_uid).first_or_create do |user|
       user.discord_uid = discord_uid
       user.username = username || "User#{discord_uid}"
-      user.provider = 'discord_bot'
+      user.provider = "discord_bot"
       user.discord_only = true
       user.password = Devise.friendly_token[0, 20]
     end
@@ -96,16 +92,27 @@ class User < ApplicationRecord
     role_ids.any? { |role_id| has_discord_role?(role_id) }
   end
 
+  def discord_admin?
+    has_any_discord_role?(Setting.discord_admin_roles)
+  end
+
+  def discord_moderator?
+    has_any_discord_role?(Setting.discord_moderator_roles)
+  end
+
+  def discord_trusted?
+    has_any_discord_role?(Setting.discord_trusted_roles)
+  end
+
   def discord_admin_or_mod?
-    config_roles = [ Rails.application.config.x.app.server_moderator_role_id, Rails.application.config.x.app.server_admin_role_id ].compact
-    has_any_discord_role?(config_roles)
+    discord_admin? || discord_moderator?
   end
 
   private
 
   # Cache user roles in memory for 1 hour
   def discord_roles
-    guild_id = Rails.application.config.x.app.server_id
+    guild_id = Setting.discord_server_id
     Rails.cache.fetch("#{guild_id}_#{discord_uid}_discord_roles", expires_in: 1.hour) do
       fetch_discord_roles
     end

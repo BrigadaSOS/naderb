@@ -27,7 +27,7 @@
       <div class="flex flex-col gap-3">
         <%= discord_button(
           t("discord.join_server"),
-          Rails.application.config.x.app.server_invite_url,
+          Setting.discord_server_invite_url,
         ) %>
 
         <%= button_to user_discord_omniauth_authorize_path,
