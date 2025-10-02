@@ -25,7 +25,12 @@ Rails.application.routes.draw do
     end
 
     namespace :admin do
-      resources :config, only: [ :index ]
+      resources :config, only: [ :index ] do
+        collection do
+          get :fetch_discord_roles
+          post :update_discord_roles
+        end
+      end
       resources :data, only: [ :index ] do
         member do
           get :inspect

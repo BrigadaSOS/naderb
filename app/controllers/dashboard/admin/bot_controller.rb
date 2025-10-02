@@ -4,6 +4,7 @@ class Dashboard::Admin::BotController < ApplicationController
   before_action :admin_required!
 
   def index
+    @commands = CommandRegistry.command_definitions
   end
 
   private

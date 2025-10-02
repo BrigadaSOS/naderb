@@ -20,8 +20,8 @@
 
         <div class="flex items-center justify-between">
           <span class="text-gray-300">Bot Token</span>
-          <span class="<%= ENV['DISCORD_BOT_TOKEN'].present? ? 'text-green-400' : 'text-red-400' %>">
-            <%= ENV['DISCORD_BOT_TOKEN'].present? ? 'Configured' : 'Missing' %>
+          <span class="<%= ENV['DISCORD_TOKEN'].present? ? 'text-green-400' : 'text-red-400' %>">
+            <%= ENV['DISCORD_TOKEN'].present? ? 'Configured' : 'Missing' %>
           </span>
         </div>
 
@@ -36,15 +36,15 @@
       <div class="space-y-4">
         <div class="flex items-center justify-between">
           <span class="text-gray-300">OAuth Client ID</span>
-          <span class="<%= ENV['DISCORD_CLIENT_ID'].present? ? 'text-green-400' : 'text-red-400' %>">
-            <%= ENV['DISCORD_CLIENT_ID'].present? ? 'Configured' : 'Missing' %>
+          <span class="<%= ENV['DISCORD_OAUTH_CLIENT_ID'].present? ? 'text-green-400' : 'text-red-400' %>">
+            <%= ENV['DISCORD_OAUTH_CLIENT_ID'].present? ? 'Configured' : 'Missing' %>
           </span>
         </div>
 
         <div class="flex items-center justify-between">
           <span class="text-gray-300">OAuth Secret</span>
-          <span class="<%= ENV['DISCORD_CLIENT_SECRET'].present? ? 'text-green-400' : 'text-red-400' %>">
-            <%= ENV['DISCORD_CLIENT_SECRET'].present? ? 'Configured' : 'Missing' %>
+          <span class="<%= ENV['DISCORD_OAUTH_CLIENT_SECRET'].present? ? 'text-green-400' : 'text-red-400' %>">
+            <%= ENV['DISCORD_OAUTH_CLIENT_SECRET'].present? ? 'Configured' : 'Missing' %>
           </span>
         </div>
 
@@ -60,45 +60,65 @@
     <h2 class="text-xl font-semibold text-white mb-4">Bot Configuration</h2>
 
     <div class="space-y-4">
-      <div class="bg-gray-700 rounded-lg p-4">
-        <h3 class="text-white font-medium mb-2">Role Configuration</h3>
-        <div class="text-sm text-gray-300 space-y-2">
-          <div class="flex items-center justify-between">
-            <span>Admin Role IDs</span>
-            <code class="text-red-400 bg-gray-800 px-2 py-1 rounded">
-              <%= Setting.discord_admin_roles.join(', ').presence || 'Not set' %>
-            </code>
-          </div>
-          <div class="flex items-center justify-between">
-            <span>Moderator Role IDs</span>
-            <code class="text-yellow-400 bg-gray-800 px-2 py-1 rounded">
-              <%= Setting.discord_moderator_roles.join(', ').presence || 'Not set' %>
-            </code>
-          </div>
-          <div class="flex items-center justify-between">
-            <span>Trusted Role IDs</span>
-            <code class="text-blue-400 bg-gray-800 px-2 py-1 rounded">
-              <%= Setting.discord_trusted_roles.join(', ').presence || 'Not set' %>
-            </code>
-          </div>
+      <details class="bg-gray-700 rounded-lg group">
+        <summary class="p-4 cursor-pointer select-none flex items-center justify-between hover:bg-gray-600/50 transition-colors rounded-lg">
+          <h3 class="text-white font-medium">Available Commands</h3>
+          <svg class="w-5 h-5 text-gray-400 transform transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </summary>
+        <div class="px-4 pb-4 pt-2 text-sm text-gray-300 space-y-3">
+          <% @commands.each do |command| %>
+            <% if command[:subcommands].present? %>
+              <% command[:subcommands].each do |subcommand| %>
+                <div class="space-y-1">
+                  <div>• <code class="text-blue-400">/<%= command[:name] %> <%= subcommand[:name] %></code> - <%= subcommand[:description] %></div>
+                  <% if subcommand[:parameters].present? %>
+                    <div class="ml-4 text-xs text-gray-400 space-y-0.5">
+                      <% subcommand[:parameters].each do |param| %>
+                        <div>
+                          <code class="text-purple-400"><%= param[:name] %></code>
+                          <span class="text-gray-500">(<%= param[:type] %>)</span>
+                          <% if param[:required] %>
+                            <span class="text-red-400">required</span>
+                          <% else %>
+                            <span class="text-green-400">optional</span>
+                          <% end %>
+                          - <%= param[:description] %>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
+            <% else %>
+              <div class="space-y-1">
+                <div>• <code class="text-blue-400">/<%= command[:name] %></code> - <%= command[:description] %></div>
+                <% if command[:parameters].present? %>
+                  <div class="ml-4 text-xs text-gray-400 space-y-0.5">
+                    <% command[:parameters].each do |param| %>
+                      <div>
+                        <code class="text-purple-400"><%= param[:name] %></code>
+                        <span class="text-gray-500">(<%= param[:type] %>)</span>
+                        <% if param[:required] %>
+                          <span class="text-red-400">required</span>
+                        <% else %>
+                          <span class="text-green-400">optional</span>
+                        <% end %>
+                        - <%= param[:description] %>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          <% end %>
         </div>
-      </div>
-
-      <div class="bg-gray-700 rounded-lg p-4">
-        <h3 class="text-white font-medium mb-2">Available Commands</h3>
-        <div class="text-sm text-gray-300 space-y-1">
-          <div>• <code class="text-blue-400">/tag create</code> - Create a new tag</div>
-          <div>• <code class="text-blue-400">/tag get</code> - Retrieve a tag</div>
-          <div>• <code class="text-blue-400">/tag edit</code> - Edit an existing tag</div>
-          <div>• <code class="text-blue-400">/tag delete</code> - Delete a tag</div>
-          <div>• <code class="text-blue-400">/tag raw</code> - Get raw tag content</div>
-          <div>• <code class="text-blue-400">/tags</code> - List all available tags</div>
-        </div>
-      </div>
+      </details>
     </div>
 
     <div class="mt-6 text-sm text-gray-400">
-      <p><strong>Note:</strong> Bot management features like restart, command registration, and live configuration editing will be added in future updates.</p>
+      <p><strong>Note:</strong> Bot management features like restart and command registration will be added in future updates. To configure role permissions, visit the <a href="<%= dashboard_admin_config_index_path %>" class="text-blue-400 hover:underline">Configuration page</a>.</p>
     </div>
   </div>
 

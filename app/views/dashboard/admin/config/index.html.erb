@@ -1,7 +1,7 @@
-<div class="flex h-full w-full">
+<div class="flex h-full w-full min-h-0">
   <%= render "dashboard/sidebar" %>
 
-  <div class="flex-1 p-6 overflow-y-auto">
+  <div class="flex-1 p-6 overflow-y-auto min-h-0">
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-white mb-2">System Configuration</h1>
       <p class="text-gray-400">Manage service configuration and settings</p>
@@ -29,6 +29,67 @@
         <div>Bot Token: <span class="text-yellow-400"><%= Setting.discord_bot_token.present? ? 'Configured' : 'Missing' %></span></div>
         <div>OAuth Client ID: <span class="text-yellow-400"><%= Setting.discord_oauth_client_id.present? ? 'Configured' : 'Missing' %></span></div>
       </div>
+    </div>
+
+    <div class="bg-gray-700 rounded-lg p-4">
+      <h3 class="text-lg font-medium text-white mb-2">Role Configuration</h3>
+      <p class="text-gray-400 text-sm mb-4">Configure which Discord roles have access to admin, moderator, and trusted features</p>
+
+      <%= form_with url: update_discord_roles_dashboard_admin_config_index_path, method: :post, data: {
+        controller: "role-config",
+        current_admin_roles: Setting.discord_admin_roles.to_json,
+        current_moderator_roles: Setting.discord_moderator_roles.to_json,
+        current_trusted_roles: Setting.discord_trusted_roles.to_json
+      } do |form| %>
+        <div class="space-y-4">
+          <!-- Admin Roles -->
+          <div>
+            <label class="block text-white text-sm font-medium mb-2">Admin Roles</label>
+            <select
+              name="admin_roles[]"
+              multiple
+              size="5"
+              data-role-config-target="adminSelect"
+              class="w-full bg-gray-800 text-white border border-gray-600 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
+              <option value="" disabled class="text-gray-400">Loading roles...</option>
+            </select>
+            <p class="text-gray-500 text-xs mt-1">Hold Ctrl/Cmd to select multiple roles</p>
+          </div>
+
+          <!-- Moderator Roles -->
+          <div>
+            <label class="block text-white text-sm font-medium mb-2">Moderator Roles</label>
+            <select
+              name="moderator_roles[]"
+              multiple
+              size="5"
+              data-role-config-target="moderatorSelect"
+              class="w-full bg-gray-800 text-white border border-gray-600 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
+              <option value="" disabled class="text-gray-400">Loading roles...</option>
+            </select>
+            <p class="text-gray-500 text-xs mt-1">Hold Ctrl/Cmd to select multiple roles</p>
+          </div>
+
+          <!-- Trusted Roles -->
+          <div>
+            <label class="block text-white text-sm font-medium mb-2">Trusted Roles</label>
+            <select
+              name="trusted_roles[]"
+              multiple
+              size="5"
+              data-role-config-target="trustedSelect"
+              class="w-full bg-gray-800 text-white border border-gray-600 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
+              <option value="" disabled class="text-gray-400">Loading roles...</option>
+            </select>
+            <p class="text-gray-500 text-xs mt-1">Hold Ctrl/Cmd to select multiple roles</p>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="flex justify-end">
+            <%= form.submit "Save Role Configuration", class: "bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded transition-colors cursor-pointer" %>
+          </div>
+        </div>
+      <% end %>
     </div>
 
     <div class="bg-gray-700 rounded-lg p-4">
