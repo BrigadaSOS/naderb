@@ -1,14 +1,13 @@
-module TagCommands
-  extend Discordrb::EventContainer
+  module TagCommands
+    extend Discordrb::EventContainer
 
-  application_command(:tag).subcommand(:create) do |event|
-    event.defer(ephemeral: true)
+    application_command(:tag).subcommand(:create) do |event|
+      event.defer(ephemeral: true)
 
-    name = event.options["name"]
-    content = event.options["content"]
-    discord_uid = event.user.id.to_s
+      name = event.options["name"]
+      content = event.options["content"]
+      discord_uid = event.user.id.to_s
 
-    begin
       # Find or create Discord-only user
       user = User.find_or_create_from_discord(
         discord_uid: discord_uid,
@@ -24,16 +23,11 @@ module TagCommands
         errors = result[:tag].errors.full_messages.join(", ")
         event.edit_response(content: "❌ Error creando tag: #{errors}")
       end
-    rescue => e
-      Rails.logger.error "Error in tag create command: #{e.message}"
-      event.edit_response(content: "❌ Error inesperado. Inténtalo de nuevo.")
     end
-  end
 
-  application_command(:tag).subcommand(:get) do |event|
-    name = event.options["name"]
+    application_command(:tag).subcommand(:get) do |event|
+      name = event.options["name"]
 
-    begin
       tag = Tag.find_by_name(name)
 
       if tag
@@ -45,21 +39,16 @@ module TagCommands
       else
         event.respond(content: "❌ No existe una tag con el nombre de `#{name}`", ephemeral: true)
       end
-    rescue => e
-      Rails.logger.error "Error in tag get command: #{e.message}"
-      event.respond(content: "❌ Error inesperado. Inténtalo de nuevo.", ephemeral: true)
     end
-  end
 
-  application_command(:tag).subcommand(:edit) do |event|
-    event.defer(ephemeral: true)
+    application_command(:tag).subcommand(:edit) do |event|
+      event.defer(ephemeral: true)
 
-    name = event.options["name"]
-    content = event.options["content"]
-    new_name = event.options["new_name"]
-    discord_uid = event.user.id.to_s
+      name = event.options["name"]
+      content = event.options["content"]
+      new_name = event.options["new_name"]
+      discord_uid = event.user.id.to_s
 
-    begin
       user = User.find_or_create_from_discord(
         discord_uid: discord_uid,
         username: event.user.username
@@ -91,19 +80,14 @@ module TagCommands
         errors = result[:tag].errors.full_messages.join(", ")
         event.edit_response(content: "❌ Error actualizando tag: #{errors}")
       end
-    rescue => e
-      Rails.logger.error "Error in tag edit command: #{e.message}"
-      event.edit_response(content: "❌ Error inesperado actualizando tag. Inténtalo de nuevo.")
     end
-  end
 
-  application_command(:tag).subcommand(:delete) do |event|
-    event.defer(ephemeral: true)
+    application_command(:tag).subcommand(:delete) do |event|
+      event.defer(ephemeral: true)
 
-    name = event.options["name"]
-    discord_uid = event.user.id.to_s
+      name = event.options["name"]
+      discord_uid = event.user.id.to_s
 
-    begin
       user = User.find_or_create_from_discord(
         discord_uid: discord_uid,
         username: event.user.username
@@ -131,16 +115,11 @@ module TagCommands
         errors = result[:tag].errors.full_messages.join(", ")
         event.edit_response(content: "❌ Error eliminando tag: #{errors}")
       end
-    rescue => e
-      Rails.logger.error "Error in tag delete command: #{e.message}"
-      event.edit_response(content: "❌ Error inesperado eliminando tag. Inténtalo de nuevo.")
     end
-  end
 
-  application_command(:tag).subcommand(:raw) do |event|
-    name = event.options["name"]
+    application_command(:tag).subcommand(:raw) do |event|
+      name = event.options["name"]
 
-    begin
       tag = Tag.find_by_name(name)
 
       if tag
@@ -149,16 +128,11 @@ module TagCommands
       else
         event.respond(content: "❌ Tag `#{name}` no encontrado", ephemeral: true)
       end
-    rescue => e
-      Rails.logger.error "Error in tag raw command: #{e.message}"
-      event.respond(content: "❌ Error inesperado. Inténtalo de nuevo.", ephemeral: true)
     end
-  end
 
-  application_command(:tags) do |event|
-    search = event.options["search"]
+    application_command(:tags) do |event|
+      search = event.options["search"]
 
-    begin
       guild_id = Setting.discord_server_id
 
       # Get all tags for this guild
@@ -183,7 +157,7 @@ module TagCommands
       if search.present?
         title = "🔍 Tags que coinciden con '#{search}' (#{tags.count})"
       else
-        title = "📋 Todos los tags (#{total_count})"
+        title = "📋 Todos los tags (#{tags.count})"
       end
 
       # Format tag list
@@ -200,11 +174,5 @@ module TagCommands
       end
 
       event.respond(content: response_content)
-
-    rescue => e
-      Rails.logger.error "Error in tags list command: #{e.message}"
-      event.respond(content: "❌ Error inesperado. Inténtalo de nuevo.", ephemeral: true)
     end
   end
-end
-

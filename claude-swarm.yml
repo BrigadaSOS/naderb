@@ -7,7 +7,7 @@ swarm:
     architect:
       description: "Rails architect coordinating full-stack development for Nadeshikorb"
       directory: .
-      model: opus
+      model: sonnet
       connections: [models, controllers, views, stimulus, jobs, tests, devops]
       prompt_file: .claude-on-rails/prompts/architect.md
       vibe: true
@@ -16,7 +16,7 @@ swarm:
     models:
       description: "ActiveRecord models, migrations, and database optimization specialist"
       directory: ./app/models
-      model: opus
+      model: sonnet
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/models.md
 
@@ -25,7 +25,7 @@ swarm:
     controllers:
       description: "Rails controllers, routing, and request handling specialist"
       directory: ./app/controllers
-      model: opus
+      model: sonnet
 
 
 
@@ -38,7 +38,7 @@ swarm:
     views:
       description: "Rails views, layouts, partials, and asset pipeline specialist"
       directory: ./app/views
-      model: opus
+      model: sonnet
 
       connections: [stimulus]
 
@@ -52,7 +52,7 @@ swarm:
     stimulus:
       description: "Stimulus.js controllers and Turbo integration specialist"
       directory: ./app/javascript
-      model: opus
+      model: sonnet
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/stimulus.md
 
@@ -62,7 +62,7 @@ swarm:
     jobs:
       description: "Background jobs, ActiveJob, and async processing specialist"
       directory: ./app/jobs
-      model: opus
+      model: sonnet
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/jobs.md
 
@@ -73,7 +73,7 @@ swarm:
     tests:
       description: "Minitest testing, factories, and test coverage specialist"
       directory: ./test
-      model: opus
+      model: sonnet
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/tests.md
 
@@ -83,6 +83,6 @@ swarm:
     devops:
       description: "Deployment, Docker, CI/CD, and production configuration specialist"
       directory: ./config
-      model: opus
+      model: sonnet
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/devops.md

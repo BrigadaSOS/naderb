@@ -1,23 +1,70 @@
-<div class="flex h-full w-full">
+<div class="flex h-full w-full" data-controller="bot-manager"
+     data-bot-manager-status-url-value="<%= status_dashboard_admin_bot_index_path %>"
+     data-bot-manager-start-url-value="<%= start_dashboard_admin_bot_index_path %>"
+     data-bot-manager-stop-url-value="<%= stop_dashboard_admin_bot_index_path %>"
+     data-bot-manager-restart-url-value="<%= restart_dashboard_admin_bot_index_path %>"
+     data-bot-manager-force-stop-url-value="<%= force_stop_dashboard_admin_bot_index_path %>">
   <%= render "dashboard/sidebar" %>
 
   <div class="flex-1 p-6 overflow-y-auto">
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-white mb-2">Discord Bot Management</h1>
-      <p class="text-gray-400">Monitor and configure the Discord bot</p>
+      <p class="text-gray-400">Monitor and control the Discord bot</p>
     </div>
 
     <div class="space-y-6">
+  <!-- Bot Control Panel -->
   <div class="bg-gray-800 rounded-lg p-6">
-    <h2 class="text-xl font-semibold text-white mb-4">Bot Status</h2>
+    <h2 class="text-xl font-semibold text-white mb-4">Bot Control</h2>
+
+    <div class="flex items-center justify-between mb-6">
+      <div class="space-y-2">
+        <div class="flex items-center gap-3">
+          <span class="text-gray-300">Status:</span>
+          <span data-bot-manager-target="status" class="text-gray-400 bg-gray-400/20 px-2 py-1 rounded text-sm">
+            <%= @bot_status[:status].to_s.titleize %>
+          </span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-gray-300">Uptime:</span>
+          <span data-bot-manager-target="uptime" class="text-blue-400 font-mono text-sm">N/A</span>
+        </div>
+      </div>
+
+      <div class="flex gap-2">
+        <button data-bot-manager-target="startBtn"
+                data-action="click->bot-manager#start"
+                class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors">
+          Start
+        </button>
+        <button data-bot-manager-target="stopBtn"
+                data-action="click->bot-manager#stop"
+                class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors">
+          Stop
+        </button>
+        <button data-bot-manager-target="restartBtn"
+                data-action="click->bot-manager#restart"
+                class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded transition-colors">
+          Restart
+        </button>
+        <button data-bot-manager-target="forceStopBtn"
+                data-action="click->bot-manager#forceStop"
+                class="px-4 py-2 bg-red-900 hover:bg-red-800 text-white rounded transition-colors border-2 border-red-500">
+          Force Stop
+        </button>
+      </div>
+    </div>
+
+    <div data-bot-manager-target="errorMessage" class="hidden bg-red-900/20 border border-red-500 rounded p-3 text-red-400 text-sm">
+    </div>
+  </div>
+
+  <!-- Bot Status -->
+  <div class="bg-gray-800 rounded-lg p-6">
+    <h2 class="text-xl font-semibold text-white mb-4">Configuration Status</h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div class="space-y-4">
-        <div class="flex items-center justify-between">
-          <span class="text-gray-300">Connection Status</span>
-          <span class="text-green-400 bg-green-400/20 px-2 py-1 rounded text-sm">Connected</span>
-        </div>
-
         <div class="flex items-center justify-between">
           <span class="text-gray-300">Bot Token</span>
           <span class="<%= ENV['DISCORD_TOKEN'].present? ? 'text-green-400' : 'text-red-400' %>">
@@ -47,22 +94,34 @@
             <%= ENV['DISCORD_OAUTH_CLIENT_SECRET'].present? ? 'Configured' : 'Missing' %>
           </span>
         </div>
-
-        <div class="flex items-center justify-between">
-          <span class="text-gray-300">Registered Commands</span>
-          <span class="text-yellow-400">Available</span>
-        </div>
       </div>
     </div>
   </div>
 
+  <!-- Bot Logs -->
   <div class="bg-gray-800 rounded-lg p-6">
-    <h2 class="text-xl font-semibold text-white mb-4">Bot Configuration</h2>
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-semibold text-white">Live Logs</h2>
+      <button data-action="click->bot-manager#clearLogs"
+              class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded transition-colors">
+        Clear
+      </button>
+    </div>
+
+    <div data-bot-manager-target="logs"
+         class="bg-gray-900 rounded p-4 h-96 overflow-y-auto font-mono text-sm space-y-1">
+      <div class="text-gray-500">Waiting for logs...</div>
+    </div>
+  </div>
+
+  <!-- Available Commands -->
+  <div class="bg-gray-800 rounded-lg p-6">
+    <h2 class="text-xl font-semibold text-white mb-4">Available Commands</h2>
 
     <div class="space-y-4">
       <details class="bg-gray-700 rounded-lg group">
         <summary class="p-4 cursor-pointer select-none flex items-center justify-between hover:bg-gray-600/50 transition-colors rounded-lg">
-          <h3 class="text-white font-medium">Available Commands</h3>
+          <h3 class="text-white font-medium">View All Commands</h3>
           <svg class="w-5 h-5 text-gray-400 transform transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
           </svg>
@@ -117,19 +176,8 @@
       </details>
     </div>
 
-    <div class="mt-6 text-sm text-gray-400">
-      <p><strong>Note:</strong> Bot management features like restart and command registration will be added in future updates. To configure role permissions, visit the <a href="<%= dashboard_admin_config_index_path %>" class="text-blue-400 hover:underline">Configuration page</a>.</p>
-    </div>
-  </div>
-
-  <div class="bg-gray-800 rounded-lg p-6">
-    <h2 class="text-xl font-semibold text-white mb-4">Usage Statistics</h2>
-
-    <div class="text-center py-8 text-gray-400">
-      <svg class="w-16 h-16 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-      </svg>
-      <p>Bot usage statistics and analytics coming soon</p>
+    <div class="mt-4 text-sm text-gray-400">
+      <p>To configure role permissions, visit the <a href="<%= dashboard_admin_config_index_path %>" class="text-blue-400 hover:underline">Configuration page</a>.</p>
     </div>
   </div>
 </div>

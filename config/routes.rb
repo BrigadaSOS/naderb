@@ -36,7 +36,15 @@ Rails.application.routes.draw do
           get :inspect
         end
       end
-      resources :bot, only: [ :index ]
+      resources :bot, only: [ :index ] do
+        collection do
+          post :start
+          post :stop
+          post :restart
+          post :force_stop
+          get :status
+        end
+      end
     end
   end
 

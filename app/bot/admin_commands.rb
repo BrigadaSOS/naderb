@@ -3,18 +3,14 @@ module AdminCommands
 
   application_command(:hora) do |event|
     event.defer(ephemeral: true)
+
     timezone = event.options["zona_horaria"]
 
-    begin
-      time_zone = Time.find_zone(timezone) || Time.zone
+    time_zone = Time.find_zone(timezone) || Time.zone
 
-      current_time = time_zone.now
-      formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S %Z")
-      event.edit_response(content: "Hora en #{time_zone.name}: #{formatted_time}")
-
-    rescue => e
-      event.edit_response(content: "Error con la hora: #{timezone}: #{e.message}")
-    end
+    current_time = time_zone.now
+    formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S %Z")
+    event.edit_response(content: "Hora en #{time_zone.name}: #{formatted_time}")
   end
 
   autocomplete(:zona_horaria) do |event|
