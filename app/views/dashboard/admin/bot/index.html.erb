@@ -116,7 +116,21 @@
 
   <!-- Available Commands -->
   <div class="bg-gray-800 rounded-lg p-6">
-    <h2 class="text-xl font-semibold text-white mb-4">Available Commands</h2>
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-semibold text-white">Available Commands</h2>
+      <div class="flex gap-2">
+        <button data-bot-manager-target="registerGuildBtn"
+                data-action="click->bot-manager#registerGuildCommands"
+                class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded transition-colors">
+          Register Guild Commands
+        </button>
+        <button data-bot-manager-target="registerGlobalBtn"
+                data-action="click->bot-manager#registerGlobalCommands"
+                class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded transition-colors">
+          Register Global Commands
+        </button>
+      </div>
+    </div>
 
     <div class="space-y-4">
       <details class="bg-gray-700 rounded-lg group">

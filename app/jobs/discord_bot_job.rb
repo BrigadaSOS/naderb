@@ -20,6 +20,12 @@ class DiscordBotJob < ApplicationJob
       bot.include!(ProfileCommands)
       bot.include!(TagCommands)
 
+      # Extend bot with command registration methods
+      bot.extend(CommandRegistration)
+
+      # Store bot instance for command registration
+      DiscordBotManagerService.set_bot_instance(bot)
+
       # Set up a ready event
       bot.ready do
         broadcast_log "Bot connected and running - entering polling loop"

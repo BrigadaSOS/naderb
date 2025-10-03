@@ -4,6 +4,7 @@ class DiscordBotManagerService
 
   @mutex = Mutex.new
   @bot_thread = nil
+  @bot_instance = nil
   @should_run = false
   @status = :stopped
   @started_at = nil
@@ -12,8 +13,11 @@ class DiscordBotManagerService
 
   class << self
     def start_bot
+      thread_id = nil
+
       @mutex.synchronize do
-        if running_or_starting?
+        # Check status without nested lock
+        if [ :running, :starting ].include?(@status) && @bot_thread&.alive?
           raise BotAlreadyRunningError, "Bot is already #{@status}"
         end
 
@@ -22,8 +26,6 @@ class DiscordBotManagerService
         @started_at = Time.current
         @stopped_at = nil
         @error_message = nil
-
-        broadcast_status
 
         # Start bot in a thread
         @bot_thread = Thread.new do
@@ -50,8 +52,11 @@ class DiscordBotManagerService
           end
         end
 
-        broadcast_log("Bot started in thread #{@bot_thread.object_id}")
+        thread_id = @bot_thread.object_id
       end
+
+      broadcast_status
+      broadcast_log("Bot started in thread #{thread_id}")
 
       { success: true, message: "Bot is starting" }
     rescue StandardError => e
@@ -64,14 +69,15 @@ class DiscordBotManagerService
 
     def stop_bot
       @mutex.synchronize do
-        unless running_or_starting?
+        # Check status without nested lock
+        unless [ :running, :starting ].include?(@status) && @bot_thread&.alive?
           raise BotNotRunningError, "Bot is not running (current status: #{@status})"
         end
 
-        broadcast_log("Initiating graceful bot shutdown...")
         @should_run = false
       end
 
+      broadcast_log("Initiating graceful bot shutdown...")
       broadcast_log("Stop signal sent - bot will disconnect gracefully")
       { success: true, message: "Bot stop signal sent - graceful shutdown in progress" }
     rescue StandardError => e
@@ -137,6 +143,44 @@ class DiscordBotManagerService
       @mutex.synchronize do
         [ :running, :starting ].include?(@status) && @bot_thread&.alive?
       end
+    end
+
+    def set_bot_instance(bot)
+      @mutex.synchronize do
+        @bot_instance = bot
+      end
+    end
+
+    def register_guild_commands
+      bot_instance = nil
+
+      @mutex.synchronize do
+        raise BotNotRunningError, "Bot is not running" unless @bot_instance
+        bot_instance = @bot_instance
+      end
+
+      bot_instance.register_all_commands(guild_only: true)
+
+      { success: true, message: "Guild commands registered" }
+    rescue StandardError => e
+      broadcast_log("Error registering guild commands: #{e.message}", "error")
+      { success: false, message: e.message }
+    end
+
+    def register_global_commands
+      bot_instance = nil
+
+      @mutex.synchronize do
+        raise BotNotRunningError, "Bot is not running" unless @bot_instance
+        bot_instance = @bot_instance
+      end
+
+      bot_instance.register_all_commands(guild_only: false)
+
+      { success: true, message: "Global commands registered (may take up to 1 hour to propagate)" }
+    rescue StandardError => e
+      broadcast_log("Error registering global commands: #{e.message}", "error")
+      { success: false, message: e.message }
     end
 
     private

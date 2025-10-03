@@ -17,6 +17,10 @@ class Setting < RailsSettings::Base
       ENV["DISCORD_TOKEN"]
     end
 
+    def discord_application_id
+      ENV["DISCORD_APPLICATION_ID"]
+    end
+
     def discord_oauth_client_id
       ENV["DISCORD_OAUTH_CLIENT_ID"]
     end

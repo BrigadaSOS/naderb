@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import { createConsumer } from "@rails/actioncable"
 
 export default class extends Controller {
-  static targets = ["status", "startBtn", "stopBtn", "restartBtn", "forceStopBtn", "logs", "uptime", "errorMessage"]
+  static targets = ["status", "startBtn", "stopBtn", "restartBtn", "forceStopBtn", "logs", "uptime", "errorMessage", "registerGuildBtn", "registerGlobalBtn"]
   static values = {
     statusUrl: String,
     startUrl: String,
@@ -123,6 +123,7 @@ export default class extends Controller {
     const isStopped = status === "stopped" || status === "error"
     const isStarting = status === "starting"
     const isStopping = status === "stopping"
+    const isRunning = status === "running"
 
     // Disable all buttons if we're in a transitional state
     const isTransitioning = isStarting || isStopping
@@ -149,6 +150,19 @@ export default class extends Controller {
       this.forceStopBtnTarget.disabled = isStopped || isTransitioning
       this.forceStopBtnTarget.classList.toggle("opacity-50", isStopped || isTransitioning)
       this.forceStopBtnTarget.classList.toggle("cursor-not-allowed", isStopped || isTransitioning)
+    }
+
+    // Registration buttons - only enabled when bot is running
+    if (this.hasRegisterGuildBtnTarget) {
+      this.registerGuildBtnTarget.disabled = !isRunning
+      this.registerGuildBtnTarget.classList.toggle("opacity-50", !isRunning)
+      this.registerGuildBtnTarget.classList.toggle("cursor-not-allowed", !isRunning)
+    }
+
+    if (this.hasRegisterGlobalBtnTarget) {
+      this.registerGlobalBtnTarget.disabled = !isRunning
+      this.registerGlobalBtnTarget.classList.toggle("opacity-50", !isRunning)
+      this.registerGlobalBtnTarget.classList.toggle("cursor-not-allowed", !isRunning)
     }
   }
 
@@ -285,6 +299,26 @@ export default class extends Controller {
     if (this.hasLogsTarget) {
       this.logsTarget.innerHTML = ""
       this.appendLog("Logs cleared", "info")
+    }
+  }
+
+  async registerGuildCommands(event) {
+    event.preventDefault()
+    if (confirm("Register all slash commands for the configured guild?\n\nThis will make commands available immediately in your Discord server.")) {
+      await this.sendCommand(
+        "/dashboard/admin/bot/register_guild_commands",
+        "Registering guild commands..."
+      )
+    }
+  }
+
+  async registerGlobalCommands(event) {
+    event.preventDefault()
+    if (confirm("Register all slash commands globally?\n\nNote: Global commands can take up to 1 hour to propagate across all Discord servers.\nFor faster updates, use guild commands instead.")) {
+      await this.sendCommand(
+        "/dashboard/admin/bot/register_global_commands",
+        "Registering global commands..."
+      )
     }
   }
 }

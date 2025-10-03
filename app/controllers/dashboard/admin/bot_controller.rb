@@ -37,6 +37,20 @@ class Dashboard::Admin::BotController < ApplicationController
     render json: result
   end
 
+  def register_guild_commands
+    result = DiscordBotManagerService.register_guild_commands
+    render json: result
+  rescue DiscordBotManagerService::BotNotRunningError => e
+    render json: { success: false, message: e.message }, status: :unprocessable_entity
+  end
+
+  def register_global_commands
+    result = DiscordBotManagerService.register_global_commands
+    render json: result
+  rescue DiscordBotManagerService::BotNotRunningError => e
+    render json: { success: false, message: e.message }, status: :unprocessable_entity
+  end
+
   private
 
   def admin_required!

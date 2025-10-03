@@ -43,6 +43,8 @@ Rails.application.routes.draw do
           post :restart
           post :force_stop
           get :status
+          post :register_guild_commands
+          post :register_global_commands
         end
       end
     end
