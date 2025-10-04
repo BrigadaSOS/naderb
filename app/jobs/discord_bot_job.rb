@@ -1,86 +1,77 @@
 class DiscordBotJob < ApplicationJob
   queue_as :discord
 
-  # Don't retry automatically - we manage state manually
-  discard_on StandardError
+  # Auto-restart on errors unless manually stopped
+  retry_on StandardError, wait: :exponentially_longer, attempts: Float::INFINITY do |_job, error|
+    next unless DiscordBotManagerService.should_run?
 
-  POLL_INTERVAL_SECONDS = 5
+    DiscordBotJob.broadcast_error("Bot crashed: #{error.message}. Restarting...")
+  end
 
-  def perform(*args)
+  def perform
+    return unless DiscordBotManagerService.should_run?
+
     broadcast_log "Starting Discord bot..."
-    bot = nil
 
-    begin
-      token = Setting.discord_bot_token
+    bot = Discordrb::Bot.new(token: Setting.discord_bot_token, intents: [ :server_messages ])
 
-      bot = Discordrb::Bot.new(token: token, intents: [ :server_messages ])
+    # Include command modules
+    bot.include!(AdminCommands)
+    bot.include!(ProfileCommands)
+    bot.include!(TagCommands)
 
-      # Include command modules
-      bot.include!(AdminCommands)
-      bot.include!(ProfileCommands)
-      bot.include!(TagCommands)
+    DiscordBotManagerService.set_bot_instance(bot)
 
-      # Extend bot with command registration methods
-      bot.extend(CommandRegistration)
+    bot.ready { broadcast_log "Bot connected and running" }
+    bot.run(:async)
 
-      # Store bot instance for command registration
-      DiscordBotManagerService.set_bot_instance(bot)
-
-      # Set up a ready event
-      bot.ready do
-        broadcast_log "Bot connected and running - entering polling loop"
-      end
-
-      # Run the bot asynchronously so we can poll for stop signal
-      broadcast_log "Starting bot in async mode..."
-      bot.run(:async)
-
-      # Poll for stop signal
-      loop do
-        unless DiscordBotManagerService.should_run?
-          broadcast_log "Stop signal detected, initiating graceful shutdown..."
-          break
-        end
-
-        sleep POLL_INTERVAL_SECONDS
-      end
-
-      # Graceful shutdown
-      broadcast_log "Calling bot.stop to disconnect gracefully..."
-      bot.stop if bot
-      broadcast_log "Bot stopped gracefully"
-
-    rescue Interrupt, SignalException => e
-      broadcast_log "Bot interrupted: #{e.class.name}"
-      bot.stop if bot
-    rescue StandardError => e
-      error_message = "Error in Discord bot: #{e.message}"
-      logger.error error_message
-      logger.error e.backtrace.join("\n")
-
-      broadcast_log "ERROR: #{error_message}"
-
-      bot.stop if bot rescue nil
-
-      raise
+    # Poll for stop signal
+    loop do
+      break unless DiscordBotManagerService.should_run?
+      sleep 5
     end
+
+    broadcast_log "Stopping bot..."
+    bot.stop
+    broadcast_log "Bot stopped gracefully"
+  rescue StandardError => e
+    broadcast_error("ERROR: #{e.message}")
+    logger.error "#{e.message}\n#{e.backtrace.join("\n")}"
+    bot&.stop rescue nil
+    raise
   end
 
   private
 
-  def broadcast_log(message, level = "info")
-    logger.public_send(level, message)
+  def broadcast_log(message)
+    logger.info message
+    broadcast(message, "info")
+  end
 
-    ActionCable.server.broadcast(
-      "bot_updates",
-      {
-        type: "log",
-        message: message,
-        timestamp: Time.current.iso8601,
-        level: level.to_s
-      }
-    )
+  def broadcast_error(message)
+    logger.error message
+    broadcast(message, "error")
+  end
+
+  def broadcast(message, level)
+    ActionCable.server.broadcast("bot_updates", {
+      type: "log",
+      message: message,
+      timestamp: Time.current.iso8601,
+      level: level
+    })
   rescue => e
-    Rails.logger.debug("Failed to broadcast log: #{e.message}")
+    Rails.logger.debug "Failed to broadcast: #{e.message}"
+  end
+
+  def self.broadcast_error(message)
+    ActionCable.server.broadcast("bot_updates", {
+      type: "log",
+      message: message,
+      timestamp: Time.current.iso8601,
+      level: "warn"
+    })
+  rescue
+    # Ignore broadcast errors in retry callback
   end
 end

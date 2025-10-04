@@ -1,21 +1,28 @@
   module TagCommands
     extend Discordrb::EventContainer
+    extend CommandRegistry::Helpers
 
-    application_command(:tag).subcommand(:create) do |event|
-      event.defer(ephemeral: true)
+    define_subcommand(:tag, :get) do |event, params|
+      tag = Tag.find_by_name(params[:name])
 
-      name = event.options["name"]
-      content = event.options["content"]
-      discord_uid = event.user.id.to_s
+      if tag
+        if tag.image_url?
+          event.respond(content: tag.content)
+        else
+          event.respond(content: "**#{tag.name}**: #{tag.content}")
+        end
+      else
+        event.respond(content: "❌ No existe una tag con el nombre de `#{params[:name]}`", ephemeral: true)
+      end
+    end
 
-      # Find or create Discord-only user
-      user = User.find_or_create_from_discord(
-        discord_uid: discord_uid,
-        username: event.user.username
-      )
+    define_subcommand(:tag, :create) do |event, params|
+      event.defer()
+
+      user = get_discord_user(event)
 
       tags_service = TagsService.new(user)
-      result = tags_service.create_tag(name: name, content: content)
+      result = tags_service.create_tag(name: params[:name], content: params[:content])
 
       if result[:success]
         event.edit_response(content: "✅ Se ha creado la tag `#{result[:tag].name}`")
@@ -25,52 +32,17 @@
       end
     end
 
-    application_command(:tag).subcommand(:get) do |event|
-      name = event.options["name"]
+    define_subcommand(:tag, :edit) do |event, params|
+      event.defer()
 
-      tag = Tag.find_by_name(name)
+      user = get_discord_user(event)
 
-      if tag
-        if tag.image_url?
-          event.respond(content: tag.content)
-        else
-          event.respond(content: "**#{tag.name}**: #{tag.content}")
-        end
-      else
-        event.respond(content: "❌ No existe una tag con el nombre de `#{name}`", ephemeral: true)
-      end
-    end
-
-    application_command(:tag).subcommand(:edit) do |event|
-      event.defer(ephemeral: true)
-
-      name = event.options["name"]
-      content = event.options["content"]
-      new_name = event.options["new_name"]
-      discord_uid = event.user.id.to_s
-
-      user = User.find_or_create_from_discord(
-        discord_uid: discord_uid,
-        username: event.user.username
-      )
-
-      tag = Tag.find_by_name(name)
-      if tag.nil?
-        event.edit_response(content: "❌ No existe una tag con el nombre de `#{name}`")
-        next
-      end
-
-      # Check if user owns the tag or is admin/mod
-      unless tag.user == user || user.admin_or_mod?
-        event.edit_response(content: "❌ Solo puedes editar tus propios tags")
-        next
-      end
-
+      tag = Tag.find_by_name(params[:name])
       # Update tag using TagsService
-      tags_service = TagsService.new(user)
-      update_params = { content: content }
-      update_params[:name] = new_name if new_name.present?
+      update_params = { content: params[:content] }
+      update_params[:name] = params[:new_name] if params[:new_name].present?
 
+      tags_service = TagsService.new(user)
       result = tags_service.update_tag(tag, update_params)
 
       if result[:success]
@@ -82,25 +54,16 @@
       end
     end
 
-    application_command(:tag).subcommand(:delete) do |event|
-      event.defer(ephemeral: true)
+    define_subcommand(:tag, :delete) do |event, params|
+      event.defer()
 
-      name = event.options["name"]
-      discord_uid = event.user.id.to_s
-
-      user = User.find_or_create_from_discord(
-        discord_uid: discord_uid,
-        username: event.user.username
-      )
-
-      tag = Tag.find_by_name(name)
+      tag = Tag.find_by_name(params[:name])
       if tag.nil?
-        event.edit_response(content: "❌ No existe una tag llamada `#{name}`")
+        event.edit_response(content: "❌ No existe una tag con el nombre de `#{params[:name]}`")
         next
       end
 
-      # Check if user owns the tag or is admin/mod
-      unless tag.user == user || user.admin_or_mod?
+      unless tag.is_editable_by(user)
         event.edit_response(content: "❌ Solo puedes eliminar tus propias tags")
         next
       end
@@ -110,52 +73,48 @@
       result = tags_service.destroy_tag(tag)
 
       if result[:success]
-        event.edit_response(content: "✅ Tag `#{name}` eliminada exitosamente")
+        event.edit_response(content: "✅ Tag `#{params[:name]}` eliminada exitosamente")
       else
         errors = result[:tag].errors.full_messages.join(", ")
         event.edit_response(content: "❌ Error eliminando tag: #{errors}")
       end
     end
 
-    application_command(:tag).subcommand(:raw) do |event|
-      name = event.options["name"]
-
-      tag = Tag.find_by_name(name)
+    define_subcommand(:tag, :raw) do |event, params|
+      tag = Tag.find_by_name(params[:name])
 
       if tag
         raw_content = "```\n#{tag.content}\n```"
         event.respond(content: raw_content)
       else
-        event.respond(content: "❌ Tag `#{name}` no encontrado", ephemeral: true)
+        event.respond(content: "❌ Tag `#{params[:name]}` no encontrado", ephemeral: true)
       end
     end
 
-    application_command(:tags) do |event|
-      search = event.options["search"]
-
+    define_command(:tags) do |event, params|
       guild_id = Setting.discord_server_id
 
       # Get all tags for this guild
       tags = Tag.where(guild_id: guild_id)
 
       # Apply search filter if provided
-      if search.present?
-        tags = tags.where("LOWER(name) LIKE ?", "%#{search.downcase}%")
+      if params[:search].present?
+        tags = tags.where("LOWER(name) LIKE ?", "%#{params[:search].downcase}%")
       end
 
       tags = tags.order(:name)
 
       if tags.empty?
-        message = search.present? ?
-          "❌ No se encontraron tags que coincidan con '#{search}'" :
+        message = params[:search].present? ?
+          "❌ No se encontraron tags que coincidan con '#{params[:search]}'" :
           "❌ No hay tags en este servidor"
         event.respond(content: message, ephemeral: true)
         next
       end
 
       # Build response
-      if search.present?
-        title = "🔍 Tags que coinciden con '#{search}' (#{tags.count})"
+      if params[:search].present?
+        title = "🔍 Tags que coinciden con '#{params[:search]}' (#{tags.count})"
       else
         title = "📋 Todos los tags (#{tags.count})"
       end
@@ -174,5 +133,40 @@
       end
 
       event.respond(content: response_content)
+    end
+
+    private
+
+    def with_discord_user(event)
+      user = User.find_or_create_from_discord(
+        discord_uid: event.user.id.to_s,
+        discord_user: event.user
+      )
+
+      if user
+        yield(user)
+      else
+        event.edit_response(content: "❌ Error inesperado")
+      end
+    end
+
+    def with_editable_tag(event, tag_name)
+      tag = Tag.find_by_name(tag_name)
+
+      if tag.nil?
+        event.edit_response(content: "❌ No existe una tag con el nombre de `#{params[:name]}`")
+        return
+      end
+
+      unless tag.is_editable_by(user)
+        event.edit_response(content: "❌ Solo puedes editar tus propias tags")
+        return
+      end
+
+      if tag
+        yield(tag)
+      else
+        event.edit_response(content: "❌ No existe una tag con el nombre de `#{tag_name}`")
+      end
     end
   end

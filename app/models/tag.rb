@@ -36,4 +36,8 @@ class Tag < ApplicationRecord
   def normalize_name
     self.name = name&.downcase&.strip
   end
+
+  def is_editable_by(user)
+    tag.user == user || user.admin_or_mod?
+  end
 end

@@ -7,11 +7,12 @@ class User < ApplicationRecord
 
   has_many :tags, dependent: :destroy
 
-  def self.find_or_create_from_discord(discord_uid:, username: nil)
+  def self.find_or_create_from_discord(discord_uid:, discord_user: nil)
     where(discord_uid: discord_uid).first_or_create do |user|
-      user.discord_uid = discord_uid
-      user.username = username || "User#{discord_uid}"
       user.provider = "discord_bot"
+      user.discord_uid = discord_uid
+      user.username = discord_user.username
+      user.display_name = discord_user.global_name
       user.password = Devise.friendly_token[0, 20]
     end
   end

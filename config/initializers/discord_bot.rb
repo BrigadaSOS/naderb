@@ -1,10 +1,7 @@
-# Discord bot is now manually controlled via the admin dashboard
-# To start the bot, go to /dashboard/admin/bot and click "Start"
-#
-# If you want to auto-start the bot on app initialization, uncomment:
-# Rails.application.config.after_initialize do
-#   DiscordBotJob.perform_later
-# end
+# Discord bot auto-starts with the Rails server
+Rails.application.config.after_initialize do
+  DiscordBotJob.perform_later
+end
 
 # Handle Ctrl+C gracefully by setting stop signal for the bot
 Signal.trap("INT") do

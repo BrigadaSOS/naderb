@@ -1,16 +1,14 @@
   module ProfileCommands
     extend Discordrb::EventContainer
+    extend CommandRegistry::Helpers
 
-    application_command(:perfil).subcommand(:info) do |event|
+    define_subcommand(:profile, :info) do | event, params |
       event.defer(ephemeral: true)
-
-      user = event.options["usuario"]
-      event.edit_response(content: "Perfil de: #{user}")
+      event.edit_response(content: "Perfil de: #{params[:user]}")
     end
 
-    application_command(:perfil).subcommand(:cumple) do |event|
+    define_subcommand(:profile, :birthday) do | event, params |
       event.defer(ephemeral: true)
-
       event.edit_response(content: "Cumpleaños")
     end
   end
