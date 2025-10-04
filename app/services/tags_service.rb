@@ -3,76 +3,95 @@ class TagsService
     @user = user
   end
 
-  def create_tag(tag_params)
+  # Creates a new tag
+  # @param tag_params [Hash] Tag attributes (name, content, etc.)
+  # @return [Tag] The created tag
+  # @raise [Tag::PermissionDenied] if user lacks create permission
+  # @raise [Tag::ValidationFailed] if tag validations fail
+  def create_tag(**tag_params)
     tag = @user.tags.build(tag_params.merge(guild_id: Setting.discord_server_id))
+    policy_for(tag).authorize_create!
 
-    with_error_handling(tag) do
-      if tag.save
-        Rails.logger.info "Tag '#{tag.name}' created successfully by user #{@user.id}"
-        { success: true, tag: tag }
-      else
-        Rails.logger.error "Failed to create tag: #{tag.errors.full_messages.join(', ')}"
-          { success: false, tag: tag }
-      end
-    end
+    db_operation(tag, :create) {
+      tag.save
+    }
   end
 
-  def update_tag(tag, tag_params)
-    with_error_handling(tag) do
-      update_params = tag_params.except(:discord_uid)
-      tag.assign_attributes(update_params)
+  # Updates an existing tag
+  # @param tag [Tag] The tag to update
+  # @param tag_params [Hash] Tag attributes to update
+  # @return [Tag] The updated tag
+  # @raise [Tag::NotFound] if tag is nil
+  # @raise [Tag::PermissionDenied] if user lacks update permission or can't change owner
+  # @raise [Tag::ValidationFailed] if tag validations fail or new owner not found
+  def update_tag(tag, **tag_params)
+    ensure_exists!(tag)
+    policy_for(tag).authorize_update!
 
-      # Handle owner change if discord_uid is provided and user is admin/mod
-      if tag_params[:discord_uid].present? && @user.admin_or_mod?
-        new_owner = User.find_by(discord_uid: tag_params[:discord_uid])
-        unless new_owner
-          tag.errors.add(
-            :base,
-            I18n.t("activerecord.errors.models.tag.attributes.discord_uid.not_found",
-                   discord_uid: tag_params[:discord_uid])
-          )
-          return { success: false, tag: tag }
-        end
-
-        update_params[:user] = new_owner
-      end
-
-      if tag.update(update_params)
-        Rails.logger.info "Tag '#{tag.name}' updated successfully by user #{@user.id}"
-        { success: true, tag: tag }
-      else
-        Rails.logger.error "Failed to update tag: #{tag.errors.full_messages.join(', ')}"
-          { success: false, tag: tag }
-      end
-    end
+    update_params = prepare_update_params(tag, tag_params)
+    db_operation(tag, :update) {
+      tag.update(update_params)
+    }
   end
 
+  # Destroys a tag
+  # @param tag [Tag] The tag to destroy
+  # @return [Tag] The destroyed tag
+  # @raise [Tag::NotFound] if tag is nil
+  # @raise [Tag::PermissionDenied] if user lacks destroy permission
+  # @raise [Tag::ValidationFailed] if destruction fails
   def destroy_tag(tag)
-    with_error_handling(tag) do
-      if tag.destroy
-        Rails.logger.info "Tag '#{tag.name}' deleted successfully by user #{@user.id}"
-        { success: true, tag: tag }
-      else
-        Rails.logger.error "Failed to delete tag: #{tag.errors.full_messages.join(', ')}"
-          tag.errors.add(:base, "Failed to delete tag")
-        { success: false, tag: tag }
-      end
-    end
+    ensure_exists!(tag)
+    policy_for(tag).authorize_destroy!
+
+    db_operation(tag, :destroy) {
+      tag.destroy
+    }
   end
 
   private
 
-  def with_error_handling(tag)
-    begin
-      yield
-    rescue ActiveRecord::ActiveRecordError => e
-      Rails.logger.error "Database error: #{e.message}"
-        tag.errors.add(:base, "An unexpected error ocurred, please retry later")
-      { success: false, tag: tag }
-    rescue => e
-      Rails.logger.error "Uncaught Exceptio: #{e.message}"
-        tag.errors.add(:base, "An unexpected error ocurred, please retry later")
-      { success: false, tag: tag }
+  def policy_for(tag)
+    TagPolicy.new(@user, tag)
+  end
+
+  def ensure_exists!(tag)
+    raise Tag::NotFound, I18n.t("tag_policy.errors.not_found") unless tag
+  end
+
+  def prepare_update_params(tag, tag_params)
+    update_params = tag_params.except(:discord_uid)
+
+    if tag_params[:discord_uid].present?
+      policy_for(tag).authorize_change_owner!
+
+      new_owner = User.find_by(discord_uid: discord_uid)
+      unless new_owner
+        tag.errors.add(:base, I18n.t("activerecord.errors.models.tag.attributes.discord_uid.not_found",
+                                    discord_uid: discord_uid))
+        raise Tag::ValidationFailed.new(tag)
+      end
+
+      update_params[:user] = new_owner
     end
+
+    update_params
+  end
+
+  # Unified logging and error handling for DB operations
+  def db_operation(tag, operation)
+    raise ArgumentError, "Block code required for db_operation" unless block_given?
+    success = yield
+
+    if success
+      Rails.logger.info "Tag '#{tag.name}' #{operation}d successfully by user #{@user.id}"
+      tag
+    else
+      Rails.logger.error "Failed to #{operation} tag: #{tag.errors.full_messages.join(', ')}"
+        raise Tag::ValidationFailed.new(tag)
+    end
+  rescue ActiveRecord::ActiveRecordError => e
+    Rails.logger.error "Database error during tag #{operation}: #{e.message}"
+      raise
   end
 end

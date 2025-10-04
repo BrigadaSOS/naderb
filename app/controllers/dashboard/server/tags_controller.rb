@@ -45,47 +45,59 @@ class Dashboard::Server::TagsController < ApplicationController
   end
 
   def create
-    result = TagsService.new(current_user).create_tag(tag_params)
+    TagsService.new(current_user).create_tag(tag_params)
 
-    if result[:success]
-      render turbo_stream: [
-        turbo_stream.replace("tags_container", partial: "tags_list", locals: { tags: Tag.all.order(created_at: :desc) }),
-        toast_success("Tag created successfully.")
-      ]
-    else
-      render partial: "form", locals: {
-        tag: result[:tag], title: "Create New Tag", submit_text: "Create Tag"
-      }
-      response.status = :unprocessable_entity
-    end
+    render turbo_stream: [
+      turbo_stream.replace("tags_container", partial: "tags_list", locals: { tags: Tag.all.order(created_at: :desc) }),
+      toast_success("Tag created successfully.")
+    ]
+  rescue Tag::PermissionDenied => e
+    render turbo_stream: toast_error(e.message), status: :forbidden
+  rescue Tag::ValidationFailed => e
+    render partial: "form", locals: {
+      tag: e.record, title: "Create New Tag", submit_text: "Create Tag"
+    }, status: :unprocessable_entity
+  rescue ActiveRecord::ActiveRecordError => e
+    Rails.logger.error "Database error creating tag: #{e.message}"
+    render turbo_stream: toast_error("Database error, please try again"), status: :service_unavailable
   end
 
   def update
-    result = TagsService.new(current_user).update_tag(@tag, tag_params)
+    TagsService.new(current_user).update_tag(@tag, tag_params)
 
-    if result[:success]
-      render turbo_stream: [
-        turbo_stream.replace("tags_container", partial: "tags_list", locals: { tags: Tag.all.order(created_at: :desc) }),
-        toast_success("Tag updated successfully.")
-      ]
-    else
-      render_tag_form(result[:tag])
-      response.status = :unprocessable_entity
-    end
+    render turbo_stream: [
+      turbo_stream.replace("tags_container", partial: "tags_list", locals: { tags: Tag.all.order(created_at: :desc) }),
+      toast_success("Tag updated successfully.")
+    ]
+  rescue Tag::PermissionDenied => e
+    render turbo_stream: toast_error(e.message), status: :forbidden
+  rescue Tag::ValidationFailed => e
+    render_tag_form(e.record)
+    response.status = :unprocessable_entity
+  rescue Tag::NotFound => e
+    redirect_to dashboard_server_tags_path, alert: e.message
+  rescue ActiveRecord::ActiveRecordError => e
+    Rails.logger.error "Database error updating tag: #{e.message}"
+    render turbo_stream: toast_error("Database error, please try again"), status: :service_unavailable
   end
 
   def destroy
-    result = TagsService.new(current_user).destroy_tag(@tag)
+    TagsService.new(current_user).destroy_tag(@tag)
 
-    if result[:success]
-      render turbo_stream: [
-        turbo_stream.replace("tags_container", partial: "tags_list", locals: { tags: Tag.all.order(created_at: :desc) }),
-        toast_success("Tag deleted successfully.")
-      ]
-    else
-      render_tag_form(@tag)
-      response.status = :unprocessable_entity
-    end
+    render turbo_stream: [
+      turbo_stream.replace("tags_container", partial: "tags_list", locals: { tags: Tag.all.order(created_at: :desc) }),
+      toast_success("Tag deleted successfully.")
+    ]
+  rescue Tag::PermissionDenied => e
+    render turbo_stream: toast_error(e.message), status: :forbidden
+  rescue Tag::ValidationFailed => e
+    render_tag_form(e.record)
+    response.status = :unprocessable_entity
+  rescue Tag::NotFound => e
+    redirect_to dashboard_server_tags_path, alert: e.message
+  rescue ActiveRecord::ActiveRecordError => e
+    Rails.logger.error "Database error deleting tag: #{e.message}"
+    render turbo_stream: toast_error("Database error, please try again"), status: :service_unavailable
   end
 
   private
@@ -115,11 +127,11 @@ class Dashboard::Server::TagsController < ApplicationController
 
 
   def can_create_tag?
-    current_user.trusted_user?(impersonated_roles: impersonated_roles) || current_user.admin_or_mod?(impersonated_roles: impersonated_roles)
+    TagPolicy.new(current_user, nil).can_create?
   end
 
   def can_edit_tag?(tag)
-    (tag.user == current_user) || current_user.admin_or_mod?(impersonated_roles: impersonated_roles)
+    TagPolicy.new(current_user, tag).can_update?
   end
   helper_method :can_edit_tag?
 

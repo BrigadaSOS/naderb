@@ -21,21 +21,15 @@ es:
     action_required: "Acción requerida"
     must_join_server: "Debes ser miembro de nuestro servidor de Discord para iniciar sesión.\n¡Únete a nuestra comunidad e inténtalo de nuevo!"
 
-  # # Common actions
-  # actions:
-  #   save: "Guardar"
-  #   cancel: "Cancelar"
-  #   edit: "Editar"
-  #   delete: "Eliminar"
-  #   create: "Crear"
-  #   update: "Actualizar"
-  #
-  # # Messages
-  # messages:
-  #   success: "Operación completada exitosamente"
-  #   error: "Ocurrió un error"
-  #   confirm_delete: "¿Estás seguro de que quieres eliminar esto?"
-  #
+  # Tag policy errors
+  tag_policy:
+    errors:
+      create: "No tienes permisos para crear tags"
+      update: "No tienes permisos para actualizar esta tag"
+      destroy: "No tienes permisos para eliminar esta tag"
+      change_owner: "Solo los administradores pueden cambiar el propietario de la tag"
+      not_found: "Tag no encontrada"
+
 
   # ActiveRecord validation errors
   activerecord:

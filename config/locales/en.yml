@@ -1,0 +1,39 @@
+en:
+  app:
+    title: "Brigada SOS"
+    name: "Brigada SOS"
+
+  # Tag policy errors
+  tag_policy:
+    errors:
+      create: "You don't have permission to create tags"
+      update: "You don't have permission to update this tag"
+      destroy: "You don't have permission to delete this tag"
+      change_owner: "Only admins can change tag ownership"
+      not_found: "Tag not found"
+
+  # ActiveRecord validation errors
+  activerecord:
+    attributes:
+      tag:
+        name: "Name"
+        content: "Content"
+    errors:
+      messages:
+        blank: "can't be blank"
+        too_long: "is too long (maximum %{count} characters)"
+        taken: "has already been taken"
+        invalid: "is invalid"
+      models:
+        tag:
+          attributes:
+            name:
+              blank: "is required"
+              too_long: "is too long (maximum %{count} characters)"
+              invalid: "can only contain letters, numbers, underscores and hyphens"
+              taken: "already exists in this server"
+            content:
+              blank: "is required"
+              too_long: "is too long (maximum %{count} characters)"
+            discord_uid:
+              not_found: "User with Discord UID '%{discord_uid}' not found"

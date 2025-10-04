@@ -1,4 +1,16 @@
 class Tag < ApplicationRecord
+  # Custom exceptions for tag operations
+  class PermissionDenied < StandardError; end
+  class ValidationFailed < StandardError
+    attr_reader :record
+
+    def initialize(record)
+      @record = record
+      super(record.errors.full_messages.join(", "))
+    end
+  end
+  class NotFound < StandardError; end
+
   before_validation :normalize_name
 
   validates :name, presence: true,
