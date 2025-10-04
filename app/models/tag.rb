@@ -1,5 +1,5 @@
 class Tag < ApplicationRecord
-  belongs_to :user
+  before_validation :normalize_name
 
   validates :name, presence: true,
                    length: { maximum: 50 },
@@ -7,9 +7,12 @@ class Tag < ApplicationRecord
                    uniqueness: { scope: :guild_id }
   validates :content, presence: true, length: { maximum: 2000 }
 
-  scope :by_name, ->(name) { where("LOWER(name) = ?", name.downcase) }
+  belongs_to :user
 
-  before_validation :normalize_name
+  # Use uuid v7
+  attribute :id, :uuid_v7, default: -> { SecureRandom.uuid_v7 }
+
+  scope :by_name, ->(name) { where("LOWER(name) = ?", name.downcase) }
 
   def self.find_by_name(name)
     by_name(name).first

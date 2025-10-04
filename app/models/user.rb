@@ -1,30 +1,11 @@
 class User < ApplicationRecord
   # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :trackable, :omniauthable, omniauth_providers: [ :discord ]
 
+  # Use uuid v7
+  attribute :id, :uuid_v7, default: -> { SecureRandom.uuid_v7 }
+
   has_many :tags, dependent: :destroy
-
-  def admin_or_mod?(impersonated_roles: nil)
-    admin?(impersonated_roles: impersonated_roles) || moderator?(impersonated_roles: impersonated_roles)
-  end
-
-  def admin?(impersonated_roles: nil)
-    has_any_discord_role?(Setting.discord_admin_roles, impersonated_roles: impersonated_roles)
-  end
-
-  def moderator?(impersonated_roles: nil)
-    has_any_discord_role?(Setting.discord_moderator_roles, impersonated_roles: impersonated_roles)
-  end
-
-  def trusted_user?(impersonated_roles: nil)
-    has_any_discord_role?(Setting.trusted_user_roles, impersonated_roles: impersonated_roles)
-  end
-
-  # Return the best available display name
-  def name
-    display_name.presence || username || email || "User #{id}"
-  end
 
   def self.find_or_create_from_discord(discord_uid:, username: nil)
     where(discord_uid: discord_uid).first_or_create do |user|
@@ -37,6 +18,7 @@ class User < ApplicationRecord
 
   def self.from_omniauth(auth)
     Rails.logger.debug "User.from_omniauth called with provider: #{auth.provider}, uid: #{auth.uid}"
+    Rails.logger.debug "ID: #{Setting.discord_server_id}"
 
     auth_attributes = {
       provider: auth.provider,
@@ -60,6 +42,7 @@ class User < ApplicationRecord
         password: Devise.friendly_token[0, 20]
       }
       user.assign_attributes(auth_attributes.merge(new_user_attributes))
+      user.save!
       Rails.logger.info "New OAuth user created with Discord UID: #{auth.uid}"
     end
 
@@ -68,6 +51,26 @@ class User < ApplicationRecord
   rescue => e
     Rails.logger.error "Error in User.from_omniauth: #{e.message}"
     raise e
+  end
+
+  def name
+    display_name.presence || username || email || "User #{id}"
+  end
+
+  def admin_or_mod?(impersonated_roles: nil)
+    admin?(impersonated_roles: impersonated_roles) || moderator?(impersonated_roles: impersonated_roles)
+  end
+
+  def admin?(impersonated_roles: nil)
+    has_any_discord_role?(Setting.discord_admin_roles, impersonated_roles: impersonated_roles)
+  end
+
+  def moderator?(impersonated_roles: nil)
+    has_any_discord_role?(Setting.discord_moderator_roles, impersonated_roles: impersonated_roles)
+  end
+
+  def trusted_user?(impersonated_roles: nil)
+    has_any_discord_role?(Setting.trusted_user_roles, impersonated_roles: impersonated_roles)
   end
 
   def has_discord_role?(role_id, impersonated_roles: nil)
@@ -88,16 +91,18 @@ class User < ApplicationRecord
     end
 
     guild_id = Setting.discord_server_id
-    Rails.cache.fetch("#{guild_id}_#{discord_uid}_discord_roles", expires_in: 1.hour) do
+    Rails.cache.fetch("#{guild_id}_#{discord_uid}_discord_roles", expires_in: 1.days) do
       fetch_discord_roles
     end
   end
 
   def fetch_discord_roles
-    discord_api = DiscordApiService.new(discord_uid: discord_uid)
-    discord_api.fetch_user_roles()
-  rescue => e
-    Rails.logger.error "Failed to fetch Discord roles for UID #{uid}: #{e.message}"
-      []
+    begin
+      discord_api = DiscordApiService.new(discord_uid: discord_uid)
+      discord_api.fetch_user_roles()
+    rescue => e
+      Rails.logger.error "Failed to fetch Discord roles for UID #{uid}: #{e.message}"
+        []
+    end
   end
 end

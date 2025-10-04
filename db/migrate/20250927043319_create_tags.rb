@@ -1,8 +1,10 @@
 class CreateTags < ActiveRecord::Migration[8.0]
   def change
-    create_table :tags do |t|
+    create_table :tags, id: false do |t|
+      t.belongs_to :user
+
+      t.binary :id, limit: 16, null: false, index: { unique: true }, primary_key: true
       t.string :guild_id, null: false
-      t.references :user, null: false, foreign_key: true
 
       t.string :name, null: false
       t.text :content, null: false

@@ -1,4 +1,3 @@
-# RailsSettings Model
 class Setting < RailsSettings::Base
   cache_prefix { "v1" }
 
@@ -11,7 +10,6 @@ class Setting < RailsSettings::Base
   field :discord_moderator_roles, type: :array, default: [], validates: { presence: true }
   field :trusted_user_roles, type: :array, default: [], validates: { presence: true }
 
-  # Sensitive values - read directly from ENV, never stored in DB
   class << self
     def discord_bot_token
       ENV["DISCORD_TOKEN"]
@@ -31,29 +29,27 @@ class Setting < RailsSettings::Base
 
     # Sync ENV vars to DB on initialization
     def sync_from_env!
-      # Server configuration
-      if ENV["DISCORD_SERVER_ID"].present?
-        self.discord_server_id = ENV["DISCORD_SERVER_ID"]
-      end
-
-      if ENV["DISCORD_SERVER_INVITE_URL"].present?
-        self.discord_server_invite_url = ENV["DISCORD_SERVER_INVITE_URL"]
-      end
-
-      # Role configurations
-      if ENV["DISCORD_ADMIN_ROLE_IDS"].present?
-        self.discord_admin_roles = ENV["DISCORD_ADMIN_ROLE_IDS"].split(",").map(&:strip).reject(&:blank?)
-      end
-
-      if ENV["DISCORD_MODERATOR_ROLE_IDS"].present?
-        self.discord_moderator_roles = ENV["DISCORD_MODERATOR_ROLE_IDS"].split(",").map(&:strip).reject(&:blank?)
-      end
-
-      if ENV["DISCORD_TRUSTED_ROLE_IDS"].present?
-        self.trusted_user_roles = ENV["DISCORD_TRUSTED_ROLE_IDS"].split(",").map(&:strip).reject(&:blank?)
-      end
+      sync_field(:discord_server_id, "DISCORD_SERVER_ID")
+      sync_field(:discord_server_invite_url, "DISCORD_SERVER_INVITE_URL")
+      sync_array_field(:discord_admin_roles, "DISCORD_ADMIN_ROLE_IDS")
+      sync_array_field(:discord_moderator_roles, "DISCORD_MODERATOR_ROLE_IDS")
+      sync_array_field(:trusted_user_roles, "DISCORD_TRUSTED_ROLE_IDS")
 
       Rails.logger.info "Discord settings synced from environment variables"
+    end
+
+    private
+
+    def sync_field(field_name, env_key)
+      value = ENV[env_key]
+      send("#{field_name}=", value) if value.present?
+    end
+
+    def sync_array_field(field_name, env_key)
+      value = ENV[env_key]
+      if value.present?
+        send("#{field_name}=", value.split(",").map(&:strip).reject(&:blank?))
+      end
     end
   end
 end

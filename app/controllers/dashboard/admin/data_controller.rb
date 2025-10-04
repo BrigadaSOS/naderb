@@ -8,7 +8,8 @@ class Dashboard::Admin::DataController < ApplicationController
 
     # Validate table exists and is safe to query
     unless valid_table?(@table_name)
-      render json: { error: "Invalid table name" }, status: :bad_request
+      @error_message = "Invalid table name"
+      render partial: "error", locals: { message: @error_message }, layout: false
       return
     end
 
@@ -24,8 +25,18 @@ class Dashboard::Admin::DataController < ApplicationController
       # Get total count
       @total_count = ApplicationRecord.connection.execute("SELECT COUNT(*) FROM #{@table_name}").first.values.first
 
-      # Get paginated data
-      @records = ApplicationRecord.connection.execute("SELECT * FROM #{@table_name} LIMIT #{per_page} OFFSET #{offset}")
+      # Get paginated data - convert binary UUIDs to strings
+      raw_records = ApplicationRecord.connection.execute("SELECT * FROM #{@table_name} LIMIT #{per_page} OFFSET #{offset}")
+      @records = raw_records.map do |record|
+        record.transform_values do |value|
+          # Convert binary data to hex string for UUIDs
+          if value.is_a?(String) && value.encoding == Encoding::ASCII_8BIT && value.length == 16
+            value.unpack1("H*").scan(/.{8}|.{4}/).join("-")
+          else
+            value
+          end
+        end
+      end
 
       # Calculate pagination info
       @current_page = page
@@ -33,25 +44,12 @@ class Dashboard::Admin::DataController < ApplicationController
       @has_next = @current_page < @total_pages
       @has_prev = @current_page > 1
 
-      respond_to do |format|
-        format.json do
-          render json: {
-            table_name: @table_name,
-            columns: @columns,
-            records: @records.to_a,
-            pagination: {
-              current_page: @current_page,
-              total_pages: @total_pages,
-              total_count: @total_count,
-              has_next: @has_next,
-              has_prev: @has_prev
-            }
-          }
-        end
-        format.html { render partial: "table_inspect" }
-      end
+      render partial: "table_inspect", layout: false
     rescue => e
-      render json: { error: "Database error: #{e.message}" }, status: :internal_server_error
+      Rails.logger.error "Database error inspecting #{@table_name}: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+      @error_message = "Database error: #{e.message}"
+      render partial: "error", locals: { message: @error_message }, layout: false
     end
   end
 

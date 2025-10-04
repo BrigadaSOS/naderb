@@ -37,11 +37,13 @@ Rails.application.routes.draw do
           post :refresh_discord_roles
         end
       end
+
       resources :data, only: [ :index ] do
         member do
           get :inspect
         end
       end
+
       resources :bot, only: [ :index ] do
         collection do
           post :start

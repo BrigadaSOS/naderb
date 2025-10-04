@@ -95,6 +95,7 @@ GEM
       io-event (~> 1.11)
       metrics (~> 0.12)
       traces (~> 0.18)
+    base58 (0.2.3)
     base64 (0.2.0)
     bcrypt (3.1.20)
     bcrypt_pbkdf (1.1.1)
@@ -430,8 +431,6 @@ GEM
     regexp_parser (2.11.3)
     reline (0.6.2)
       io-console (~> 0.5)
-    request_store (1.7.0)
-      rack (>= 1.4)
     responders (3.1.1)
       actionpack (>= 5.2)
       railties (>= 5.2)
@@ -546,6 +545,12 @@ GEM
     unicode-emoji (4.1.0)
     uri (1.0.3)
     useragent (0.16.11)
+    uuid_v7 (0.1.6.1)
+      activemodel (>= 7.0)
+      activesupport (>= 7.0)
+      base58 (~> 0.2.3)
+      securerandom (>= 0.3, < 0.5)
+      zeitwerk (~> 2.5)
     version_gem (1.1.9)
     warden (1.2.9)
       rack (>= 2.0.9)
@@ -600,7 +605,6 @@ DEPENDENCIES
   puma (>= 5.0)
   rails (~> 8.0.2)
   rails-settings-cached (~> 2.9)
-  request_store (~> 1.7)
   rubocop-rails-omakase
   selenium-webdriver
   solid_cable
@@ -612,6 +616,7 @@ DEPENDENCIES
   thruster
   turbo-rails
   tzinfo-data
+  uuid_v7 (~> 0.1.6)
   web-console
 
 BUNDLED WITH

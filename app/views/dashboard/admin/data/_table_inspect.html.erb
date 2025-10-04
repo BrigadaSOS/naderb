@@ -1,6 +1,10 @@
-<div class="bg-gray-800 rounded-lg p-6 mt-6">
+<turbo-frame id="table-inspection-results">
+  <div class="bg-gray-800 rounded-lg p-6 mt-6 mb-6">
   <div class="flex items-center justify-between mb-4">
     <h3 class="text-xl font-semibold text-white">Table: <%= @table_name %></h3>
+    <%= button_tag "✕ Close", type: "button",
+        data: { action: "click->table-inspect#close" },
+        class: "text-sm text-gray-400 hover:text-white" %>
   </div>
 
   <div class="mb-4 text-sm text-gray-300">
@@ -37,7 +41,8 @@
     <div class="flex items-center justify-between mt-4">
       <% if @has_prev %>
         <%= link_to "Previous",
-            dashboard_admin_data_inspect_path(1, table_name: @table_name, page: @current_page - 1),
+            inspect_dashboard_admin_datum_path(1, table_name: @table_name, page: @current_page - 1),
+            data: { turbo_frame: "table-inspection-results" },
             class: "text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded" %>
       <% else %>
         <div></div>
@@ -49,11 +54,13 @@
 
       <% if @has_next %>
         <%= link_to "Next",
-            dashboard_admin_data_inspect_path(1, table_name: @table_name, page: @current_page + 1),
+            inspect_dashboard_admin_datum_path(1, table_name: @table_name, page: @current_page + 1),
+            data: { turbo_frame: "table-inspection-results" },
             class: "text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded" %>
       <% else %>
         <div></div>
       <% end %>
     </div>
   <% end %>
-</div>
+  </div>
+</turbo-frame>

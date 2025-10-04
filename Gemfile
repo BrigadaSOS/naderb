@@ -85,3 +85,5 @@ gem "httparty", "~> 0.23.1"
 gem "rails-settings-cached", "~> 2.9"
 
 gem "pretender"
+
+gem "uuid_v7", "~> 0.1.6"
