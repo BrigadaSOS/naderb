@@ -3,7 +3,7 @@ class Dashboard::Server::TagsController < ApplicationController
 
   before_action :authenticate_user!
   before_action :set_tag, only: [ :show, :edit, :update, :destroy ]
-  before_action :tag_create_permission_required!, only: [ :new, :create ]
+  before_action :require_create_permission!, only: [ :new, :create ]
   before_action :require_edit_permission!, only: [ :edit, :update, :destroy ]
 
   def index
@@ -36,79 +36,47 @@ class Dashboard::Server::TagsController < ApplicationController
   end
 
   def show
-    render_tag_form(@tag, read_only: true)
+    render_tag_form(@tag)
   end
 
-
   def edit
-    render_tag_form(@tag, read_only: false)
+    render_tag_form(@tag)
   end
 
   def create
-    TagsService.new(current_user).create_tag(tag_params)
+    with_tag_service do |service|
+      service.create_tag(tag_params)
 
-    render turbo_stream: [
-      turbo_stream.replace("tags_container", partial: "tags_list", locals: { tags: Tag.all.order(created_at: :desc) }),
-      toast_success("Tag created successfully.")
-    ]
-  rescue Tag::PermissionDenied => e
-    render turbo_stream: toast_error(e.message), status: :forbidden
-  rescue Tag::ValidationFailed => e
-    render partial: "form", locals: {
-      tag: e.record, title: "Create New Tag", submit_text: "Create Tag"
-    }, status: :unprocessable_entity
-  rescue ActiveRecord::ActiveRecordError => e
-    Rails.logger.error "Database error creating tag: #{e.message}"
-    render turbo_stream: toast_error("Database error, please try again"), status: :service_unavailable
+      render turbo_stream: [
+        turbo_stream.replace("tags_container", partial: "tags_list", locals: { tags: Tag.all.order(created_at: :desc) }),
+        toast_success("Tag created successfully.")
+      ]
+    end
   end
 
   def update
-    TagsService.new(current_user).update_tag(@tag, tag_params)
+    with_tag_service do |service|
+      service.update_tag(@tag, tag_params)
 
-    render turbo_stream: [
-      turbo_stream.replace("tags_container", partial: "tags_list", locals: { tags: Tag.all.order(created_at: :desc) }),
-      toast_success("Tag updated successfully.")
-    ]
-  rescue Tag::PermissionDenied => e
-    render turbo_stream: toast_error(e.message), status: :forbidden
-  rescue Tag::ValidationFailed => e
-    render_tag_form(e.record)
-    response.status = :unprocessable_entity
-  rescue Tag::NotFound => e
-    redirect_to dashboard_server_tags_path, alert: e.message
-  rescue ActiveRecord::ActiveRecordError => e
-    Rails.logger.error "Database error updating tag: #{e.message}"
-    render turbo_stream: toast_error("Database error, please try again"), status: :service_unavailable
+      render turbo_stream: [
+        turbo_stream.replace("tags_container", partial: "tags_list", locals: { tags: Tag.all.order(created_at: :desc) }),
+        toast_success("Tag updated successfully.")
+      ]
+    end
   end
 
   def destroy
-    TagsService.new(current_user).destroy_tag(@tag)
+    with_tag_service do |serivce|
+      service.destroy_tag(@tag)
 
-    render turbo_stream: [
-      turbo_stream.replace("tags_container", partial: "tags_list", locals: { tags: Tag.all.order(created_at: :desc) }),
-      toast_success("Tag deleted successfully.")
-    ]
-  rescue Tag::PermissionDenied => e
-    render turbo_stream: toast_error(e.message), status: :forbidden
-  rescue Tag::ValidationFailed => e
-    render_tag_form(e.record)
-    response.status = :unprocessable_entity
-  rescue Tag::NotFound => e
-    redirect_to dashboard_server_tags_path, alert: e.message
-  rescue ActiveRecord::ActiveRecordError => e
-    Rails.logger.error "Database error deleting tag: #{e.message}"
-    render turbo_stream: toast_error("Database error, please try again"), status: :service_unavailable
+      render turbo_stream: [
+        turbo_stream.replace("tags_container", partial: "tags_list", locals: { tags: Tag.all.order(created_at: :desc) }),
+        toast_success("Tag deleted successfully.")
+      ]
+    end
   end
 
   private
-
-  def set_tag
-    @tag = Tag.find_by(id: params[:id])
-
-    unless @tag
-      redirect_to dashboard_server_tags_path, alert: "Tag not found"
-    end
-  end
 
   def tag_params
     if current_user.admin_or_mod?(impersonated_roles: impersonated_roles)
@@ -118,45 +86,17 @@ class Dashboard::Server::TagsController < ApplicationController
     end
   end
 
+  def set_tag
+    @tag = Tag.find_by(id: params[:id])
 
-  def tag_create_permission_required!
-    unless can_create_tag?
-      render turbo_stream: toast_error("You need a trusted role to create tags"), status: :forbidden
+    unless @tag
+      redirect_to dashboard_server_tags_path, alert: "Tag not found"
     end
   end
 
-
-  def can_create_tag?
-    TagPolicy.new(current_user, nil).can_create?
-  end
-
-  def can_edit_tag?(tag)
-    TagPolicy.new(current_user, tag).can_update?
-  end
-  helper_method :can_edit_tag?
-
-  def render_tag_form(tag, read_only: nil)
-    if turbo_frame_request?
-      # If read_only not specified, determine based on permissions
-      read_only = !can_edit_tag?(tag) if read_only.nil?
-
-      locals = {
-        tag: tag,
-        title: read_only ? "View Tag" : "Edit Tag",
-        read_only: read_only
-      }
-      locals[:submit_text] = "Update Tag" unless read_only
-
-      render partial: "form", locals: locals
-    else
-      # For full page loads, pass read_only state to the view
-      read_only = !can_edit_tag?(tag) if read_only.nil?
-
-      @tags = Tag.all.order(created_at: :desc)
-      @modal_open = true
-      @edit_tag = tag
-      @tag_read_only = read_only
-      render "index"
+  def require_create_permission!
+    unless can_create_tag?
+      render turbo_stream: toast_error("You need a trusted role to create tags"), status: :forbidden
     end
   end
 
@@ -168,6 +108,60 @@ class Dashboard::Server::TagsController < ApplicationController
       else
         redirect_to dashboard_server_tags_path, alert: "You don't have permission to edit this tag"
       end
+    end
+  end
+
+  def can_create_tag?
+    TagPolicy.new(current_user, nil).can_create?
+  end
+
+  def can_edit_tag?(tag)
+    TagPolicy.new(current_user, tag).can_update?
+  end
+  helper_method :can_edit_tag?
+
+  def with_tag_service
+    begin
+      service = TagService.new(current_user)
+      yield service
+
+    rescue Tag::PermissionDenied => e
+      render turbo_stream: toast_error(e.message), status: :forbidden
+
+    rescue Tag::ValidationFailed => e
+      render_tag_form(e.record)
+      response.status = :unprocessable_entity
+
+    rescue Tag::NotFound => e
+      redirect_to dashboard_server_tags_path, alert: e.message
+
+    rescue ActiveRecord::ActiveRecordError => e
+      render turbo_stream: toast_error("Database error, please try again"), status: :service_unavailable
+
+    rescue => e
+      render turbo_stream: toast_error("Unexpected error, please try again"), status: :service_unavailable
+      Rails.logger.error "Unexpected error via bot: #{e.message}}"
+    end
+  end
+
+  def render_tag_form(tag)
+    read_only = !can_edit_tag?(tag)
+
+    if turbo_frame_request?
+      locals = {
+        tag: tag,
+        title: read_only ? "View Tag" : "Edit Tag",
+        read_only: read_only
+      }
+      locals[:submit_text] = "Update Tag" unless read_only
+
+      render partial: "form", locals: locals
+    else
+      @tags = Tag.all.order(created_at: :desc)
+      @modal_open = true
+      @edit_tag = tag
+      @tag_read_only = read_only
+      render "index"
     end
   end
 end

@@ -18,7 +18,7 @@ module TagCommands
   define_subcommand(:tag, :create) do |event, params|
     event.defer()
 
-    self.with_tag_service(event, :creando) do |service|
+    self.with_tag_service(event) do |service|
       tag = service.create_tag(name: params[:name], content: params[:content])
 
       event.edit_response(content: "✅ Se ha creado la tag `#{tag.name}`")
@@ -28,7 +28,7 @@ module TagCommands
   define_subcommand(:tag, :edit) do |event, params|
     event.defer()
 
-    self.with_tag_service(event, :actualizando) do |service|
+    self.with_tag_service(event) do |service|
       tag = self.find_tag_or_respond!(event, params[:name])
       return unless tag
 
@@ -43,7 +43,7 @@ module TagCommands
   define_subcommand(:tag, :delete) do |event, params|
     event.defer()
 
-    self.with_tag_service(event, :eliminando) do |service|
+    self.with_tag_service(event) do |service|
       tag = self.find_tag_or_respond!(event, params[:name])
       return unless tag
 
@@ -103,30 +103,30 @@ module TagCommands
     event.edit_response(content: response_content)
   end
 
-  def self.with_tag_service(event, operation_name)
+  def self.with_tag_service(event)
     begin
       I18n.with_locale(:es) do
         user = self.get_discord_user(event)
         service = TagsService.new(user)
-        yield(service)
+        yield service
       end
 
     rescue Tag::PermissionDenied => e
-      event.edit_response(content: "❌ #{e.message}")
+      event.edit_response(content: "❌ Error: #{e.message}")
 
     rescue Tag::ValidationFailed => e
-      event.edit_response(content: "❌ Error #{operation_name} tag: #{e.message}")
+      event.edit_response(content: "❌ Error: #{e.message}")
 
     rescue Tag::NotFound => e
-      event.edit_response(content: "❌ #{e.message}")
+      event.edit_response(content: "❌ Error: #{e.message}")
 
     rescue ActiveRecord::ActiveRecordError => e
-      Rails.logger.error "Database error #{operation_name} tag via bot: #{e.message}"
+      Rails.logger.error "Database error tag via bot: #{e.message}"
         event.edit_response(content: "❌ Error de base de datos, intenta de nuevo más tarde")
 
     rescue => e
-      Rails.logger.error "Unexpected error #{operation_name} tag via bot: #{e.message}\n#{e.backtrace.join("\n")}"
-        event.edit_response(content: "❌ Error inesperado #{operation_name} tag")
+      Rails.logger.error "Unexpected error via bot: #{e.message}}"
+        event.edit_response(content: "❌ Error inesperado")
     end
   end
 
