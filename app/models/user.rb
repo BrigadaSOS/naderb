@@ -99,7 +99,7 @@ class User < ApplicationRecord
   def fetch_discord_roles
     begin
       discord_api = DiscordApiService.new(discord_uid: discord_uid)
-      discord_api.fetch_user_roles()
+      discord_api.fetch_member_info()
     rescue => e
       Rails.logger.error "Failed to fetch Discord roles for UID #{uid}: #{e.message}"
         []

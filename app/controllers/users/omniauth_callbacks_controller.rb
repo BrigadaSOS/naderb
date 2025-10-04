@@ -22,6 +22,9 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
       return
     end
 
+    # Fetch member info to update discord_joined_at and cache roles
+    discord_service.fetch_member_info
+
     sign_in_and_redirect @user, event: :authentication
   end
 

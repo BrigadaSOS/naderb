@@ -83,8 +83,9 @@ namespace :discord do
 
       synced_count = 0
       updated_count = 0
+      reactivated_count = 0
       failed_count = 0
-      removed_count = 0
+      deactivated_count = 0
 
       # Track Discord UIDs of current members
       current_member_uids = []
@@ -110,46 +111,35 @@ namespace :discord do
 
           user = User.find_or_initialize_by(discord_uid: discord_uid)
           was_new_record = user.new_record?
+          was_inactive = !was_new_record && !user.active?
 
-          # Always update username and display_name for all users
           if was_new_record
-            # New user - set all fields including provider
+            # New user - set all required fields
             user.assign_attributes(
               username: username,
               display_name: display_name,
               discord_joined_at: joined_at,
-              provider: "discord_bot"
+              provider: "discord_bot",
+              password: Devise.friendly_token[0, 20],
+              active: true
             )
-
-            # Set unique placeholder email for new users
-            if user.email.blank?
-              user.email = "discord_#{discord_uid}@placeholder.local"
-            end
-
-            # Set password if it doesn't have one
-            if user.encrypted_password.blank?
-              user.password = Devise.friendly_token[0, 20]
-            end
           else
-            # Existing user - preserve provider if it's already an OAuth user
-            update_attrs = {
+            # Existing user - update username, display_name, and ensure active
+            user.assign_attributes(
               username: username,
               display_name: display_name,
-              discord_joined_at: joined_at || user.discord_joined_at
-            }
-
-            # Only update provider if it's still the bot provider
-            if user.provider == "discord_bot"
-              update_attrs[:provider] = "discord_bot"
-            end
-
-            user.assign_attributes(update_attrs)
+              discord_joined_at: joined_at || user.discord_joined_at,
+              active: true
+            )
           end
 
           if user.save
             if was_new_record
               synced_count += 1
               puts "✓ Created user: #{display_name} (@#{username}) (#{discord_uid})"
+            elsif was_inactive
+              reactivated_count += 1
+              puts "↑ Reactivated user: #{display_name} (@#{username}) (#{discord_uid})"
             else
               updated_count += 1
               puts "↻ Updated user: #{display_name} (@#{username}) (#{discord_uid})"
@@ -164,26 +154,28 @@ namespace :discord do
         end
       end
 
-      # Remove ALL users who left the server (both OAuth and bot-created)
+      # Mark users who left the server as inactive
       puts "\nChecking for users who left the server..."
-      users_who_left = User.where.not(discord_uid: current_member_uids)
+      users_who_left = User.where.not(discord_uid: current_member_uids).where(active: true)
 
       users_who_left.each do |user|
-        oauth_status = user.discord_only? ? "bot-created" : "OAuth"
-        puts "✗ Removing user who left (#{oauth_status}): #{user.display_name || user.username} (@#{user.username}) (#{user.discord_uid})"
-        user.destroy
-        removed_count += 1
+        user.update(active: false)
+        puts "✗ Deactivated user who left: #{user.display_name || user.username} (@#{user.username}) (#{user.discord_uid})"
+        deactivated_count += 1
       end
 
       puts "\n" + "=" * 50
       puts "Sync complete!"
       puts "New users created: #{synced_count}"
       puts "Existing users updated: #{updated_count}"
-      puts "Users removed (left server): #{removed_count}"
+      puts "Users reactivated (rejoined): #{reactivated_count}"
+      puts "Users deactivated (left server): #{deactivated_count}"
       puts "Failed: #{failed_count}"
       puts "Total users in database: #{User.count}"
-      puts "Bot-created users: #{User.where(sign_in_count: [nil, 0]).count}"
-      puts "OAuth users: #{User.where.not(sign_in_count: [nil, 0]).count}"
+      puts "Active users: #{User.where(active: true).count}"
+      puts "Inactive users: #{User.where(active: false).count}"
+      puts "Bot-created users: #{User.where(provider: 'discord_bot').count}"
+      puts "OAuth users: #{User.where(provider: 'discord').count}"
       puts "=" * 50
     rescue => e
       puts "Error during sync: #{e.message}"

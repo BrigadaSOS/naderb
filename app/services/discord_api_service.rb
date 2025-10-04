@@ -16,7 +16,7 @@ class DiscordApiService
     user_guilds.any? { |guild| guild["id"] == required_server_id }
   end
 
-  def fetch_user_roles
+  def fetch_member_info
     required_server_id = Setting.discord_server_id
 
     # Use the guilds.members.read scope endpoint to get user's member info in the specific guild
@@ -77,10 +77,10 @@ class DiscordApiService
       end
     end
 
-    Rails.logger.error "Failed to fetch user roles: #{member_response.code} #{member_response.message}"
+    Rails.logger.error "Failed to fetch member info: #{member_response.code} #{member_response.message}"
     []
   rescue => e
-    Rails.logger.error "Discord API error fetching roles: #{e.message}"
+    Rails.logger.error "Discord API error fetching member info: #{e.message}"
     []
   end
 

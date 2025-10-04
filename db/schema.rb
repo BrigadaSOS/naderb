@@ -48,8 +48,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_02_130532) do
     t.string "discord_access_token"
     t.string "discord_refresh_token"
     t.datetime "discord_token_expires_at"
+    t.boolean "active", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_users_on_active"
     t.index ["discord_uid"], name: "index_users_on_discord_uid", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["id"], name: "index_users_on_id", unique: true

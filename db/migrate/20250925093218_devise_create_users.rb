@@ -29,10 +29,14 @@ class DeviseCreateUsers < ActiveRecord::Migration[8.0]
       t.string :discord_refresh_token
       t.datetime :discord_token_expires_at
 
+      # Status
+      t.boolean :active, default: true, null: false
+
       t.timestamps null: false
     end
 
     add_index :users, :email, unique: true
     add_index :users, :discord_uid, unique: true
+    add_index :users, :active
   end
 end
