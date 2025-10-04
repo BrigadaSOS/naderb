@@ -50,11 +50,4 @@ class Dashboard::Admin::BotController < ApplicationController
   rescue DiscordBotManagerService::BotNotRunningError => e
     render json: { success: false, message: e.message }, status: :unprocessable_entity
   end
-
-  private
-
-  def admin_required!
-    require_admin
-  end
 end
-

@@ -1,0 +1,101 @@
+<%
+  # Cache Discord roles for 1 day
+  discord_roles = Rails.cache.fetch("discord_guild_roles", expires_in: 1.day) do
+    begin
+      DiscordBotApiService.new.fetch_guild_roles
+    rescue => e
+      Rails.logger.error "Failed to fetch Discord roles: #{e.message}"
+      []
+    end
+  end
+%>
+
+<div class="relative" data-controller="dropdown">
+  <button
+    data-action="click->dropdown#toggle"
+    class="flex items-center space-x-2 bg-yellow-600 hover:bg-yellow-700 px-3 py-1.5 rounded text-white text-sm font-medium transition-colors duration-200 focus:outline-none"
+  >
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+    </svg>
+    <span>Dev Tools</span>
+    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+    </svg>
+  </button>
+
+  <!-- Dropdown Menu -->
+  <div data-dropdown-target="menu" class="hidden absolute right-0 mt-2 w-80 bg-gray-700 rounded-md shadow-lg border border-yellow-500 z-10">
+    <%= form_with url: dev_impersonate_path, method: :post, data: { turbo: false }, class: "p-4" do |form| %>
+      <div class="space-y-3">
+        <!-- User Selection -->
+        <div>
+          <label class="block text-white text-xs font-medium mb-1">Impersonate User</label>
+          <select
+            name="user_id"
+            class="w-full bg-gray-800 text-white text-sm border border-gray-600 rounded px-2 py-1 focus:outline-none focus:border-yellow-400">
+            <option value="">Use current user (<%= true_user&.name || current_user.name %>)</option>
+            <% User.order(:username).each do |user| %>
+              <option value="<%= user.id %>" <%= 'selected' if current_user != true_user && current_user == user %>>
+                <%= user.name %> (<%= user.email %>)
+              </option>
+            <% end %>
+          </select>
+        </div>
+
+        <!-- Discord Role Selection -->
+        <div>
+          <label class="block text-white text-xs font-medium mb-1">Impersonate Discord Roles</label>
+          <select
+            name="role_ids[]"
+            multiple
+            size="6"
+            class="w-full bg-gray-800 text-white text-sm border border-gray-600 rounded px-2 py-1 focus:outline-none focus:border-yellow-400">
+            <% if discord_roles.empty? %>
+              <option value="" disabled class="text-red-400">Failed to load roles</option>
+            <% else %>
+              <% discord_roles.each do |role| %>
+                <%
+                  is_selected = session[:impersonated_roles]&.include?(role["id"])
+                  color_style = role["color"] && role["color"] != 0 ? "color: ##{role['color'].to_s(16).rjust(6, '0')}" : ""
+                %>
+                <option value="<%= role["id"] %>" <%= 'selected' if is_selected %> style="<%= color_style %>">
+                  <%= role["name"] %>
+                </option>
+              <% end %>
+            <% end %>
+          </select>
+          <p class="text-gray-400 text-xs mt-1">Hold Ctrl/Cmd to select multiple</p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-2">
+          <%= form.submit "Apply", class: "flex-1 bg-yellow-600 hover:bg-yellow-700 text-white font-medium text-sm px-3 py-1.5 rounded transition-colors cursor-pointer" %>
+          <% end %>
+          <!-- Clear button - separate form to avoid conflicts -->
+          <%= form_with url: dev_clear_impersonation_path, method: :post, data: { turbo: false }, class: "flex-1" do %>
+            <%= button_tag "Clear", type: :submit, class: "w-full bg-gray-600 hover:bg-gray-700 text-white font-medium text-sm px-3 py-1.5 rounded transition-colors" %>
+          <% end %>
+        </div>
+      </div>
+
+    <!-- Status Display -->
+    <%
+      has_impersonated_user = current_user != true_user
+      has_impersonated_roles = session[:impersonated_roles].present? && !session[:impersonated_roles].empty?
+    %>
+    <% if has_impersonated_user || has_impersonated_roles %>
+      <div class="px-4 pb-4">
+        <div class="text-yellow-200 text-xs space-y-1">
+          <% if has_impersonated_user %>
+            <div>✓ User: <%= current_user.name %></div>
+          <% end %>
+          <% if has_impersonated_roles %>
+            <div>✓ Roles: <%= session[:impersonated_roles].size %></div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

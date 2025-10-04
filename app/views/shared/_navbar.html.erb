@@ -9,6 +9,13 @@
       </div>
       <!-- Right side: Discord Link and Profile -->
       <div class="flex items-center space-x-4">
+        <% if user_signed_in? %>
+          <!-- DEV: Role Impersonation (Development Only) -->
+          <% if Rails.env.development? %>
+            <%= render "shared/dev_impersonator" %>
+          <% end %>
+        <% end %>
+
         <!-- Discord Link -->
         <a
           href="https://discord.gg/ajWm26ADEj"

@@ -9,7 +9,7 @@ class Setting < RailsSettings::Base
   # Discord role configurations
   field :discord_admin_roles, type: :array, default: [], validates: { presence: true }
   field :discord_moderator_roles, type: :array, default: [], validates: { presence: true }
-  field :discord_trusted_roles, type: :array, default: [], validates: { presence: true }
+  field :trusted_user_roles, type: :array, default: [], validates: { presence: true }
 
   # Sensitive values - read directly from ENV, never stored in DB
   class << self
@@ -50,7 +50,7 @@ class Setting < RailsSettings::Base
       end
 
       if ENV["DISCORD_TRUSTED_ROLE_IDS"].present?
-        self.discord_trusted_roles = ENV["DISCORD_TRUSTED_ROLE_IDS"].split(",").map(&:strip).reject(&:blank?)
+        self.trusted_user_roles = ENV["DISCORD_TRUSTED_ROLE_IDS"].split(",").map(&:strip).reject(&:blank?)
       end
 
       Rails.logger.info "Discord settings synced from environment variables"

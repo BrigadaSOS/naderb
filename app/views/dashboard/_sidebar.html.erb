@@ -23,7 +23,7 @@
       </div>
     </div>
 
-    <% if current_user.discord_admin? %>
+    <% if current_user.admin?(impersonated_roles: impersonated_roles) %>
     <!-- Admin Section -->
     <div>
       <h3 class="text-sm font-semibold text-yellow-400 uppercase tracking-wider mb-3">Admin</h3>

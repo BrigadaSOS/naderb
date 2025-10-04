@@ -10,7 +10,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="bg-gray-900 text-white">
+  <body class="bg-gray-900 text-white <%= 'dev-impersonation-active' if Rails.env.development? && (session[:impersonated_user_id].present? || session[:impersonated_roles].present?) %>">
     <div class="flex h-screen">
       <!-- Sidebar -->
       <nav class="w-64 bg-gray-800 border-r border-gray-700">
@@ -58,7 +58,7 @@
           <div class="flex items-center">
             <div class="flex-1">
               <p class="text-sm text-gray-300">Logged in as</p>
-              <p class="text-white font-medium"><%= current_user.username || current_user.email %></p>
+              <p class="text-white font-medium"><%= current_user.name %></p>
             </div>
           </div>
           <div class="mt-3">

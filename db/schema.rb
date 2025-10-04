@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_02_130532) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_04_001902) do
   create_table "settings", force: :cascade do |t|
     t.string "var", null: false
     t.text "value"
@@ -46,12 +46,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_02_130532) do
     t.datetime "discord_token_expires_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "discord_only", default: false, null: false
-    t.integer "role", default: 0, null: false
+    t.string "profile_image_url"
+    t.datetime "discord_joined_at"
+    t.string "display_name"
     t.index ["discord_uid"], name: "index_users_on_discord_uid", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["provider", "discord_uid"], name: "index_users_on_provider_and_discord_uid", unique: true
-    t.index ["role"], name: "index_users_on_role"
   end
 
   add_foreign_key "tags", "users"

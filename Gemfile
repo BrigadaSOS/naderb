@@ -83,3 +83,5 @@ gem "hotwire-livereload", "~> 2.0", group: :development
 gem "httparty", "~> 0.23.1"
 
 gem "rails-settings-cached", "~> 2.9"
+
+gem "pretender"

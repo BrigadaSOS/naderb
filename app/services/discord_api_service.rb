@@ -31,6 +31,12 @@ class DiscordApiService
       member_data = member_response.parsed_response
       role_ids = member_data["roles"] || []
 
+      # Store the Discord join date if available
+      if member_data["joined_at"].present?
+        joined_at = Time.parse(member_data["joined_at"])
+        @user.update_column(:discord_joined_at, joined_at) if @user.discord_joined_at.nil? || @user.discord_joined_at != joined_at
+      end
+
       Rails.logger.info "Found #{role_ids.length} roles for user in guild #{required_server_id}"
 
       # Return role objects with IDs

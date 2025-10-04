@@ -8,6 +8,12 @@ Rails.application.routes.draw do
 
   get "up" => "rails/health#show", as: :rails_health_check
 
+  # Development-only routes
+  if Rails.env.development?
+    post "/dev/impersonate", to: "dev#impersonate", as: :dev_impersonate
+    post "/dev/clear_impersonation", to: "dev#clear_impersonation", as: :dev_clear_impersonation
+  end
+
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
@@ -27,8 +33,8 @@ Rails.application.routes.draw do
     namespace :admin do
       resources :config, only: [ :index ] do
         collection do
-          get :fetch_discord_roles
           post :update_discord_roles
+          post :refresh_discord_roles
         end
       end
       resources :data, only: [ :index ] do

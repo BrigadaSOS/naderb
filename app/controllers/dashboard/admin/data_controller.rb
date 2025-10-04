@@ -3,15 +3,12 @@ class Dashboard::Admin::DataController < ApplicationController
   before_action :authenticate_user!
   before_action :admin_required!
 
-  def index
-  end
-
   def inspect
     @table_name = params[:table_name]
 
     # Validate table exists and is safe to query
     unless valid_table?(@table_name)
-      render json: { error: 'Invalid table name' }, status: :bad_request
+      render json: { error: "Invalid table name" }, status: :bad_request
       return
     end
 
@@ -51,7 +48,7 @@ class Dashboard::Admin::DataController < ApplicationController
             }
           }
         end
-        format.html { render partial: 'table_inspect' }
+        format.html { render partial: "table_inspect" }
       end
     rescue => e
       render json: { error: "Database error: #{e.message}" }, status: :internal_server_error
@@ -60,18 +57,15 @@ class Dashboard::Admin::DataController < ApplicationController
 
   private
 
-  def admin_required!
-    require_admin
-  end
-
   def valid_table?(table_name)
     return false if table_name.blank?
 
     # Only allow actual database tables, exclude Rails internal tables
     allowed_tables = ApplicationRecord.connection.tables.reject do |table|
-      table.start_with?('ar_') || table == 'schema_migrations'
+      table.start_with?("ar_") || table == "schema_migrations"
     end
 
     allowed_tables.include?(table_name)
   end
 end
+

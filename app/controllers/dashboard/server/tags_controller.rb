@@ -3,8 +3,8 @@ class Dashboard::Server::TagsController < ApplicationController
 
   before_action :authenticate_user!
   before_action :set_tag, only: [ :show, :edit, :update, :destroy ]
-  before_action :check_create_permissions, only: [ :new, :create ]
-  before_action :check_edit_permissions, only: [ :update, :destroy ]
+  before_action :tag_create_permission_required!, only: [ :new, :create ]
+  before_action :require_edit_permission!, only: [ :edit, :update, :destroy ]
 
   def index
     @tags = Tag.all
@@ -36,12 +36,12 @@ class Dashboard::Server::TagsController < ApplicationController
   end
 
   def show
-    render_edit_form(@tag)
+    render_tag_form(@tag, read_only: true)
   end
 
 
   def edit
-    render_edit_form(@tag)
+    render_tag_form(@tag, read_only: false)
   end
 
   def create
@@ -69,7 +69,7 @@ class Dashboard::Server::TagsController < ApplicationController
         toast_success("Tag updated successfully.")
       ]
     else
-      render_edit_form(result[:tag])
+      render_tag_form(result[:tag])
       response.status = :unprocessable_entity
     end
   end
@@ -83,14 +83,12 @@ class Dashboard::Server::TagsController < ApplicationController
         toast_success("Tag deleted successfully.")
       ]
     else
-      render_edit_form(@tag)
+      render_tag_form(@tag)
       response.status = :unprocessable_entity
     end
   end
 
-
   private
-
 
   def set_tag
     @tag = Tag.find_by(id: params[:id])
@@ -101,53 +99,63 @@ class Dashboard::Server::TagsController < ApplicationController
   end
 
   def tag_params
-    if current_user.discord_admin_or_mod?
+    if current_user.admin_or_mod?(impersonated_roles: impersonated_roles)
       params.require(:tag).permit(:name, :content, :discord_uid)
     else
       params.require(:tag).permit(:name, :content)
     end
   end
 
-  def check_create_permissions
+
+  def tag_create_permission_required!
     unless can_create_tag?
       render turbo_stream: toast_error("You need a trusted role to create tags"), status: :forbidden
     end
   end
 
-  def check_edit_permissions
-    unless can_edit_tag?(@tag)
-      render turbo_stream: toast_error("You do not have permission to edit this tag"), status: :forbidden
-    end
-  end
 
   def can_create_tag?
-    current_user.discord_trusted? || current_user.discord_admin_or_mod?
+    current_user.trusted_user?(impersonated_roles: impersonated_roles) || current_user.admin_or_mod?(impersonated_roles: impersonated_roles)
   end
-  helper_method :can_create_tag?
 
   def can_edit_tag?(tag)
-    # Owner can edit if they have trusted role, or admin/mod can always edit
-    (tag.user == current_user && current_user.discord_trusted?) || current_user.discord_admin_or_mod?
+    (tag.user == current_user) || current_user.admin_or_mod?(impersonated_roles: impersonated_roles)
   end
   helper_method :can_edit_tag?
 
-  def render_edit_form(tag)
+  def render_tag_form(tag, read_only: nil)
     if turbo_frame_request?
-      read_only = true unless can_edit_tag?(@tag)
+      # If read_only not specified, determine based on permissions
+      read_only = !can_edit_tag?(tag) if read_only.nil?
 
       locals = {
-        tag: @tag,
-        title: read_only ? "View Tag" : "Edit Tag"
+        tag: tag,
+        title: read_only ? "View Tag" : "Edit Tag",
+        read_only: read_only
       }
       locals[:submit_text] = "Update Tag" unless read_only
-      locals[:read_only] = true if read_only
 
       render partial: "form", locals: locals
     else
+      # For full page loads, pass read_only state to the view
+      read_only = !can_edit_tag?(tag) if read_only.nil?
+
       @tags = Tag.all.order(created_at: :desc)
       @modal_open = true
       @edit_tag = tag
+      @tag_read_only = read_only
       render "index"
+    end
+  end
+
+  def require_edit_permission!
+    unless can_edit_tag?(@tag)
+      # For turbo frame requests, redirect within the frame
+      if turbo_frame_request?
+        redirect_to dashboard_server_tag_path(@tag), status: :see_other
+      else
+        redirect_to dashboard_server_tags_path, alert: "You don't have permission to edit this tag"
+      end
     end
   end
 end

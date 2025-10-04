@@ -1,16 +1,5 @@
       <div class="flex items-center justify-between mb-4">
-        <div class="flex items-center space-x-3">
-          <h3 class="text-lg font-semibold text-white"><%= title %></h3>
-          <% if current_user.discord_admin_or_mod? && tag.persisted? %>
-            <button
-              data-form-toggle-target="toggleButton"
-              data-action="click->form-toggle#toggle"
-              class="<%= local_assigns[:read_only] ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-600 hover:bg-gray-700' %> text-white px-3 py-1 rounded text-sm transition-colors"
-            >
-              <%= local_assigns[:read_only] ? "Edit" : "View" %>
-            </button>
-          <% end %>
-        </div>
+        <h3 class="text-lg font-semibold text-white"><%= title %></h3>
         <button data-action="click->modal#close" class="text-gray-400 hover:text-white">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -68,10 +57,13 @@
                          placeholder: "Enter tag content" %>
         </div>
 
-        <% if current_user.discord_admin_or_mod? && tag.persisted? %>
+        <% if current_user.admin_or_mod?(impersonated_roles: impersonated_roles) && tag.persisted? %>
+          <!-- Admin Section Separator -->
+          <hr class="border-gray-600">
+
           <div>
             <%= form.label :discord_uid,
-                       "Owner Discord UID (Admin Only)",
+                       "Owner Discord UID",
                        class: "block text-sm font-medium text-gray-300 mb-1" %>
             <%= text_field :tag,
             :discord_uid,
@@ -82,7 +74,7 @@
               "w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 #{'cursor-not-allowed opacity-60' if local_assigns[:read_only]} #{'focus:outline-none focus:ring-2 focus:ring-blue-500' unless local_assigns[:read_only]}",
             placeholder: "Enter Discord UID to change owner" %>
             <p class="text-xs text-gray-400 mt-1">Current owner:
-              <%= tag.user.username %></p>
+              <%= tag.user.name %></p>
           </div>
         <% end %>
 
@@ -94,7 +86,14 @@
           >
             <%= local_assigns[:read_only] ? "Close" : "Cancel" %>
           </button>
-          <% unless local_assigns[:read_only] %>
+          <% if local_assigns[:read_only] %>
+            <% if can_edit_tag?(tag) %>
+              <%= link_to "Edit Tag",
+                  edit_dashboard_server_tag_path(tag),
+                  data: { turbo_frame: "tag_form" },
+                  class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors" %>
+            <% end %>
+          <% else %>
             <%= form.submit local_assigns[:submit_text] || "Submit",
                         data: { form_toggle_target: "submitButton" },
                         class:

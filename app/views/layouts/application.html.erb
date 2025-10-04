@@ -22,7 +22,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="bg-gray-900 text-white h-screen overflow-hidden flex flex-col">
+  <body class="bg-gray-900 text-white h-screen overflow-hidden flex flex-col <%= 'dev-impersonation-active' if Rails.env.development? && (session[:impersonated_user_id].present? || session[:impersonated_roles].present?) %>">
     <!-- Toast Notifications -->
     <div id="toast_container" class="fixed bottom-4 right-4 z-50 space-y-4 max-w-xs w-full">
       <% if notice %>

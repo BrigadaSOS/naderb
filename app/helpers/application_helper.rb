@@ -74,4 +74,22 @@ module ApplicationHelper
       end
     end
   end
+
+  def time_ago_in_words_detailed(from_time)
+    return "" unless from_time
+
+    distance = Time.current - from_time
+    days = (distance / 1.day).floor
+    years = days / 365
+    remaining_days = days % 365
+    months = remaining_days / 30
+    remaining_days = remaining_days % 30
+
+    parts = []
+    parts << "#{years} #{'year'.pluralize(years)}" if years > 0
+    parts << "#{months} #{'month'.pluralize(months)}" if months > 0
+    parts << "#{remaining_days} #{'day'.pluralize(remaining_days)}" if remaining_days > 0 && years == 0
+
+    parts.any? ? "(#{parts.join(' ')} ago)" : "(less than a day ago)"
+  end
 end

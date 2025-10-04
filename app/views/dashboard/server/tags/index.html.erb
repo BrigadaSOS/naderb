@@ -51,30 +51,28 @@
       </div>
     </div>
     <!-- Tag Modal (Create/Edit/View) -->
-    <div
+    <dialog
       id="tagModal"
-      class="fixed inset-0 bg-black/80 <%= @modal_open ? 'flex' : 'hidden' %> items-center justify-center z-50"
+      class="bg-gray-800 rounded-lg"
       data-controller="modal"
       data-action="click->modal#closeOnBackdrop"
     >
-      <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
-        <div data-modal-target="form">
-          <%= turbo_frame_tag "tag_form", data: { turbo_action: "advance" } do %>
-            <% if @modal_open && @edit_tag %>
-              <% if can_edit_tag?(@edit_tag) %>
-                <%= render "form", tag: @edit_tag, title: "Edit Tag", submit_text: "Update Tag" %>
-              <% else %>
-                <%= render "form", tag: @edit_tag, title: "View Tag", read_only: true %>
-              <% end %>
-            <% elsif @modal_open && @new_tag %>
-              <%= render "form", tag: @new_tag, title: "Create New Tag", submit_text: "Create Tag" %>
+      <div data-modal-target="form">
+        <%= turbo_frame_tag "tag_form", data: { turbo_action: "advance" } do %>
+          <% if @modal_open && @edit_tag %>
+            <% if @tag_read_only %>
+              <%= render "form", tag: @edit_tag, title: "View Tag", read_only: true %>
             <% else %>
-              <!-- Initial empty state - will be replaced by controller -->
+              <%= render "form", tag: @edit_tag, title: "Edit Tag", submit_text: "Update Tag" %>
             <% end %>
+          <% elsif @modal_open && @new_tag %>
+            <%= render "form", tag: @new_tag, title: "Create New Tag", submit_text: "Create Tag" %>
+          <% else %>
+            <!-- Initial empty state - will be replaced by controller -->
           <% end %>
-        </div>
+        <% end %>
       </div>
-    </div>
+    </dialog>
 
   </div>
 </div>

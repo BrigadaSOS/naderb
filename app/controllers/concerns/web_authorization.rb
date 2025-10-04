@@ -1,46 +1,34 @@
 module WebAuthorization
   extend ActiveSupport::Concern
 
-  private
-
-  def require_admin
-    unless current_user&.discord_admin?
-      redirect_to root_path, alert: "Access denied."
-    end
-  end
-
-  def require_moderator
-    unless current_user&.discord_moderator?
-      redirect_to root_path, alert: "Access denied."
-    end
-  end
-
-  def require_admin_or_moderator
-    unless current_user&.discord_admin_or_mod?
-      redirect_to root_path, alert: "Access denied."
-    end
-  end
-
-  def require_trusted
-    unless current_user&.discord_trusted?
-      redirect_to root_path, alert: "Access denied."
-    end
-  end
-
   def admin_required!
-    require_admin
-  end
-
-  def moderator_required!
-    require_moderator
+    unless current_user&.admin?(impersonated_roles: impersonated_roles)
+      redirect_to root_path, alert: "Access denied."
+    end
   end
 
   def admin_or_moderator_required!
-    require_admin_or_moderator
+    unless current_user&.admin_or_mod?(impersonated_roles: impersonated_roles)
+      redirect_to root_path, alert: "Access denied."
+    end
   end
 
   def trusted_required!
-    require_trusted
+    unless current_user&.trusted_user?(impersonated_roles: impersonated_roles)
+      redirect_to root_path, alert: "Access denied."
+    end
+  end
+
+  # Allow admins or in development mode for dev tools
+  def admin_or_dev_required!
+    unless current_user&.admin?(impersonated_roles: impersonated_roles) || Rails.env.development?
+      redirect_to root_path, alert: "Access denied."
+    end
+  end
+
+  private
+
+  def impersonated_roles
+    Rails.env.development? ? session[:impersonated_roles] : nil
   end
 end
-

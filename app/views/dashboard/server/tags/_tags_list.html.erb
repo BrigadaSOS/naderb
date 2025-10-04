@@ -7,16 +7,7 @@
     "
   >
     <% tags.each do |tag| %>
-      <% can_edit =
-        tag.user == current_user ||
-          current_user.has_any_discord_role?(
-            %w[admin manager] +
-              [
-                Rails.application.config.x.server_moderator_role_id,
-                Rails.application.config.x.server_admin_role_id,
-              ].compact,
-          ) %>
-      <% url = can_edit ? edit_dashboard_server_tag_path(tag) : dashboard_server_tag_path(tag) %>
+      <% url = can_edit_tag?(tag) ? edit_dashboard_server_tag_path(tag) : dashboard_server_tag_path(tag) %>
 
       <%= link_to url, data: { turbo_frame: "tag_form" }, class: "block bg-gray-700 rounded-lg p-4 hover:bg-gray-600 transition-colors cursor-pointer h-full flex flex-col" do %>
         <h3 class="text-white font-semibold text-sm mb-2 truncate"><%= tag.name %></h3>
@@ -39,7 +30,7 @@
 
         <div class="text-gray-400 text-xs border-t border-gray-600 pt-2 mt-auto">
           <span class="block truncate">
-            Created by <%= tag.user.username %>
+            Created by <%= tag.user.name %>
           </span>
         </div>
       <% end %>

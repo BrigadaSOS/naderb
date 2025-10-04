@@ -358,6 +358,8 @@ GEM
       racc
     pp (0.6.2)
       prettyprint
+    pretender (0.6.0)
+      actionpack (>= 7.1)
     prettyprint (0.2.0)
     prism (1.5.1)
     propshaft (1.2.1)
@@ -428,6 +430,8 @@ GEM
     regexp_parser (2.11.3)
     reline (0.6.2)
       io-console (~> 0.5)
+    request_store (1.7.0)
+      rack (>= 1.4)
     responders (3.1.1)
       actionpack (>= 5.2)
       railties (>= 5.2)
@@ -591,10 +595,12 @@ DEPENDENCIES
   omniauth (~> 2.1)
   omniauth-discord (~> 1.2)
   omniauth-rails_csrf_protection (~> 1.0)
+  pretender
   propshaft
   puma (>= 5.0)
   rails (~> 8.0.2)
   rails-settings-cached (~> 2.9)
+  request_store (~> 1.7)
   rubocop-rails-omakase
   selenium-webdriver
   solid_cable

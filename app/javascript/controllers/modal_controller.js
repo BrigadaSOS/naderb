@@ -42,6 +42,7 @@ export default class extends Controller {
 
   // Close on backdrop click
   closeOnBackdrop(event) {
+    // Check if click was directly on the dialog element (backdrop area)
     if (event.target === this.element) {
       this.close()
     }
@@ -49,14 +50,12 @@ export default class extends Controller {
 
   // Show the modal
   showModal() {
-    this.element.classList.remove("hidden")
-    this.element.classList.add("flex")
+    this.element.showModal()
   }
 
   // Hide the modal
   hideModal() {
-    this.element.classList.add("hidden")
-    this.element.classList.remove("flex")
+    this.element.close()
   }
 
   // Handle Turbo frame load events
