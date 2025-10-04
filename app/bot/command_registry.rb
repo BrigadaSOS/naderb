@@ -192,45 +192,6 @@ class CommandRegistry
     end
   end
 
-  module Helpers
-    def define_command(command_key, &block)
-      command_def = CommandRegistry::COMMAND_DEFINITIONS[command_key]
-
-      application_command(command_def[:name].to_sym) do |event|
-        params = {}
-        command_def[:parameters]&.each do |key, param|
-          params[key] = event.options[param[:name]]
-        end
-
-        block.call(event, params)
-      end
-    end
-
-    def define_subcommand(command_key, subcommand_key, &block)
-      command_def = CommandRegistry::COMMAND_DEFINITIONS[command_key]
-      subcommand_def = command_def[:subcommands][subcommand_key]
-
-      application_command(command_def[:name].to_sym).subcommand(subcommand_def[:name].to_sym) do |event|
-        params = {}
-        subcommand_def[:parameters]&.each do |key, param|
-          params[key] = event.options[param[:name]]
-        end
-
-        block.call(event, params)
-      end
-    end
-
-    def define_autocomplete(command_key, param_key, &block)
-      command_def = CommandRegistry::COMMAND_DEFINITIONS[command_key]
-      param_def = command_def[:parameters][param_key]
-
-      autocomplete(param_def[:name].to_sym) do |event|
-        value = event.options[param_def[:name]]
-        block.call(event, value)
-      end
-    end
-  end
-
   def register_all_commands(guild_only: false)
     server_id = guild_only ? Setting.discord_server_id : nil
 
@@ -277,6 +238,45 @@ class CommandRegistry
         target.mentionable(param_name, param[:description], required: param[:required] || false)
       else
         target.string(param_name, param[:description], required: param[:required] || false)
+      end
+    end
+  end
+
+  module Helpers
+    def define_command(command_key, &block)
+      command_def = CommandRegistry::COMMAND_DEFINITIONS[command_key]
+
+      application_command(command_def[:name].to_sym) do |event|
+        params = {}
+        command_def[:parameters]&.each do |key, param|
+          params[key] = event.options[param[:name]]
+        end
+
+        block.call(event, params)
+      end
+    end
+
+    def define_subcommand(command_key, subcommand_key, &block)
+      command_def = CommandRegistry::COMMAND_DEFINITIONS[command_key]
+      subcommand_def = command_def[:subcommands][subcommand_key]
+
+      application_command(command_def[:name].to_sym).subcommand(subcommand_def[:name].to_sym) do |event|
+        params = {}
+        subcommand_def[:parameters]&.each do |key, param|
+          params[key] = event.options[param[:name]]
+        end
+
+        block.call(event, params)
+      end
+    end
+
+    def define_autocomplete(command_key, param_key, &block)
+      command_def = CommandRegistry::COMMAND_DEFINITIONS[command_key]
+      param_def = command_def[:parameters][param_key]
+
+      autocomplete(param_def[:name].to_sym) do |event|
+        value = event.options[param_def[:name]]
+        block.call(event, value)
       end
     end
   end
