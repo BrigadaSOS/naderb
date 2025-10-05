@@ -47,7 +47,7 @@ es:
           empty_state:
             title: "No hay tags aún"
             description: "Crea tu primera tag para comenzar a organizar tu contenido."
-        form_content:
+        form:
           field:
             name: "Nombre"
             name_placeholder: "Nombre de la tag"

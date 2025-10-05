@@ -8,6 +8,8 @@
       <%= render "tags_list", tags: @tags %>
     </div>
 
-    <%= turbo_frame_tag "tag_form" %>
+    <%= turbo_frame_tag "tag_form" do %>
+      <%= @tag_form_content.html_safe if @tag_form_content.present? %>
+    <% end %>
   </div>
 </div>

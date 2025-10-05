@@ -74,7 +74,7 @@ en:
           empty_state:
             title: "No tags yet"
             description: "Create your first tag to start organizing your content."
-        form_content:
+        form:
           field:
             name: "Tag Name"
             name_placeholder: "Enter tag name"

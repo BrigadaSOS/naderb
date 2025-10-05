@@ -25,6 +25,7 @@ class Dashboard::Server::TagsController < ApplicationController
       render partial: "form", locals: { tag: @tag }
     else
       @tags = Tag.all.order(created_at: :desc)
+      @tag_form_content = render_to_string(partial: "form", locals: { tag: @tag })
       render "index"
     end
   end
@@ -42,8 +43,8 @@ class Dashboard::Server::TagsController < ApplicationController
       service.create_tag(tag_params)
 
       render turbo_stream: [
-        turbo_stream.replace("tags_container", partial: "tags_list", locals: { tags: Tag.all.order(created_at: :desc) }),
-        turbo_stream.replace("tag_form", ""),
+        turbo_stream.replace("tags_list", partial: "tags_list", locals: { tags: Tag.all.order(created_at: :desc) }),
+        turbo_stream.update("tag_form", ""),
         toast_success(t(".success"))
       ]
     end
@@ -54,8 +55,8 @@ class Dashboard::Server::TagsController < ApplicationController
       service.update_tag(@tag, tag_params)
 
       render turbo_stream: [
-        turbo_stream.replace("tags_container", partial: "tags_list", locals: { tags: Tag.all.order(created_at: :desc) }),
-        turbo_stream.replace("tag_form", ""),
+        turbo_stream.replace("tags_list", partial: "tags_list", locals: { tags: Tag.all.order(created_at: :desc) }),
+        turbo_stream.update("tag_form", ""),
         toast_success(t(".success"))
       ]
     end
@@ -66,8 +67,8 @@ class Dashboard::Server::TagsController < ApplicationController
       service.destroy_tag(@tag)
 
       render turbo_stream: [
-        turbo_stream.replace("tags_container", partial: "tags_list", locals: { tags: Tag.all.order(created_at: :desc) }),
-        turbo_stream.replace("tag_form", ""),
+        turbo_stream.replace("tags_list", partial: "tags_list", locals: { tags: Tag.all.order(created_at: :desc) }),
+        turbo_stream.update("tag_form", ""),
         toast_success(t(".success"))
       ]
     end
@@ -114,15 +115,22 @@ class Dashboard::Server::TagsController < ApplicationController
 
   def render_tag_form(tag)
     @read_only = !can_edit_tag?(tag)
-    @title = t(".title.#{@read_only ? 'show' : 'edit'}")
+
+    # Determine the correct translation scope based on tag state
+    if tag.new_record?
+      @title = t("dashboard.server.tags.new.title")
+      @submit_text = t("dashboard.server.tags.new.submit")
+    else
+      @title = t(".title.#{@read_only ? 'show' : 'edit'}")
       @submit_text = @read_only ? nil : t(".submit")
+    end
 
     if turbo_frame_request?
       render partial: "form", locals: { tag: tag }
     else
       # Full page load - render index with modal open
       @tags = Tag.all.order(created_at: :desc)
-      @modal_content = render_to_string partial: "form"
+      @tag_form_content = render_to_string(partial: "form", locals: { tag: tag })
       render "index"
     end
   end

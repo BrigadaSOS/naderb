@@ -2,8 +2,8 @@
   <dialog
     id="tagModal"
     class="bg-gray-800 rounded-lg max-w-2xl w-full"
-    <%# data-controller="modal" %>
-    <%# data-action="click->modal#closeOnBackdrop" %>
+    data-controller="modal"
+    data-action="click->modal#closeOnBackdrop"
   >
     <div class="flex items-center justify-between mb-4">
       <h3 class="text-lg font-semibold text-white"><%= @title %></h3>
@@ -19,7 +19,7 @@
       </button>
     </div>
 
-    <%= form_with model: [:dashboard, :server, tag], id: "tag_form_content", data: { turbo_frame: "_top" }, class: "space-y-4" do |form| %>
+    <%= form_with model: [:dashboard, :server, tag], class: "space-y-4" do |form| %>
       <% if tag.errors.any? %>
         <div class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm">
           <ul class="list-disc list-inside space-y-1">
@@ -123,9 +123,4 @@
       </div>
     <% end %>
   </dialog>
-
-  <%# This replaces Stimulus controller %>
-  <script type="text/javascript">
-    tagModal.showModal();
-  </script>
 <% end %>
