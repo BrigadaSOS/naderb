@@ -7,7 +7,7 @@ class ApplicationController < ActionController::Base
   impersonates :user
 
   around_action :switch_locale
-  helper_method :impersonated_roles
+  before_action :set_impersonated_roles
 
   private
 
@@ -16,7 +16,9 @@ class ApplicationController < ActionController::Base
     I18n.with_locale(locale, &action)
   end
 
-  def impersonated_roles
-    Rails.env.development? ? session[:impersonated_roles] : nil
+  def set_impersonated_roles
+    return unless current_user && Rails.env.development?
+
+    current_user.impersonated_roles = session[:impersonated_roles]
   end
 end

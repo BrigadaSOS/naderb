@@ -20,7 +20,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_02_130532) do
   end
 
   create_table "tags", id: { type: :binary, limit: 16 }, force: :cascade do |t|
-    t.integer "user_id"
+    t.binary "user_id", limit: 16, null: false
     t.string "guild_id", null: false
     t.string "name", null: false
     t.text "content", null: false

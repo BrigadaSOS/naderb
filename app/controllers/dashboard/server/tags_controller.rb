@@ -14,24 +14,18 @@ class Dashboard::Server::TagsController < ApplicationController
     end
 
     @tags = @tags.order(created_at: :desc)
-
-    render "index"
   end
 
   def new
     @tag = Tag.new
+    @title = t(".title")
+    @submit_text = t(".submit")
 
-    respond_to do |format|
-      format.html do
-        @tags = Tag.all.order(created_at: :desc)
-        @modal_open = true
-        @new_tag = @tag
-        render "index"
-      end
-
-      format.turbo_stream do
-        render partial: "form", locals: { tag: @tag, title: "Create New Tag", submit_text: "Create Tag" }
-      end
+    if turbo_frame_request?
+      render partial: "form", locals: { tag: @tag }
+    else
+      @tags = Tag.all.order(created_at: :desc)
+      render "index"
     end
   end
 
@@ -49,7 +43,8 @@ class Dashboard::Server::TagsController < ApplicationController
 
       render turbo_stream: [
         turbo_stream.replace("tags_container", partial: "tags_list", locals: { tags: Tag.all.order(created_at: :desc) }),
-        toast_success("Tag created successfully.")
+        turbo_stream.replace("tag_form", ""),
+        toast_success(t(".success"))
       ]
     end
   end
@@ -60,18 +55,20 @@ class Dashboard::Server::TagsController < ApplicationController
 
       render turbo_stream: [
         turbo_stream.replace("tags_container", partial: "tags_list", locals: { tags: Tag.all.order(created_at: :desc) }),
-        toast_success("Tag updated successfully.")
+        turbo_stream.replace("tag_form", ""),
+        toast_success(t(".success"))
       ]
     end
   end
 
   def destroy
-    with_tag_service do |serivce|
+    with_tag_service do |service|
       service.destroy_tag(@tag)
 
       render turbo_stream: [
         turbo_stream.replace("tags_container", partial: "tags_list", locals: { tags: Tag.all.order(created_at: :desc) }),
-        toast_success("Tag deleted successfully.")
+        turbo_stream.replace("tag_form", ""),
+        toast_success(t(".success"))
       ]
     end
   end
@@ -79,34 +76,29 @@ class Dashboard::Server::TagsController < ApplicationController
   private
 
   def tag_params
-    if current_user.admin_or_mod?(impersonated_roles: impersonated_roles)
-      params.require(:tag).permit(:name, :content, :discord_uid)
-    else
-      params.require(:tag).permit(:name, :content)
-    end
+    params.require("tag").permit("name", "content", "discord_uid")
   end
 
   def set_tag
     @tag = Tag.find_by(id: params[:id])
 
     unless @tag
-      redirect_to dashboard_server_tags_path, alert: "Tag not found"
+      redirect_to dashboard_server_tags_path, alert: t(".not_found")
     end
   end
 
   def require_create_permission!
     unless can_create_tag?
-      render turbo_stream: toast_error("You need a trusted role to create tags"), status: :forbidden
+      render turbo_stream: toast_error(t(".forbidden")), status: :forbidden
     end
   end
 
   def require_edit_permission!
     unless can_edit_tag?(@tag)
-      # For turbo frame requests, redirect within the frame
       if turbo_frame_request?
         redirect_to dashboard_server_tag_path(@tag), status: :see_other
       else
-        redirect_to dashboard_server_tags_path, alert: "You don't have permission to edit this tag"
+        redirect_to dashboard_server_tags_path, alert: t(".forbidden")
       end
     end
   end
@@ -119,6 +111,21 @@ class Dashboard::Server::TagsController < ApplicationController
     TagPolicy.new(current_user, tag).can_update?
   end
   helper_method :can_edit_tag?
+
+  def render_tag_form(tag)
+    @read_only = !can_edit_tag?(tag)
+    @title = t(".title.#{@read_only ? 'show' : 'edit'}")
+      @submit_text = @read_only ? nil : t(".submit")
+
+    if turbo_frame_request?
+      render partial: "form", locals: { tag: tag }
+    else
+      # Full page load - render index with modal open
+      @tags = Tag.all.order(created_at: :desc)
+      @modal_content = render_to_string partial: "form"
+      render "index"
+    end
+  end
 
   def with_tag_service
     begin
@@ -136,32 +143,11 @@ class Dashboard::Server::TagsController < ApplicationController
       redirect_to dashboard_server_tags_path, alert: e.message
 
     rescue ActiveRecord::ActiveRecordError => e
-      render turbo_stream: toast_error("Database error, please try again"), status: :service_unavailable
-
+      Rails.logger.error "Database error: #{e.message}"
+        render turbo_stream: toast_error(t("errors.database")), status: :service_unavailable
     rescue => e
-      render turbo_stream: toast_error("Unexpected error, please try again"), status: :service_unavailable
-      Rails.logger.error "Unexpected error via bot: #{e.message}}"
-    end
-  end
-
-  def render_tag_form(tag)
-    read_only = !can_edit_tag?(tag)
-
-    if turbo_frame_request?
-      locals = {
-        tag: tag,
-        title: read_only ? "View Tag" : "Edit Tag",
-        read_only: read_only
-      }
-      locals[:submit_text] = "Update Tag" unless read_only
-
-      render partial: "form", locals: locals
-    else
-      @tags = Tag.all.order(created_at: :desc)
-      @modal_open = true
-      @edit_tag = tag
-      @tag_read_only = read_only
-      render "index"
+      Rails.logger.error "Unexpected error: #{e.message}\n#{e.backtrace.join("\n")}"
+        render turbo_stream: toast_error(t("errors.unexpected")), status: :service_unavailable
     end
   end
 end

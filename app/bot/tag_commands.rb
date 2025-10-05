@@ -107,7 +107,7 @@ module TagCommands
     begin
       I18n.with_locale(:es) do
         user = self.get_discord_user(event)
-        service = TagsService.new(user)
+        service = TagService.new(user)
         yield service
       end
 

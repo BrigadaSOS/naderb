@@ -2,8 +2,9 @@ class User < ApplicationRecord
   # Include default devise modules. Others available are:
   devise :database_authenticatable, :trackable, :omniauthable, omniauth_providers: [ :discord ]
 
-  # Use uuid v7
   attribute :id, :uuid_v7, default: -> { SecureRandom.uuid_v7 }
+
+  attr_reader :impersonated_roles
 
   has_many :tags, dependent: :destroy
 
@@ -58,37 +59,44 @@ class User < ApplicationRecord
     display_name.presence || username || email || "User #{id}"
   end
 
-  def admin_or_mod?(impersonated_roles: nil)
-    admin?(impersonated_roles: impersonated_roles) || moderator?(impersonated_roles: impersonated_roles)
+  def admin_or_mod?
+    admin? || moderator?
   end
 
-  def admin?(impersonated_roles: nil)
-    has_any_discord_role?(Setting.discord_admin_roles, impersonated_roles: impersonated_roles)
+  def admin?
+    has_any_discord_role?(Setting.discord_admin_roles)
   end
 
-  def moderator?(impersonated_roles: nil)
-    has_any_discord_role?(Setting.discord_moderator_roles, impersonated_roles: impersonated_roles)
+  def moderator?
+    has_any_discord_role?(Setting.discord_moderator_roles)
   end
 
-  def trusted_user?(impersonated_roles: nil)
-    has_any_discord_role?(Setting.trusted_user_roles, impersonated_roles: impersonated_roles)
+  def trusted_user?
+    has_any_discord_role?(Setting.trusted_user_roles)
   end
 
-  def has_discord_role?(role_id, impersonated_roles: nil)
-    discord_roles(impersonated_roles: impersonated_roles).any? { |role| role["id"] == role_id }
+  def has_discord_role?(role_id)
+    discord_roles.any? { |role| role["id"] == role_id }
   end
 
-  def has_any_discord_role?(role_ids, impersonated_roles: nil)
-    role_ids.any? { |role_id| has_discord_role?(role_id, impersonated_roles: impersonated_roles) }
+  def has_any_discord_role?(role_ids)
+    role_ids.any? { |role_id| has_discord_role?(role_id) }
+  end
+
+  def impersonated_roles=(roles)
+    unless Rails.env.development?
+      Rails.logger.warn "Attempted to set impersonated_roles in #{Rails.env} environment - ignoring"
+      return
+    end
+    @impersonated_roles = roles
   end
 
   private
 
-  # Cache user roles in memory for 1 hour
-  def discord_roles(impersonated_roles: nil)
-    # In development, allow role impersonation
-    if Rails.env.development? && impersonated_roles.present?
-      return impersonated_roles.map { |role_id| { "id" => role_id } }
+  # Returns user's Discord roles, using impersonated roles in development if set
+  def discord_roles
+    if Rails.env.development? && @impersonated_roles.present?
+      return @impersonated_roles.map { |role_id| { "id" => role_id } }
     end
 
     guild_id = Setting.discord_server_id

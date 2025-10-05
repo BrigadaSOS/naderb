@@ -1,57 +1,59 @@
-<div id="tags_container">
-  <% if tags&.any? %>
-    <div
-      class="
-        grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6
-        gap-4
-      "
-    >
-      <% tags.each do |tag| %>
-        <% url =
-          (
-            if can_edit_tag?(tag)
-              edit_dashboard_server_tag_path(tag)
-            else
-              dashboard_server_tag_path(tag)
-            end
-          ) %>
+<%= turbo_frame_tag "tags_container" do %>
+  <div class="bg-gray-800 rounded-lg p-6">
+    <% if tags&.any? %>
+      <div
+        class="
+          grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6
+          gap-4
+        "
+      >
+        <% tags.each do |tag| %>
+          <% url =
+            (
+              if can_edit_tag?(tag)
+                edit_dashboard_server_tag_path(tag)
+              else
+                dashboard_server_tag_path(tag)
+              end
+            ) %>
 
-        <%= link_to url, data: { turbo_frame: "tag_form" }, class: "block bg-gray-700 rounded-lg p-4 hover:bg-gray-600 transition-colors cursor-pointer h-full flex flex-col" do %>
-          <h3 class="text-white font-semibold text-sm mb-2 truncate"><%= tag.name %></h3>
+          <%= link_to url, data: { turbo_frame: "tag_form" }, class: "block bg-gray-700 rounded-lg p-4 hover:bg-gray-600 transition-colors cursor-pointer h-full flex flex-col" do %>
+            <h3 class="text-white font-semibold text-sm mb-2 truncate"><%= tag.name %></h3>
 
-          <% if tag.image_url? %>
-            <div class="mb-3 flex-grow flex items-center justify-center">
-              <img
-                src="<%= tag.content.strip %>"
-                alt="<%= tag.name %>"
-                class="w-full h-40 object-contain rounded"
-              >
-            </div>
-          <% else %>
-            <div
-              class="
-                text-gray-300 text-xs leading-relaxed mb-3 break-words flex-grow overflow-hidden
-              "
-            >
-              <div class="line-clamp-4">
-                <%= tag.content %>
+            <% if tag.image_url? %>
+              <div class="mb-3 flex-grow flex items-center justify-center">
+                <img
+                  src="<%= tag.content.strip %>"
+                  alt="<%= tag.name %>"
+                  class="w-full h-40 object-contain rounded"
+                >
               </div>
+            <% else %>
+              <div
+                class="
+                  text-gray-300 text-xs leading-relaxed mb-3 break-words flex-grow overflow-hidden
+                "
+              >
+                <div class="line-clamp-4">
+                  <%= tag.content %>
+                </div>
+              </div>
+            <% end %>
+
+            <div class="text-gray-400 text-xs border-t border-gray-600 pt-2 mt-auto">
+              <span class="block truncate">
+                <%= t(".created_by", user: tag.user.name) %>
+              </span>
             </div>
           <% end %>
-
-          <div class="text-gray-400 text-xs border-t border-gray-600 pt-2 mt-auto">
-            <span class="block truncate">
-              Created by
-            </span>
-          </div>
         <% end %>
-      <% end %>
-    </div>
-  <% else %>
-    <div class="text-center py-12">
-      <div class="text-6xl mb-4">🏷️</div>
-      <h4 class="text-xl font-medium text-white mb-2">No tags yet</h4>
-      <p class="text-gray-400 mb-6">Create your first tag to start organizing your content.</p>
-    </div>
-  <% end %>
-</div>
+      </div>
+    <% else %>
+      <div class="text-center py-12">
+        <div class="text-6xl mb-4">🏷️</div>
+        <h4 class="text-xl font-medium text-white mb-2"><%= t(".empty_state.title") %></h4>
+        <p class="text-gray-400 mb-6"><%= t(".empty_state.description") %></p>
+      </div>
+    <% end %>
+  </div>
+<% end %>

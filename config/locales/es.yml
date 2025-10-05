@@ -3,6 +3,18 @@ es:
     title: "Brigada SOS"
     name: "Brigada SOS"
 
+  # Global errors
+  errors:
+    database: "Error de base de datos, intenta de nuevo más tarde"
+    unexpected: "Error inesperado"
+
+  # Tag errors
+  tags:
+    errors:
+      not_found: "No existe una tag con el nombre '%{name}'"
+      permission_denied: "No tienes permiso para realizar esta acción"
+      validation_failed: "Validación fallida: %{errors}"
+
   # Home page
   home:
     welcome_title: "Bienvenido a la Brigada SOS"
@@ -13,6 +25,73 @@ es:
   dashboard:
     welcome_back: "¡Bienvenido de vuelta, %{username}!"
     success_message: "Has iniciado sesión exitosamente en Brigada SOS"
+    server:
+      tags:
+        index:
+          modal:
+            view_title: "Ver Tag"
+            edit_title: "Editar Tag"
+            create_title: "Crear Nueva Tag"
+            update_submit: "Actualizar Tag"
+            create_submit: "Crear Tag"
+        tags_header:
+          title: "Tags"
+          subtitle: "Gestiona y organiza tus tags"
+          add_new: "Crear Tag"
+        tags_search_bar:
+          search_placeholder: "Buscar tags por nombre..."
+          search_button: "Buscar"
+          clear: "Limpiar"
+        tags_list:
+          created_by: "Creada por %{user}"
+          empty_state:
+            title: "No hay tags aún"
+            description: "Crea tu primera tag para comenzar a organizar tu contenido."
+        form_content:
+          field:
+            name: "Nombre"
+            name_placeholder: "Nombre de la tag"
+            content: "Contenido"
+            content_placeholder: "Contenido de la tag (para imágenes, incluye una URL)"
+            discord_uid: "Discord UID del nuevo autor"
+            discord_uid_placeholder: "Ingresa el Discord UID para cambiar el autor"
+            current_owner: "Autor actual: %{owner}"
+          button:
+            close: "Cerrar"
+            cancel: "Cancelar"
+            edit: "Editar Tag"
+            submit: "Enviar"
+            delete: "Eliminar"
+            delete_confirm: "¿Estás seguro?"
+        new:
+          title: "Crear Nueva Tag"
+          submit: "Crear Tag"
+        show:
+          title:
+            view: "Ver Tag"
+            edit: "Editar Tag"
+          submit: "Actualizar Tag"
+        edit:
+          title:
+            view: "Ver Tag"
+            edit: "Editar Tag"
+          submit: "Actualizar Tag"
+        create:
+          success: "Tag creada exitosamente"
+        update:
+          success: "Tag actualizada exitosamente"
+          title:
+            view: "Ver Tag"
+            edit: "Editar Tag"
+          submit: "Actualizar Tag"
+        destroy:
+          success: "Tag eliminada exitosamente"
+        set_tag:
+          not_found: "Tag no encontrada"
+        require_create_permission:
+          forbidden: "Necesitas un rol de confianza para crear tags"
+        require_edit_permission:
+          forbidden: "No tienes permiso para editar esta tag"
 
   # Discord integration
   discord:
@@ -29,7 +108,6 @@ es:
       destroy: "No tienes permisos para eliminar esta tag"
       change_owner: "Solo los administradores pueden cambiar el propietario de la tag"
       not_found: "Tag no encontrada"
-
 
   # ActiveRecord validation errors
   activerecord:

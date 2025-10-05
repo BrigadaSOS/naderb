@@ -13,7 +13,7 @@ class TagPolicy
   def can_create?
     return false unless user
 
-    user.trusted_user? || admin_or_mod?
+    user.trusted_user? || user.admin_or_mod?
   end
 
   def can_update?

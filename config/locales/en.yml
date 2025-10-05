@@ -3,6 +3,18 @@ en:
     title: "Brigada SOS"
     name: "Brigada SOS"
 
+  # Global errors
+  errors:
+    database: "Database error, please try again later"
+    unexpected: "An unexpected error occurred"
+
+  # Tag errors
+  tags:
+    errors:
+      not_found: "Tag '%{name}' not found"
+      permission_denied: "You don't have permission to perform this action"
+      validation_failed: "Validation failed: %{errors}"
+
   # Tag policy errors
   tag_policy:
     errors:
@@ -37,3 +49,73 @@ en:
               too_long: "is too long (maximum %{count} characters)"
             discord_uid:
               not_found: "User with Discord UID '%{discord_uid}' not found"
+
+  # Dashboard views and controllers
+  dashboard:
+    server:
+      tags:
+        index:
+          modal:
+            view_title: "View Tag"
+            edit_title: "Edit Tag"
+            create_title: "Create New Tag"
+            update_submit: "Update Tag"
+            create_submit: "Create Tag"
+        tags_header:
+          title: "Tags"
+          subtitle: "Manage and organize your tags"
+          add_new: "Add New Tag"
+        tags_search_bar:
+          search_placeholder: "Search tags by name..."
+          search_button: "Search"
+          clear: "Clear"
+        tags_list:
+          created_by: "Created by %{user}"
+          empty_state:
+            title: "No tags yet"
+            description: "Create your first tag to start organizing your content."
+        form_content:
+          field:
+            name: "Tag Name"
+            name_placeholder: "Enter tag name"
+            content: "Content"
+            content_placeholder: "Enter tag content"
+            discord_uid: "Owner Discord UID"
+            discord_uid_placeholder: "Enter Discord UID to change owner"
+            current_owner: "Current owner: %{owner}"
+          button:
+            close: "Close"
+            cancel: "Cancel"
+            edit: "Edit Tag"
+            submit: "Submit"
+            delete: "Delete"
+            delete_confirm: "Are you sure?"
+        new:
+          title: "Create New Tag"
+          submit: "Create Tag"
+        show:
+          title:
+            view: "View Tag"
+            edit: "Edit Tag"
+          submit: "Update Tag"
+        edit:
+          title:
+            view: "View Tag"
+            edit: "Edit Tag"
+          submit: "Update Tag"
+        create:
+          success: "Tag created successfully"
+        update:
+          success: "Tag updated successfully"
+          title:
+            view: "View Tag"
+            edit: "Edit Tag"
+          submit: "Update Tag"
+        destroy:
+          success: "Tag deleted successfully"
+        set_tag:
+          not_found: "Tag not found"
+        require_create_permission:
+          forbidden: "You need a trusted role to create tags"
+        require_edit_permission:
+          forbidden: "You don't have permission to edit this tag"

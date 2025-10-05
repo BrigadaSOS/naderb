@@ -92,4 +92,28 @@ module ApplicationHelper
 
     parts.any? ? "(#{parts.join(' ')} ago)" : "(less than a day ago)"
   end
+
+  def button_classes(variant = :primary, additional_classes = nil)
+    base_classes = "px-4 py-2 rounded-lg transition-colors"
+
+    variant_classes = case variant.to_sym
+    when :primary
+      "bg-blue-600 hover:bg-blue-700 text-white"
+    when :secondary
+      "bg-gray-600 hover:bg-gray-700 text-white"
+    when :danger
+      "bg-red-600 hover:bg-red-700 text-white"
+    when :success
+      "bg-green-600 hover:bg-green-700 text-white"
+    else
+      "bg-gray-600 hover:bg-gray-700 text-white"
+    end
+
+    [base_classes, variant_classes, additional_classes].compact.join(" ")
+  end
+
+  def button_link(text, path, variant: :primary, data: {}, html_options: {})
+    css_classes = button_classes(variant, html_options[:class])
+    link_to text, path, data: data, class: css_classes
+  end
 end

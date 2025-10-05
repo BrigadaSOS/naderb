@@ -1,4 +1,4 @@
-class TagsService
+class TagService
   def initialize(user)
     @user = user
   end
@@ -8,7 +8,7 @@ class TagsService
   # @return [Tag] The created tag
   # @raise [Tag::PermissionDenied] if user lacks create permission
   # @raise [Tag::ValidationFailed] if tag validations fail
-  def create_tag(**tag_params)
+  def create_tag(tag_params)
     tag = @user.tags.build(tag_params.merge(guild_id: Setting.discord_server_id))
     policy_for(tag).authorize_create!
 
@@ -24,7 +24,7 @@ class TagsService
   # @raise [Tag::NotFound] if tag is nil
   # @raise [Tag::PermissionDenied] if user lacks update permission or can't change owner
   # @raise [Tag::ValidationFailed] if tag validations fail or new owner not found
-  def update_tag(tag, **tag_params)
+  def update_tag(tag, tag_params)
     ensure_exists!(tag)
     policy_for(tag).authorize_update!
 
@@ -55,14 +55,19 @@ class TagsService
     TagPolicy.new(@user, tag)
   end
 
-  def ensure_exists!(tag)
-    raise Tag::NotFound, I18n.t("tag_policy.errors.not_found") unless tag
+  def ensure_exists!(tag, name = nil)
+    unless tag
+      # Try to provide a meaningful name for the error message
+      tag_name = name || tag&.name || "unknown"
+      raise Tag::NotFound.new(tag_name)
+    end
   end
 
   def prepare_update_params(tag, tag_params)
-    update_params = tag_params.except(:discord_uid)
+    discord_uid = tag_params["discord_uid"]
 
-    if tag_params[:discord_uid].present?
+    # We fetch the new user from the discord_uid
+    if discord_uid.present?
       policy_for(tag).authorize_change_owner!
 
       new_owner = User.find_by(discord_uid: discord_uid)
@@ -72,10 +77,10 @@ class TagsService
         raise Tag::ValidationFailed.new(tag)
       end
 
-      update_params[:user] = new_owner
+      tag_params.except("discord_uid").merge(user: new_owner)
+    else
+      tag_params
     end
-
-    update_params
   end
 
   # Unified logging and error handling for DB operations

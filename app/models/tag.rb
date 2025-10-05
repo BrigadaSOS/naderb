@@ -1,15 +1,5 @@
 class Tag < ApplicationRecord
-  # Custom exceptions for tag operations
-  class PermissionDenied < StandardError; end
-  class ValidationFailed < StandardError
-    attr_reader :record
-
-    def initialize(record)
-      @record = record
-      super(record.errors.full_messages.join(", "))
-    end
-  end
-  class NotFound < StandardError; end
+  belongs_to :user
 
   before_validation :normalize_name
 
@@ -19,9 +9,6 @@ class Tag < ApplicationRecord
                    uniqueness: { scope: :guild_id }
   validates :content, presence: true, length: { maximum: 2000 }
 
-  belongs_to :user
-
-  # Use uuid v7
   attribute :id, :uuid_v7, default: -> { SecureRandom.uuid_v7 }
 
   scope :by_name, ->(name) { where("LOWER(name) = ?", name.downcase) }
@@ -41,6 +28,28 @@ class Tag < ApplicationRecord
     uri.path.match?(/\.(jpe?g|png|gif|webp|bmp|svg)$/i)
   rescue URI::InvalidURIError
     false
+  end
+
+  class PermissionDenied < StandardError
+    def initialize(message = nil)
+      super(message || I18n.t("tags.errors.permission_denied"))
+    end
+  end
+
+  class ValidationFailed < StandardError
+    attr_reader :record
+
+    def initialize(record)
+      @record = record
+      errors = record.errors.full_messages.join(", ")
+      super(I18n.t("tags.errors.validation_failed", errors: errors))
+    end
+  end
+
+  class NotFound < StandardError
+    def initialize(name)
+      super(I18n.t("tags.errors.not_found", name: name))
+    end
   end
 
   private

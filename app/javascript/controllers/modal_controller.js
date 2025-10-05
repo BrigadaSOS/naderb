@@ -6,38 +6,33 @@ export default class extends Controller {
   connect() {
     this.frameLoadListener = this.handleFrameLoad.bind(this)
     this.submitEndListener = this.handleSubmitEnd.bind(this)
-    this.popStateListener = this.handlePopState.bind(this)
     this.clickListener = this.handleClick.bind(this)
+    this.cancelListener = this.handleCancel.bind(this)
 
     document.addEventListener("turbo:frame-load", this.frameLoadListener)
     document.addEventListener("turbo:submit-end", this.submitEndListener)
-    window.addEventListener("popstate", this.popStateListener)
     document.addEventListener("click", this.clickListener)
+    document.addEventListener("cancel", this.cancelListener)
 
     this.turboFrame = document.getElementById('tag_form')
-    this.lastClickTime = 0
+    // Open modal on page load if content is pre-loaded
+    if (this.element.dataset.modalOpenOnLoad === "true") {
+      const hasFormContent = this.turboFrame?.querySelector('form')
+      if (hasFormContent) {
+        this.showModal()
+      }
+    }
   }
 
   disconnect() {
     document.removeEventListener("turbo:frame-load", this.frameLoadListener)
     document.removeEventListener("turbo:submit-end", this.submitEndListener)
-    window.removeEventListener("popstate", this.popStateListener)
     document.removeEventListener("click", this.clickListener)
+    document.removeEventListener("cancel", this.cancelListener)
   }
 
-  // Close modal - advance history by navigating frame to main page
-  close(event) {
-    // Prevent double-clicks
-    const now = Date.now()
-    if (now - this.lastClickTime < 500) {
-      event?.preventDefault()
-      return
-    }
-    this.lastClickTime = now
-
-    if (this.turboFrame) {
-      this.turboFrame.src = '/dashboard/server/tags'
-    }
+  close() {
+    this.turboFrame.src = '/dashboard/server/tags'
   }
 
   // Close on backdrop click
@@ -73,15 +68,9 @@ export default class extends Controller {
 
   // Handle successful form submissions
   handleSubmitEnd(event) {
-    if (event.detail.success) {
+    if (event.detail.success && this.element.contains(event.target)) {
       this.close()
     }
-  }
-
-  // Handle browser back/forward navigation
-  handlePopState(event) {
-    // Let Turbo handle all navigation
-    // handleFrameLoad will manage modal visibility when frame content changes
   }
 
   // Handle clicks on links with turbo-frame data attribute
@@ -90,6 +79,12 @@ export default class extends Controller {
     if (link && link.dataset.turboFrame === 'tag_form') {
       this.turboFrame = document.getElementById('tag_form')
     }
+  }
+
+  // Handle ESC key press (cancel event)
+  handleCancel(event) {
+    event.preventDefault()
+    this.close()
   }
 
   // Helper method to clear frame content
