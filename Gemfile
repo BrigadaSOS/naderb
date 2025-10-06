@@ -54,6 +54,10 @@ group :development, :test do
 
   # Load environment variables from .env file
   gem "dotenv-rails"
+
+  # RSpec testing framework
+  gem "rspec-rails", "~> 7.1"
+  gem "factory_bot_rails"
 end
 
 group :development do
@@ -65,7 +69,9 @@ end
 group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
-  gem "selenium-webdriver"
+  gem "cuprite"
+  gem "capybara-screenshot"
+  gem "webmock"
 end
 
 gem "devise", "~> 4.9"

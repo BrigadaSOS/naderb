@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Run RSpec in debug mode (headless with inspector)
+
+echo "🐛 Debug mode: Chrome DevTools inspector (headless)"
+INSPECTOR=true bundle exec rspec "$@"
