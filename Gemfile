@@ -72,6 +72,7 @@ group :test do
   gem "cuprite"
   gem "capybara-screenshot"
   gem "webmock"
+  gem "faker"
 end
 
 gem "devise", "~> 4.9"

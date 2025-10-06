@@ -7,28 +7,16 @@ RSpec.describe "Dashboard Login", type: :system do
   let(:server_id) { "999888777" }
 
   before do
-    # Configure test settings
-    Setting.discord_server_id = server_id
-    Setting.discord_admin_roles = [admin_role_id]
-    Setting.discord_moderator_roles = [moderator_role_id]
-    Setting.discord_server_invite_url = "https://discord.gg/test"
+    setup_discord_settings(
+      server_id: server_id,
+      admin_roles: [ admin_role_id ],
+      moderator_roles: [ moderator_role_id ]
+    )
   end
 
   describe "user without required roles" do
-    let(:mock_member_response) do
-      {
-        "roles" => [],
-        "joined_at" => "2024-01-01T00:00:00.000000+00:00",
-        "user" => {
-          "id" => "123456789",
-          "username" => "testuser"
-        }
-      }
-    end
-
     before do
-      stub_request(:get, "https://discord.com/api/v10/users/@me/guilds/#{server_id}/member")
-        .to_return(status: 200, body: mock_member_response.to_json, headers: { 'Content-Type' => 'application/json' })
+      stub_discord_member(server_id: server_id, roles: [])
     end
 
     it "does not see the Admin section in sidebar", js: true do
@@ -48,20 +36,8 @@ RSpec.describe "Dashboard Login", type: :system do
   end
 
   describe "user with admin role" do
-    let(:mock_member_response) do
-      {
-        "roles" => [admin_role_id],
-        "joined_at" => "2024-01-01T00:00:00.000000+00:00",
-        "user" => {
-          "id" => "123456789",
-          "username" => "adminuser"
-        }
-      }
-    end
-
     before do
-      stub_request(:get, "https://discord.com/api/v10/users/@me/guilds/#{server_id}/member")
-        .to_return(status: 200, body: mock_member_response.to_json, headers: { 'Content-Type' => 'application/json' })
+      stub_discord_member(server_id: server_id, roles: [ admin_role_id ])
     end
 
     it "sees the Admin section in sidebar", js: true do
@@ -84,20 +60,8 @@ RSpec.describe "Dashboard Login", type: :system do
   end
 
   describe "user with moderator role" do
-    let(:mock_member_response) do
-      {
-        "roles" => [moderator_role_id],
-        "joined_at" => "2024-01-01T00:00:00.000000+00:00",
-        "user" => {
-          "id" => "123456789",
-          "username" => "moduser"
-        }
-      }
-    end
-
     before do
-      stub_request(:get, "https://discord.com/api/v10/users/@me/guilds/#{server_id}/member")
-        .to_return(status: 200, body: mock_member_response.to_json, headers: { 'Content-Type' => 'application/json' })
+      stub_discord_member(server_id: server_id, roles: [ moderator_role_id ])
     end
 
     it "does not see Admin section (moderator is not admin)", js: true do
@@ -117,24 +81,11 @@ RSpec.describe "Dashboard Login", type: :system do
   end
 
   describe "user with multiple roles" do
-    let(:mock_member_response) do
-      {
-        "roles" => [
-          admin_role_id,
-          moderator_role_id,
-          "some_other_role_id"
-        ],
-        "joined_at" => "2024-01-01T00:00:00.000000+00:00",
-        "user" => {
-          "id" => "123456789",
-          "username" => "superuser"
-        }
-      }
-    end
-
     before do
-      stub_request(:get, "https://discord.com/api/v10/users/@me/guilds/#{server_id}/member")
-        .to_return(status: 200, body: mock_member_response.to_json, headers: { 'Content-Type' => 'application/json' })
+      stub_discord_member(
+        server_id: server_id,
+        roles: [ admin_role_id, moderator_role_id, "some_other_role_id" ]
+      )
     end
 
     it "sees Admin section (has admin role)", js: true do
@@ -156,12 +107,7 @@ RSpec.describe "Dashboard Login", type: :system do
 
   describe "when Discord API fails" do
     before do
-      stub_request(:get, "https://discord.com/api/v10/users/@me/guilds/#{server_id}/member")
-        .to_return(status: 401, body: '{"message": "401: Unauthorized", "code": 0}', headers: { 'Content-Type' => 'application/json' })
-
-      # Stub the fallback guilds endpoint too
-      stub_request(:get, "https://discord.com/api/v10/users/@me/guilds")
-        .to_return(status: 401, body: '{"message": "401: Unauthorized", "code": 0}', headers: { 'Content-Type' => 'application/json' })
+      stub_discord_api_failure
     end
 
     it "gracefully handles API failure and shows no admin section", js: true do

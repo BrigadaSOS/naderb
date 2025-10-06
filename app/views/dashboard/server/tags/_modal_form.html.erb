@@ -45,6 +45,7 @@
                       disabled: read_only,
                       data: {
                         form_toggle_target: "field",
+                        testid: "tag-name-input"
                       },
                       class:
                         "w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 #{read_only ? "cursor-not-allowed opacity-60" : "focus:outline-none focus:ring-2 focus:ring-blue-500"}",
@@ -72,6 +73,7 @@
                      disabled: read_only,
                      data: {
                        form_toggle_target: "field",
+                       testid: "tag-content-input"
                      },
                      class:
                        "w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 #{read_only ? "cursor-not-allowed opacity-60" : "focus:outline-none focus:ring-2 focus:ring-blue-500"}",
@@ -116,7 +118,7 @@
 
   <% if !read_only %>
     <div class="flex justify-end space-x-3 pt-4">
-      <button type="submit" form="tag-form" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+      <button type="submit" form="tag-form" data-testid="submit-tag-button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
         <%= submit_text %>
       </button>
       <% if tag.persisted? %>
@@ -127,6 +129,7 @@
         data: {
           turbo_confirm: t("dashboard.server.tags.form.button.delete_confirm"),
           form_toggle_target: "deleteButton",
+          testid: "delete-tag-button"
         },
         class:
           "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors" %>

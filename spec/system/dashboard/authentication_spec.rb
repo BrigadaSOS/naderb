@@ -16,13 +16,8 @@ RSpec.describe "Dashboard Authentication", type: :system do
 
     context "when logged in" do
       before do
-        # Stub Discord API calls
-        stub_request(:get, %r{https://discord.com/api/v10/users/@me/guilds/.*/member})
-          .to_return(
-            status: 200,
-            body: { "roles" => [], "joined_at" => "2024-01-01T00:00:00.000000+00:00" }.to_json,
-            headers: { 'Content-Type' => 'application/json' }
-          )
+        setup_discord_settings
+        stub_discord_member_no_roles
 
         # Use Warden helper to sign in without going through the UI
         login_as(user, scope: :user)
@@ -58,47 +53,31 @@ RSpec.describe "Dashboard Authentication", type: :system do
     # Here's a basic example:
 
     before do
-      # Mock OmniAuth for testing
-      OmniAuth.config.test_mode = true
-
-      OmniAuth.config.mock_auth[:discord] = OmniAuth::AuthHash.new({
-        provider: 'discord',
-        uid: '123456789',
-        info: {
-          name: 'Test User',
-          email: 'test@example.com',
-          image: 'https://example.com/avatar.png'
-        },
-        credentials: {
-          token: 'mock_token',
-          refresh_token: 'mock_refresh_token',
-          expires_at: 1.day.from_now.to_i
-        },
-        extra: {
-          raw_info: {
-            global_name: 'Test User Display Name'
-          }
-        }
-      })
+      setup_omniauth_discord_mock
     end
 
     after do
-      OmniAuth.config.test_mode = false
+      teardown_omniauth_mock
     end
 
     it "creates a new user from Discord OAuth", js: true do
-      visit root_path
+      # Setup mock and get the auth hash
+      setup_omniauth_discord_mock
+      auth_hash = discord_auth_hash
 
-      # Click your "Sign in with Discord" button
-      # The actual selector depends on your UI
-      # click_on "Sign in with Discord"
+      # Stub Discord API for the created user
+      stub_discord_guilds(server_id: Setting.discord_server_id, in_server: true)
+      stub_discord_member(server_id: Setting.discord_server_id, user_id: auth_hash[:uid], roles: [])
 
-      # In test mode, this will use the mocked auth hash above
-      # and redirect to your omniauth callback
-      # visit user_discord_omniauth_callback_path
+      expect {
+        # Simulate the OAuth callback
+        post user_discord_omniauth_callback_path
+      }.to change(User, :count).by(1)
 
-      # Then verify the user was created
-      # expect(User.find_by(discord_uid: '123456789')).to be_present
+      # Verify the user was created with Discord data
+      user = User.find_by(discord_uid: auth_hash[:uid])
+      expect(user).to be_present
+      expect(user.provider).to eq("discord")
     end
   end
 end
