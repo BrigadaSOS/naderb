@@ -10,22 +10,23 @@
     <h3 class="text-lg font-semibold text-white"><%= title %></h3>
     <%= link_to dashboard_server_tags_path(search: params[:search]),
           data: { turbo_action: "advance" },
-          class: "text-gray-400 hover:text-white modal-close" do %>
-      <label for="modal-toggle" class="cursor-pointer">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
-          ></path>
-        </svg>
-      </label>
+          class: "text-gray-400 hover:text-white modal-close cursor-pointer" do %>
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M6 18L18 6M6 6l12 12"
+        ></path>
+      </svg>
     <% end %>
   </div>
 
-  <%= form_with model: [:dashboard, :server, tag], class: "space-y-4", id: "tag-form", data: { turbo_frame: "_top" } do |form| %>
-    <%= hidden_field_tag :search, params[:search] %>
+  <%= form_with model: [:dashboard, :server, tag],
+                url: tag.persisted? ? dashboard_server_tag_path(tag, search: params[:search]) : nil,
+                class: "space-y-4",
+                id: "tag-form",
+                data: { turbo_frame: "_top" } do |form| %>
     <% if tag.errors.any? %>
       <div class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm">
         <ul class="list-disc list-inside space-y-1">
@@ -105,10 +106,7 @@
         <% if can_edit_tag?(tag) %>
           <%= link_to t("dashboard.server.tags.form.button.edit"),
           edit_dashboard_server_tag_path(tag, search: params[:search]),
-          data: {
-            turbo_action: "advance",
-            turbo_frame: "_top",
-          },
+          data: { turbo_action: "advance" },
           class:
             "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors" %>
         <% end %>
@@ -123,9 +121,8 @@
       </button>
       <% if tag.persisted? %>
         <%= button_to t("dashboard.server.tags.form.button.delete"),
-        dashboard_server_tag_path(tag),
+        dashboard_server_tag_path(tag, search: params[:search]),
         method: :delete,
-        params: { search: params[:search] },
         form: { data: { turbo_frame: "_top" }, class: "inline-block" },
         data: {
           turbo_confirm: t("dashboard.server.tags.form.button.delete_confirm"),
