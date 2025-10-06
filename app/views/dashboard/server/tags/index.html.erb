@@ -2,14 +2,6 @@
   <%= render "dashboard/sidebar" %>
 
   <div class="flex-1 p-6 overflow-y-auto">
-    <div>
-      <%= render "tags_header" %>
-      <%= render "tags_search_bar" %>
-      <%= render "tags_list", tags: @tags %>
-    </div>
-
-    <%= turbo_frame_tag "tag_form" do %>
-      <%= @tag_form_content.html_safe if @tag_form_content.present? %>
-    <% end %>
+    <%= render "tags_content", tags: @tags %>
   </div>
 </div>

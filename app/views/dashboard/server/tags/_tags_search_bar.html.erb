@@ -1,28 +1,30 @@
 <%= form_with url: dashboard_server_tags_path, method: :get, data: {
-      turbo_frame: "tags_list",
+      turbo_action: "advance",
       controller: "search-filter",
       search_filter_target: "form"
     }, class: "mb-4" do |form| %>
   <div class="flex gap-2">
     <%= form.text_field :search,
-                    value: params[:search],
+                    value: params[:search].presence,
                     placeholder: t(".search_placeholder"),
                     id: "tags_search_input",
                     data: {
                       search_filter_target: "input",
-                      action: "input->search-filter#filter"
+                      action: "input->search-filter#filter",
+                      turbo_permanent: true,
                     },
                     class:
                       "flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
 
-    <button
-      type="button"
-      data-action="search-filter#clear"
-      data-search-filter-target="clearButton"
-      class="<%= button_classes(:secondary) %>"
-      style="<%= 'display: none;' unless params[:search].present? %>"
-    >
-      <%= t(".clear") %>
-    </button>
+    <% if params[:search].present? %>
+      <%= link_to t(".clear"),
+      dashboard_server_tags_path,
+      data: {
+        turbo_action: "advance",
+        search_filter_target: "clearButton",
+        action: "click->search-filter#clear",
+      },
+      class: button_classes(:secondary) %>
+    <% end %>
   </div>
 <% end %>

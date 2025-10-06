@@ -1,0 +1,27 @@
+<%= turbo_frame_tag "tags_content" do %>
+  <%= render "tags_header" %>
+  <%= render "tags_search_bar" %>
+  <%= render "tags_list", tags: tags %>
+
+  <% if local_assigns[:tag] %>
+    <input type="checkbox" id="modal-toggle" class="peer hidden"
+      checked>
+    <div
+      class="
+        fixed inset-0 z-[9998] flex items-center justify-center bg-black/80
+        backdrop-blur-xl opacity-0 invisible pointer-events-none transition-all
+        duration-300 peer-checked:opacity-100 peer-checked:visible
+        peer-checked:pointer-events-auto
+      "
+      data-controller="modal"
+      data-action="click->modal#closeOnBackdrop"
+      data-modal-close-url-value="<%= dashboard_server_tags_path(search: params[:search]) %>"
+    >
+      <%= render "modal_form",
+      tag: tag,
+      title: title,
+      submit_text: submit_text,
+      read_only: read_only %>
+    </div>
+  <% end %>
+<% end %>

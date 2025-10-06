@@ -7,7 +7,21 @@ export default class extends Controller {
   connect() {
     this.debounceTimer = null
     this.frameLoadListener = this.updateURL.bind(this)
+    this.renderListener = this.syncInputWithURL.bind(this)
+
     document.addEventListener("turbo:frame-load", this.frameLoadListener)
+    document.addEventListener("turbo:render", this.renderListener)
+
+    // Sync permanent input with URL on initial load
+    this.syncInputWithURL()
+  }
+
+  syncInputWithURL() {
+    const urlParams = new URLSearchParams(window.location.search)
+    const searchParam = urlParams.get('search') || ''
+    if (this.hasInputTarget && this.inputTarget.value !== searchParam) {
+      this.inputTarget.value = searchParam
+    }
   }
 
   disconnect() {
@@ -15,6 +29,7 @@ export default class extends Controller {
       clearTimeout(this.debounceTimer)
     }
     document.removeEventListener("turbo:frame-load", this.frameLoadListener)
+    document.removeEventListener("turbo:render", this.renderListener)
   }
 
   filter(event) {
@@ -25,26 +40,21 @@ export default class extends Controller {
 
     // Set up new debounced request
     this.debounceTimer = setTimeout(() => {
+      // Add animating class to tags_list before submitting
+      const tagsList = document.getElementById('tags_list')
+      if (tagsList) {
+        tagsList.classList.add('animating')
+      }
+
       this.formTarget.requestSubmit()
       this.toggleClearButton()
     }, this.delayValue)
   }
 
   clear(event) {
-    event.preventDefault()
+    // Clear the input immediately for instant feedback
     this.inputTarget.value = ''
-
-    // Navigate to clean URL via turbo frame
-    const frame = document.getElementById('tags_container')
-    if (frame) {
-      frame.src = this.formTarget.action
-    }
-
-    // Update URL immediately
-    window.history.pushState({}, '', this.formTarget.action)
-
-    // Hide clear button
-    this.toggleClearButton()
+    // Let the link's turbo_action: "advance" handle navigation
   }
 
   updateURL(event) {

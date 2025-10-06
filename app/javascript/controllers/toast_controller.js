@@ -1,25 +1,25 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static values = { duration: Number, dismissible: Boolean }
+  static values = { type: String }
 
   connect() {
-    // Auto-dismiss if duration is set and dismissible is true
-    if (this.dismissibleValue && this.durationValue > 0) {
-      this.timeoutId = setTimeout(() => {
-        this.dismiss()
-      }, this.durationValue)
-    }
+    // Get duration based on type
+    const duration = this.getDuration()
 
-    // Add animation for entry from bottom-right
-    this.element.style.transform = "translateX(100%) translateY(20px)"
-    this.element.style.opacity = "0"
-
-    // Use requestAnimationFrame to ensure the initial styles are applied
+    // Trigger slide-in animation by adding class after a tiny delay
+    // This ensures the animation plays even for server-rendered toasts
     requestAnimationFrame(() => {
-      this.element.style.transform = "translateX(0) translateY(0)"
-      this.element.style.opacity = "1"
+      this.element.classList.add("toast-slide-in")
     })
+
+    // Auto-dismiss after duration
+    this.timeoutId = setTimeout(() => {
+      this.dismiss()
+    }, duration)
+
+    // Listen for animation end to remove the element after slide-out
+    this.element.addEventListener("animationend", this.handleAnimationEnd.bind(this))
   }
 
   disconnect() {
@@ -34,38 +34,30 @@ export default class extends Controller {
       clearTimeout(this.timeoutId)
     }
 
-    // Animate out to bottom-right
-    this.element.style.transform = "translateX(100%) translateY(20px)"
-    this.element.style.opacity = "0"
-
-    // Remove element after animation
-    setTimeout(() => {
-      if (this.element.parentNode) {
-        this.element.remove()
-      }
-    }, 300) // Match the transition duration
+    // Remove slide-in and add slide-out animation
+    this.element.classList.remove("toast-slide-in")
+    this.element.classList.add("toast-slide-out")
   }
 
-  // Allow manual dismissal even if dismissible is false (for programmatic control)
-  forceDismiss() {
-    this.dismiss()
-  }
-
-  // Pause auto-dismiss on hover
-  pauseAutoDismiss() {
-    if (this.timeoutId) {
-      clearTimeout(this.timeoutId)
-      this.isPaused = true
+  handleAnimationEnd(event) {
+    // Only remove when slide-out animation completes
+    if (event.animationName === "toast-slide-out-right") {
+      this.element.remove()
     }
   }
 
-  // Resume auto-dismiss when hover ends
-  resumeAutoDismiss() {
-    if (this.isPaused && this.dismissibleValue && this.durationValue > 0) {
-      this.timeoutId = setTimeout(() => {
-        this.dismiss()
-      }, 2000) // Give 2 more seconds after hover ends
-      this.isPaused = false
+  getDuration() {
+    const type = this.typeValue || "info"
+
+    switch (type.toString()) {
+      case "alert":
+      case "error":
+      case "danger":
+        return 7000
+      case "warning":
+        return 6000
+      default:
+        return 5000
     }
   }
 }

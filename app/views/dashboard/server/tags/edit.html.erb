@@ -1,0 +1,12 @@
+<div class="flex h-full w-full">
+  <%= render "dashboard/sidebar" %>
+
+  <div class="flex-1 p-6 overflow-y-auto">
+    <%= render "tags_content",
+    tags: @tags,
+    tag: @tag,
+    title: t(".title.edit"),
+    submit_text: t(".submit"),
+    read_only: false %>
+  </div>
+</div>

@@ -27,21 +27,139 @@ body.dev-impersonation-active::before {
   z-index: 9999;
 }
 
-/* Dialog backdrop styling */
-dialog::backdrop {
-  background-color: rgba(0, 0, 0, 0.8);
+/* Toast Animations */
+@keyframes toast-slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
-/* Reset dialog default styles and center it */
-dialog {
-  border: none;
-  padding: 1.5rem; /* 24px - equivalent to p-6 */
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  max-width: 28rem; /* 448px - equivalent to max-w-md */
-  width: calc(100% - 2rem); /* Full width minus 1rem margin on each side */
-  max-height: 90vh;
-  overflow-y: auto;
+@keyframes toast-slide-out-right {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
 }
+
+@keyframes toast-progress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+/* Start toast off-screen to prevent flash before animation */
+.toast {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.toast-slide-in {
+  animation: toast-slide-in-right 0.3s ease-out forwards;
+}
+
+.toast-slide-out {
+  animation: toast-slide-out-right 0.3s ease-in forwards;
+}
+
+/* Toast Progress Bar */
+.toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  background-color: currentColor;
+  opacity: 0.3;
+}
+
+/* Apply progress animation based on toast type duration */
+.toast .toast-progress {
+  animation: toast-progress 5s linear forwards;
+}
+
+/* Different durations for different types */
+.text-red-800 .toast-progress,
+.dark\:text-red-400 .toast-progress {
+  animation: toast-progress 7s linear forwards;
+}
+
+.text-yellow-800 .toast-progress,
+.dark\:text-yellow-400 .toast-progress {
+  animation: toast-progress 6s linear forwards;
+}
+
+/* Dialog styling - minimal custom CSS for ::backdrop pseudo-element */
+dialog::backdrop {
+  @apply bg-black/80 backdrop-blur-xl;
+}
+
+dialog {
+  @apply static;
+}
+
+@keyframes modal-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes modal-disappear {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+/* Default state - modal hidden with disappear animation */
+#modal-toggle ~ div dialog {
+  animation: modal-disappear 0.3s ease forwards;
+}
+
+/* Checked state - modal visible with appear animation */
+#modal-toggle:checked ~ div dialog {
+  animation: modal-appear 0.3s ease forwards;
+}
+
+/* Tag list animations - fade in row by row */
+@keyframes tag-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Only animate when tags_list frame is replaced, not on initial page load */
+#tags_list.animating .grid > * {
+  animation: tag-fade-in 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+/* Row by row stagger (6 columns per row on xl screens) */
+#tags_list.animating .grid > *:nth-child(-n+6) { animation-delay: 0s; }
+#tags_list.animating .grid > *:nth-child(n+7):nth-child(-n+12) { animation-delay: 0.1s; }
+#tags_list.animating .grid > *:nth-child(n+13):nth-child(-n+18) { animation-delay: 0.2s; }
+#tags_list.animating .grid > *:nth-child(n+19):nth-child(-n+24) { animation-delay: 0.3s; }
+#tags_list.animating .grid > *:nth-child(n+25):nth-child(-n+30) { animation-delay: 0.4s; }
+#tags_list.animating .grid > *:nth-child(n+31) { animation-delay: 0.5s; }

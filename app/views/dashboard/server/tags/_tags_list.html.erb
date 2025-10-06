@@ -11,13 +11,13 @@
           <% url =
             (
               if can_edit_tag?(tag)
-                edit_dashboard_server_tag_path(tag)
+                edit_dashboard_server_tag_path(tag, search: params[:search])
               else
-                dashboard_server_tag_path(tag)
+                dashboard_server_tag_path(tag, search: params[:search])
               end
             ) %>
 
-          <%= link_to url, data: { turbo_frame: "tag_form" }, class: "block bg-gray-700 rounded-lg p-4 hover:bg-gray-600 transition-colors cursor-pointer h-full flex flex-col" do %>
+          <%= link_to url, data: { turbo_frame: "tags_content", turbo_action: "advance" }, class: "block bg-gray-700 rounded-lg p-4 hover:bg-gray-600 transition-colors cursor-pointer h-full flex flex-col" do %>
             <h3 class="text-white font-semibold text-sm mb-2 truncate"><%= tag.name %></h3>
 
             <% if tag.image_url? %>
