@@ -37,7 +37,7 @@ class DiscordBotManagerService
     end
 
     def should_run?
-      @mutex.synchronize { @should_run }
+      @should_run
     end
 
     def running_or_starting?
@@ -45,7 +45,7 @@ class DiscordBotManagerService
     end
 
     def set_bot_instance(bot)
-      @mutex.synchronize { @bot_instance = bot }
+      @bot_instance = bot
     end
 
     def status
@@ -58,10 +58,9 @@ class DiscordBotManagerService
     end
 
     def register_guild_commands
-      bot = @mutex.synchronize { @bot_instance }
-      return { success: false, message: "Bot is not running" } unless bot
+      return { success: false, message: "Bot is not running" } unless @bot_instance
 
-      bot.register_all_commands(guild_only: true)
+      CommandRegistry.register_all_commands(@bot_instance, guild_only: true)
       { success: true, message: "Guild commands registered" }
     rescue StandardError => e
       broadcast_log("Error registering guild commands: #{e.message}", "error")
@@ -69,10 +68,9 @@ class DiscordBotManagerService
     end
 
     def register_global_commands
-      bot = @mutex.synchronize { @bot_instance }
-      return { success: false, message: "Bot is not running" } unless bot
+      return { success: false, message: "Bot is not running" } unless @bot_instance
 
-      bot.register_all_commands(guild_only: false)
+      CommandRegistry.register_all_commands(@bot_instance, guild_only: false)
       { success: true, message: "Global commands registered (may take up to 1 hour to propagate)" }
     rescue StandardError => e
       broadcast_log("Error registering global commands: #{e.message}", "error")

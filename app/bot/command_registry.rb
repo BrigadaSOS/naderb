@@ -192,19 +192,18 @@ class CommandRegistry
     end
   end
 
-  def register_all_commands(guild_only: false)
+  # Class method to register commands on a bot instance
+  def self.register_all_commands(bot, guild_only: false)
     server_id = guild_only ? Setting.discord_server_id : nil
 
     COMMAND_DEFINITIONS.each do |_key, definition|
-      register_application_command(definition[:name].to_sym, definition[:description], server_id: server_id) do |command|
+      bot.register_application_command(definition[:name].to_sym, definition[:description], server_id: server_id) do |command|
         build_command_structure(command, definition)
       end
     end
   end
 
-  private
-
-  def build_command_structure(command, definition)
+  def self.build_command_structure(command, definition)
     if definition[:subcommands].present?
       # Group all subcommands
       definition[:subcommands].each do |_key, subcommand|
@@ -218,7 +217,7 @@ class CommandRegistry
     end
   end
 
-  def add_parameters(target, parameters)
+  def self.add_parameters(target, parameters)
     parameters.each do |_key, param|
       param_name = param[:name].to_sym
       case param[:type].to_s.downcase
