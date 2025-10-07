@@ -12,44 +12,33 @@ class Setting < RailsSettings::Base
 
   class << self
     def discord_bot_token
-      ENV["DISCORD_TOKEN"]
+      Rails.application.credentials.discord[:token]
     end
 
     def discord_application_id
-      ENV["DISCORD_APPLICATION_ID"]
+      Rails.application.credentials.discord[:oauth_client_id]
     end
 
     def discord_oauth_client_id
-      ENV["DISCORD_OAUTH_CLIENT_ID"]
+      Rails.application.credentials.discord[:oauth_client_id]
     end
 
     def discord_oauth_client_secret
-      ENV["DISCORD_OAUTH_CLIENT_SECRET"]
+      Rails.application.credentials.discord[:oauth_client_secret]
     end
 
-    # Sync ENV vars to DB on initialization
-    def sync_from_env!
-      sync_field(:discord_server_id, "DISCORD_SERVER_ID")
-      sync_field(:discord_server_invite_url, "DISCORD_SERVER_INVITE_URL")
-      sync_array_field(:discord_admin_roles, "DISCORD_ADMIN_ROLE_IDS")
-      sync_array_field(:discord_moderator_roles, "DISCORD_MODERATOR_ROLE_IDS")
-      sync_array_field(:trusted_user_roles, "DISCORD_TRUSTED_ROLE_IDS")
+    # Sync credentials to DB on initialization
+    def sync_from_credentials!
+      discord = Rails.application.credentials.discord
+      return unless discord
 
-      Rails.logger.info "Discord settings synced from environment variables"
-    end
+      self.discord_server_id = discord[:server_id] if discord[:server_id].present?
+      self.discord_server_invite_url = discord[:server_invite_url] if discord[:server_invite_url].present?
+      self.discord_admin_roles = Array(discord[:admin_role_ids]) if discord[:admin_role_ids].present?
+      self.discord_moderator_roles = Array(discord[:moderator_role_ids]) if discord[:moderator_role_ids].present?
+      self.trusted_user_roles = Array(discord[:trusted_role_ids]) if discord[:trusted_role_ids].present?
 
-    private
-
-    def sync_field(field_name, env_key)
-      value = ENV[env_key]
-      send("#{field_name}=", value) if value.present?
-    end
-
-    def sync_array_field(field_name, env_key)
-      value = ENV[env_key]
-      if value.present?
-        send("#{field_name}=", value.split(",").map(&:strip).reject(&:blank?))
-      end
+      Rails.logger.info "Discord settings synced from Rails credentials"
     end
   end
 end

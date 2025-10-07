@@ -1,3 +1,9 @@
+# Sync Discord settings from credentials to database
+if Rails.application.credentials.discord.present?
+  Setting.sync_from_credentials!
+  puts "✓ Discord settings synced from credentials"
+end
+
 return unless Rails.env.development?
 
 require 'faker'

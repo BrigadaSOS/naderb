@@ -67,8 +67,8 @@
       <div class="space-y-4">
         <div class="flex items-center justify-between">
           <span class="text-gray-300"><%= t("dashboard.admin.config.index.discord_integration.bot_token") %></span>
-          <span class="<%= ENV['DISCORD_TOKEN'].present? ? 'text-green-400' : 'text-red-400' %>">
-            <%= ENV['DISCORD_TOKEN'].present? ? t("dashboard.admin.config.index.discord_integration.configured") : t("dashboard.admin.config.index.discord_integration.missing") %>
+          <span class="<%= Rails.application.credentials.discord[:token].present? ? 'text-green-400' : 'text-red-400' %>">
+            <%= Rails.application.credentials.discord[:token].present? ? t("dashboard.admin.config.index.discord_integration.configured") : t("dashboard.admin.config.index.discord_integration.missing") %>
           </span>
         </div>
 
@@ -83,15 +83,15 @@
       <div class="space-y-4">
         <div class="flex items-center justify-between">
           <span class="text-gray-300"><%= t("dashboard.admin.config.index.discord_integration.oauth_client_id") %></span>
-          <span class="<%= ENV['DISCORD_OAUTH_CLIENT_ID'].present? ? 'text-green-400' : 'text-red-400' %>">
-            <%= ENV['DISCORD_OAUTH_CLIENT_ID'].present? ? t("dashboard.admin.config.index.discord_integration.configured") : t("dashboard.admin.config.index.discord_integration.missing") %>
+          <span class="<%= Rails.application.credentials.discord[:oauth_client_id].present? ? 'text-green-400' : 'text-red-400' %>">
+            <%= Rails.application.credentials.discord[:oauth_client_id].present? ? t("dashboard.admin.config.index.discord_integration.configured") : t("dashboard.admin.config.index.discord_integration.missing") %>
           </span>
         </div>
 
         <div class="flex items-center justify-between">
           <span class="text-gray-300">OAuth Secret</span>
-          <span class="<%= ENV['DISCORD_OAUTH_CLIENT_SECRET'].present? ? 'text-green-400' : 'text-red-400' %>">
-            <%= ENV['DISCORD_OAUTH_CLIENT_SECRET'].present? ? t("dashboard.admin.config.index.discord_integration.configured") : t("dashboard.admin.config.index.discord_integration.missing") %>
+          <span class="<%= Rails.application.credentials.discord[:oauth_client_secret].present? ? 'text-green-400' : 'text-red-400' %>">
+            <%= Rails.application.credentials.discord[:oauth_client_secret].present? ? t("dashboard.admin.config.index.discord_integration.configured") : t("dashboard.admin.config.index.discord_integration.missing") %>
           </span>
         </div>
       </div>

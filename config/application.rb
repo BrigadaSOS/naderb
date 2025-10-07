@@ -17,9 +17,6 @@ require "action_cable/engine"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-# Load environment variables early, before initializers
-Dotenv.load if Rails.env.development? || Rails.env.production?
-
 module Nadeshikorb
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
