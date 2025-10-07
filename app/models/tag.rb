@@ -24,6 +24,9 @@ class Tag < ApplicationRecord
     uri = URI.parse(content.strip)
     return false unless uri.scheme&.match?(/^https?$/)
 
+    # Skip Discord media URLs as they don't resolve without proper referrer
+    return false if discord_media_url?(uri)
+
     # More lenient: check for image extensions OR assume it could be an image
     # This handles dynamic image services like picsum.photos, imgur, etc.
     has_image_extension = uri.path.match?(/\.(jpe?g|png|gif|webp|bmp|svg)$/i)
@@ -34,6 +37,15 @@ class Tag < ApplicationRecord
 
     # Otherwise, try to display it as an image (no extension or has image extension)
     true
+  rescue URI::InvalidURIError
+    false
+  end
+
+  def discord_media_url?(uri = nil)
+    uri ||= URI.parse(content.strip) rescue nil
+    return false unless uri
+
+    uri.host&.match?(/^(media|cdn)\.discordapp\.(net|com)$/i)
   rescue URI::InvalidURIError
     false
   end

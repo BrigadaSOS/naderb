@@ -2,22 +2,6 @@ module TagCommands
   extend Discordrb::EventContainer
   extend CommandRegistry::Helpers
 
-  # Message handler for ?tag get <tag_name>
-  message(start_with: "?tag get ") do |event|
-    tag_name = event.message.content.sub(/^\?tag get\s+/, "").strip
-    next if tag_name.empty?
-
-    tag = Tag.find_by_name(tag_name)
-
-    if tag.nil?
-      event.respond "❌ No existe una tag con el nombre de `#{tag_name}`"
-      next
-    end
-
-    content = self.format_tag_response(tag)
-    event.respond content
-  end
-
   define_subcommand(:tag, :get) do |event, params|
     event.defer(ephemeral: false)
 

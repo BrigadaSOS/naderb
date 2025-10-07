@@ -236,4 +236,3 @@ en:
               too_long: "is too long (maximum %{count} characters)"
             discord_uid:
               not_found: "User with Discord UID '%{discord_uid}' not found"
-

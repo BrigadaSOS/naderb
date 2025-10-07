@@ -1,7 +1,9 @@
 # Discord bot auto-starts with the Rails server
 # Skip during rake tasks (migrations, db:create, etc.)
 Rails.application.config.after_initialize do
-  DiscordBotJob.perform_later unless defined?(Rake)
+  unless defined?(Rake)
+    DiscordBotManagerService.start_bot
+  end
 end
 
 # Handle Ctrl+C gracefully by setting stop signal for the bot
