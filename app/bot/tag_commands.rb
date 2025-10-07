@@ -3,7 +3,7 @@ module TagCommands
   extend CommandRegistry::Helpers
 
   define_subcommand(:tag, :get) do |event, params|
-    event.defer()
+    event.defer(ephemeral: false)
 
     tag = self.find_tag_or_respond!(event, params[:name])
     return unless tag
@@ -16,7 +16,7 @@ module TagCommands
   end
 
   define_subcommand(:tag, :create) do |event, params|
-    event.defer()
+    event.defer(ephemeral: false)
 
     self.with_tag_service(event) do |service|
       tag = service.create_tag(name: params[:name], content: params[:content])
@@ -26,7 +26,7 @@ module TagCommands
   end
 
   define_subcommand(:tag, :edit) do |event, params|
-    event.defer()
+    event.defer(ephemeral: false)
 
     self.with_tag_service(event) do |service|
       tag = self.find_tag_or_respond!(event, params[:name])
@@ -41,7 +41,7 @@ module TagCommands
   end
 
   define_subcommand(:tag, :delete) do |event, params|
-    event.defer()
+    event.defer(ephemeral: false)
 
     self.with_tag_service(event) do |service|
       tag = self.find_tag_or_respond!(event, params[:name])
@@ -53,7 +53,7 @@ module TagCommands
   end
 
   define_subcommand(:tag, :raw) do |event, params|
-    event.defer()
+    event.defer(ephemeral: false)
 
     tag = self.find_tag_or_respond!(event, params[:name])
     return unless tag
@@ -63,7 +63,7 @@ module TagCommands
   end
 
   define_command(:tags) do |event, params|
-    event.defer()
+    event.defer(ephemeral: false)
 
     tags = Tag.where(guild_id: Setting.discord_server_id)
 
@@ -77,7 +77,7 @@ module TagCommands
       message = params[:search].present? ?
         "❌ No se encontraron tags que coincidan con '#{params[:search]}'" :
         "❌ No hay tags en este servidor"
-      event.edit_response(content: message, ephemeral: true)
+      event.edit_response(content: message)
       next
     end
 
