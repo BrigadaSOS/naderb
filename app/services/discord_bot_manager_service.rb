@@ -1,16 +1,17 @@
 class DiscordBotManagerService
   @mutex = Mutex.new
   @bot_instance = nil
-  @should_run = false
-  @started_at = nil
+
+  CACHE_KEY = "discord_bot:should_run"
+  STARTED_AT_KEY = "discord_bot:started_at"
 
   class << self
     def start_bot
       @mutex.synchronize do
-        return { success: false, message: "Bot is already running" } if @should_run
+        return { success: false, message: "Bot is already running" } if should_run?
 
-        @should_run = true
-        @started_at = Time.current
+        Rails.cache.write(CACHE_KEY, true)
+        Rails.cache.write(STARTED_AT_KEY, Time.current.to_s)
       end
 
       DiscordBotJob.perform_later
@@ -21,9 +22,9 @@ class DiscordBotManagerService
 
     def stop_bot
       @mutex.synchronize do
-        return { success: false, message: "Bot is not running" } unless @should_run
+        return { success: false, message: "Bot is not running" } unless should_run?
 
-        @should_run = false
+        Rails.cache.write(CACHE_KEY, false)
       end
 
       broadcast_log("Stop signal sent - bot will shutdown gracefully")
@@ -37,7 +38,7 @@ class DiscordBotManagerService
     end
 
     def should_run?
-      @should_run
+      Rails.cache.read(CACHE_KEY) || false
     end
 
     def running_or_starting?
@@ -50,10 +51,11 @@ class DiscordBotManagerService
 
     def status
       is_running = should_run?
+      started_at = is_running ? Time.parse(Rails.cache.read(STARTED_AT_KEY) || Time.current.to_s) : nil
       {
         status: is_running ? :running : :stopped,
-        started_at: is_running ? @started_at : nil,
-        uptime: is_running && @started_at ? Time.current - @started_at : nil
+        started_at: started_at,
+        uptime: is_running && started_at ? Time.current - started_at : nil
       }
     end
 
