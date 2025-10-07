@@ -64,7 +64,7 @@
                        form_toggle_target: "field",
                        testid: "tag-content-input",
                        tag_preview_target: "content",
-                       action: "input->tag-preview#updatePreview"
+                       action: "input->tag-preview#updatePreview blur->tag-preview#updatePreview"
                      },
                      id: "tag-content-display",
                      class:
@@ -105,25 +105,22 @@
       </div>
     <% end %>
 
-    <% if !read_only %>
-      <div class="flex justify-end pt-4">
-        <%= form.button submit_text,
-                    type: "submit",
-                    data: { testid: "submit-tag-button" },
-                    class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors" %>
-      </div>
-    <% end %>
   <% end %>
 
-  <% if !read_only && tag.persisted? %>
-    <div class="pt-4 border-t border-gray-600 mt-4">
-      <%= button_to t("dashboard.server.tags.form.button.delete"),
-          dashboard_server_tag_path(tag, search: params[:search]),
-          method: :delete,
-          form: { data: { turbo_frame: "_top" } },
-          data: { testid: "delete-tag-button" },
-          onclick: "return confirm('#{j t("dashboard.server.tags.form.button.delete_confirm")}');",
-          class: "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors" %>
+  <% if !read_only %>
+    <div class="flex justify-end items-center space-x-3 pt-4">
+      <% if tag.persisted? %>
+        <%= button_to t("dashboard.server.tags.form.button.delete"),
+            dashboard_server_tag_path(tag, search: params[:search]),
+            method: :delete,
+            form: { data: { turbo_frame: "_top" }, style: "display: inline;" },
+            data: { testid: "delete-tag-button" },
+            onclick: "return confirm('#{j t("dashboard.server.tags.form.button.delete_confirm")}');",
+            class: "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors" %>
+      <% end %>
+      <button type="submit" form="tag-form" data-testid="submit-tag-button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+        <%= submit_text %>
+      </button>
     </div>
   <% end %>
 
