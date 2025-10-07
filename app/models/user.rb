@@ -8,6 +8,8 @@ class User < ApplicationRecord
 
   has_many :tags, dependent: :destroy
 
+  validates :locale, inclusion: { in: -> { I18n.available_locales.map(&:to_s) }, allow_nil: true }
+
   def self.find_or_create_from_discord(discord_uid:, discord_user: nil)
     where(discord_uid: discord_uid).first_or_create do |user|
       user.provider = "discord_bot"

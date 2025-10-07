@@ -26,12 +26,12 @@ RSpec.describe "Dashboard Login", type: :system do
 
       expect(page).to have_current_path(dashboard_path)
 
-      # Should see regular sections (case-insensitive)
-      expect(page).to have_content("Profile", normalize_ws: true)
-      expect(page).to have_text("Tags", normalize_ws: true)
+      # Should see regular sections
+      expect(page).to have_testid("sidebar-profile-link")
+      expect(page).to have_testid("sidebar-tags-link")
 
       # Should NOT see Admin section
-      expect(page).not_to have_css("h3.text-yellow-400", text: "ADMIN")
+      expect(page).to have_no_testid("sidebar-admin-section")
     end
   end
 
@@ -48,14 +48,14 @@ RSpec.describe "Dashboard Login", type: :system do
       expect(page).to have_current_path(dashboard_path)
 
       # Should see regular sections
-      expect(page).to have_content("Profile", normalize_ws: true)
-      expect(page).to have_text("Tags", normalize_ws: true)
+      expect(page).to have_testid("sidebar-profile-link")
+      expect(page).to have_testid("sidebar-tags-link")
 
-      # Should see Admin section with yellow heading
-      expect(page).to have_css("h3.text-yellow-400", text: "ADMIN")
-      expect(page).to have_content("Config")
-      expect(page).to have_content("Data")
-      expect(page).to have_content("Bot")
+      # Should see Admin section
+      expect(page).to have_testid("sidebar-admin-section")
+      expect(page).to have_testid("sidebar-config-link")
+      expect(page).to have_testid("sidebar-data-link")
+      expect(page).to have_testid("sidebar-bot-link")
     end
   end
 
@@ -72,11 +72,11 @@ RSpec.describe "Dashboard Login", type: :system do
       expect(page).to have_current_path(dashboard_path)
 
       # Should see regular sections
-      expect(page).to have_content("Profile", normalize_ws: true)
-      expect(page).to have_text("Tags", normalize_ws: true)
+      expect(page).to have_testid("sidebar-profile-link")
+      expect(page).to have_testid("sidebar-tags-link")
 
       # Should NOT see Admin section (moderator != admin)
-      expect(page).not_to have_css("h3.text-yellow-400", text: "ADMIN")
+      expect(page).to have_no_testid("sidebar-admin-section")
     end
   end
 
@@ -96,12 +96,12 @@ RSpec.describe "Dashboard Login", type: :system do
       expect(page).to have_current_path(dashboard_path)
 
       # Should see everything including Admin section
-      expect(page).to have_content("Profile", normalize_ws: true)
-      expect(page).to have_text("Tags", normalize_ws: true)
-      expect(page).to have_css("h3.text-yellow-400", text: "ADMIN")
-      expect(page).to have_content("Config")
-      expect(page).to have_content("Data")
-      expect(page).to have_content("Bot")
+      expect(page).to have_testid("sidebar-profile-link")
+      expect(page).to have_testid("sidebar-tags-link")
+      expect(page).to have_testid("sidebar-admin-section")
+      expect(page).to have_testid("sidebar-config-link")
+      expect(page).to have_testid("sidebar-data-link")
+      expect(page).to have_testid("sidebar-bot-link")
     end
   end
 
@@ -118,11 +118,11 @@ RSpec.describe "Dashboard Login", type: :system do
       expect(page).to have_current_path(dashboard_path)
 
       # Should still load the page with basic sections
-      expect(page).to have_content("Profile", normalize_ws: true)
-      expect(page).to have_text("Tags", normalize_ws: true)
+      expect(page).to have_testid("sidebar-profile-link")
+      expect(page).to have_testid("sidebar-tags-link")
 
       # Should NOT see Admin section (no roles returned)
-      expect(page).not_to have_css("h3.text-yellow-400", text: "ADMIN")
+      expect(page).to have_no_testid("sidebar-admin-section")
     end
   end
 end

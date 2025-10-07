@@ -53,7 +53,9 @@ RSpec.describe "Dashboard Tags", type: :system do
 
       click_testid "tag-rules"
 
-      expect(page).to have_content("Server rules")
+      # Wait for modal to open and become visible
+      expect(page).to have_testid("tag-content-input", wait: 2)
+      expect(find_by_testid("tag-content-input").value).to eq("Server rules")
       expect(current_path).to eq(dashboard_server_tag_path(other_tag))
     end
   end
@@ -76,12 +78,17 @@ RSpec.describe "Dashboard Tags", type: :system do
         fill_testid "tag-name-input", with: "test_tag"
         fill_testid "tag-content-input", with: "This is test content"
 
-        expect {
-          click_testid "submit-tag-button"
-        }.to change(Tag, :count).by(1)
+        click_testid "submit-tag-button"
 
-        expect(page).to have_content("test_tag")
+        # Wait for tag to appear (which means redirect happened and tag was created)
+        expect(page).to have_testid("tag-test_tag", wait: 5)
+
+        # Verify we're back at the index page
         expect(current_path).to eq(dashboard_server_tags_path)
+
+        # Verify tag was created
+        expect(Tag.count).to eq(1)
+        expect(Tag.last.name).to eq("test_tag")
       end
 
       it "normalizes tag name to lowercase", js: true do
@@ -175,17 +182,19 @@ RSpec.describe "Dashboard Tags", type: :system do
         visit edit_dashboard_server_tag_path(my_tag)
 
         accept_confirm do
-          click_button "Delete"
+          click_testid "delete-tag-button"
         end
 
-        expect(page).not_to have_content("my_tag")
+        # Wait for redirect to index and tag to be removed
+        expect(current_path).to eq(dashboard_server_tags_path)
+        expect(page).to have_no_testid("tag-my_tag", wait: 2)
         expect(Tag.exists?(my_tag.id)).to be false
       end
 
       it "cannot delete other user's tag", js: true do
         visit dashboard_server_tag_path(other_tag)
 
-        expect(page).not_to have_button("Delete")
+        expect(page).to have_no_testid("delete-tag-button")
       end
     end
 
@@ -199,9 +208,11 @@ RSpec.describe "Dashboard Tags", type: :system do
         visit edit_dashboard_server_tag_path(other_tag)
 
         accept_confirm do
-          click_button "Delete"
+          click_testid "delete-tag-button"
         end
 
+        # Wait for redirect to index
+        expect(current_path).to eq(dashboard_server_tags_path)
         expect(Tag.exists?(other_tag.id)).to be false
       end
     end
@@ -221,42 +232,50 @@ RSpec.describe "Dashboard Tags", type: :system do
     it "filters tags by search query", js: true do
       visit dashboard_server_tags_path
 
-      fill_in "search", with: "wel"
-      click_button "Search"
+      fill_testid "search-input", with: "wel"
 
-      expect(page).to have_content("welcome")
-      expect(page).not_to have_content("goodbye")
-      expect(page).not_to have_content("rules")
+      # Wait for debounced search and filtering
+      expect(page).to have_testid("tag-welcome", wait: 2)
+      expect(page).to have_no_testid("tag-goodbye")
+      expect(page).to have_no_testid("tag-rules")
     end
 
     it "preserves search query in URL", js: true do
       visit dashboard_server_tags_path
 
-      fill_in "search", with: "rule"
-      click_button "Search"
+      fill_testid "search-input", with: "rule"
 
+      # Wait for debounced search to update URL and content
+      expect(page).to have_testid("tag-rules", wait: 2)
+      sleep 0.5  # Give the JS controller time to update the URL
       expect(current_url).to include("search=rule")
     end
 
     it "preserves search when editing a tag", js: true do
       visit dashboard_server_tags_path(search: "welcome")
 
-      click_link "welcome"
-      fill_in "tag[content]", with: "Updated"
-      click_button "Update"
+      click_testid "tag-welcome"
+      fill_testid "tag-content-input", with: "Updated"
+      click_testid "submit-tag-button"
 
+      expect(page).to have_testid("tag-welcome", wait: 2)
       expect(current_url).to include("search=welcome")
     end
 
     it "clears results when search is empty", js: true do
       visit dashboard_server_tags_path(search: "welcome")
 
-      fill_in "search", with: ""
-      click_button "Search"
+      # Verify we start with filtered results
+      expect(page).to have_testid("tag-welcome")
+      expect(page).to have_no_testid("tag-goodbye")
 
-      expect(page).to have_content("welcome")
-      expect(page).to have_content("goodbye")
-      expect(page).to have_content("rules")
+      # Use the clear button to clear search
+      click_testid "clear-search-button"
+
+      # Wait for all tags to appear
+      expect(page).to have_testid("tag-goodbye", wait: 2)
+      expect(page).to have_testid("tag-welcome")
+      expect(page).to have_testid("tag-rules")
     end
   end
 
@@ -272,7 +291,7 @@ RSpec.describe "Dashboard Tags", type: :system do
     it "updates URL when opening new tag modal", js: true do
       visit dashboard_server_tags_path
 
-      click_on "Add New Tag"
+      click_testid "new-tag-button"
 
       expect(current_path).to eq(new_dashboard_server_tag_path)
     end
@@ -280,7 +299,7 @@ RSpec.describe "Dashboard Tags", type: :system do
     it "updates URL when opening edit modal", js: true do
       visit dashboard_server_tags_path
 
-      click_link "test"
+      click_testid "tag-test"
 
       expect(current_path).to eq(edit_dashboard_server_tag_path(tag))
     end
@@ -288,7 +307,7 @@ RSpec.describe "Dashboard Tags", type: :system do
     it "preserves search in URL when navigating", js: true do
       visit dashboard_server_tags_path(search: "test")
 
-      click_link "test"
+      click_testid "tag-test"
 
       expect(current_url).to include("search=test")
     end

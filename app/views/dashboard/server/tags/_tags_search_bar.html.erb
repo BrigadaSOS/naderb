@@ -1,4 +1,5 @@
 <%= form_with url: dashboard_server_tags_path, method: :get, data: {
+      turbo_frame: "tags_list",
       turbo_action: "advance",
       controller: "search-filter",
       search_filter_target: "form"
@@ -24,6 +25,7 @@
         turbo_action: "advance",
         search_filter_target: "clearButton",
         action: "click->search-filter#clear",
+        testid: "clear-search-button"
       },
       class: button_classes(:secondary) %>
     <% end %>

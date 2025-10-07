@@ -4,12 +4,14 @@
     <p class="text-gray-400"><%= t(".subtitle") %></p>
   </div>
 
-  <%= button_link t(".add_new"),
-  new_dashboard_server_tag_path,
-  variant: :primary,
-  data: {
-    turbo_frame: "tags_content",
-    turbo_action: "advance",
-    testid: "new-tag-button"
-  } %>
+  <% if current_user.trusted_user? %>
+    <%= button_link t(".add_new"),
+    new_dashboard_server_tag_path,
+    variant: :primary,
+    data: {
+      turbo_frame: "tags_content",
+      turbo_action: "advance",
+      testid: "new-tag-button"
+    } %>
+  <% end %>
 </div>

@@ -58,8 +58,8 @@ export default class extends Controller {
   }
 
   updateURL(event) {
-    // Update URL when the tags_container frame loads
-    if (event.target.id === "tags_container") {
+    // Update URL when the tags_list frame loads
+    if (event.target.id === "tags_list") {
       const url = new URL(this.formTarget.action)
       const searchValue = this.inputTarget.value.trim()
 

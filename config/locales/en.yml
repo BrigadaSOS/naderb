@@ -8,50 +8,53 @@ en:
     database: "Database error, please try again later"
     unexpected: "An unexpected error occurred"
 
-  # Tag errors
-  tags:
-    errors:
-      not_found: "Tag '%{name}' not found"
-      permission_denied: "You don't have permission to perform this action"
-      validation_failed: "Validation failed: %{errors}"
+  # Home page
+  home:
+    welcome_title: "Welcome to Brigada SOS"
+    welcome_subtitle: "Connect with Discord to get started"
+    login_with_discord: "Sign in with Discord"
 
-  # Tag policy errors
-  tag_policy:
-    errors:
-      create: "You don't have permission to create tags"
-      update: "You don't have permission to update this tag"
-      destroy: "You don't have permission to delete this tag"
-      change_owner: "Only admins can change tag ownership"
-      not_found: "Tag not found"
+  # Navigation
+  nav:
+    dashboard: "Dashboard"
+    logout: "Sign out"
 
-  # ActiveRecord validation errors
-  activerecord:
-    attributes:
-      tag:
-        name: "Name"
-        content: "Content"
-    errors:
-      messages:
-        blank: "can't be blank"
-        too_long: "is too long (maximum %{count} characters)"
-        taken: "has already been taken"
-        invalid: "is invalid"
-      models:
-        tag:
-          attributes:
-            name:
-              blank: "is required"
-              too_long: "is too long (maximum %{count} characters)"
-              invalid: "can only contain letters, numbers, underscores and hyphens"
-              taken: "already exists in this server"
-            content:
-              blank: "is required"
-              too_long: "is too long (maximum %{count} characters)"
-            discord_uid:
-              not_found: "User with Discord UID '%{discord_uid}' not found"
+  # Sidebar
+  sidebar:
+    profile:
+      title: "Profile"
+      profile: "Profile"
+    server:
+      title: "Server"
+      tags: "Tags"
+    admin:
+      title: "Admin"
+      config: "Config"
+      data: "Data"
+      bot: "Bot"
 
-  # Dashboard views and controllers
+  # Dashboard
   dashboard:
+    welcome_back: "Welcome back, %{username}!"
+    success_message: "You have successfully signed in to Brigada SOS"
+
+    profile:
+      index:
+        title: "Profile"
+        subtitle: "Manage your profile information and settings"
+        basic_info: "Basic Information"
+        account_details: "Account Details"
+        display_name: "Display Name"
+        username: "Username"
+        email: "Email"
+        member_since: "Member Since"
+        preferred_language: "Preferred Language"
+        save: "Save"
+        future_updates: "Profile editing functionality will be added in future updates."
+      update:
+        language_updated: "Language preference updated successfully."
+        language_update_failed: "Failed to update language preference."
+
     server:
       tags:
         index:
@@ -119,3 +122,118 @@ en:
           forbidden: "You need a trusted role to create tags"
         require_edit_permission:
           forbidden: "You don't have permission to edit this tag"
+
+    admin:
+      config:
+        index:
+          title: "System Configuration"
+          subtitle: "Manage service configuration and settings"
+          sections_title: "Configuration Sections"
+          app_settings:
+            title: "Application Settings"
+            subtitle: "Core application configuration and environment variables"
+            environment: "Environment"
+            rails_version: "Rails Version"
+            ruby_version: "Ruby Version"
+          discord_integration:
+            title: "Discord Integration"
+            subtitle: "Discord bot and OAuth configuration"
+            server_id: "Server ID"
+            bot_token: "Bot Token"
+            oauth_client_id: "OAuth Client ID"
+            configured: "Configured"
+            missing: "Missing"
+            not_configured: "Not configured"
+          role_config:
+            title: "Role Configuration"
+            subtitle: "Configure which Discord roles have access to admin, moderator, and trusted features"
+            refresh_roles: "Refresh Roles"
+            admin_roles: "Admin Roles"
+            admin_description: "Users with these roles have full administrative access"
+            moderator_roles: "Moderator Roles"
+            moderator_description: "Users with these roles can moderate content"
+            trusted_roles: "Trusted User Roles"
+            trusted_description: "Users with these roles can create tags and access additional features"
+            no_roles: "No roles configured"
+            save_roles: "Save Role Configuration"
+
+      bot:
+        index:
+          title: "Discord Bot Management"
+          subtitle: "Monitor and control the Discord bot"
+          control_panel: "Bot Control"
+          status: "Status"
+          uptime: "Uptime"
+          start: "Start"
+          stop: "Stop"
+          restart: "Restart"
+          force_stop: "Force Stop"
+          commands_title: "Slash Commands"
+          commands_subtitle: "Register slash commands with Discord"
+          register_guild: "Register Guild Commands"
+          register_global: "Register Global Commands"
+          metrics_title: "Bot Metrics"
+          guilds: "Guilds"
+          users: "Users"
+          commands: "Commands"
+
+      data:
+        index:
+          title: "Database Explorer"
+          subtitle: "Browse raw database content for debugging"
+          tables_title: "Database Tables"
+          records: "Records"
+          inspect: "Inspect"
+          error: "Error"
+          activity_log: "Recent Activity Log"
+          coming_soon: "Activity logging coming soon..."
+
+  # Discord integration
+  discord:
+    join_server: "Join Discord server"
+    try_again: "Try again"
+    action_required: "Action required"
+    must_join_server: "You must be a member of our Discord server to sign in.\nJoin our community and try again!"
+
+  # Tag errors
+  tags:
+    errors:
+      not_found: "Tag '%{name}' not found"
+      permission_denied: "You don't have permission to perform this action"
+      validation_failed: "Validation failed: %{errors}"
+
+  # Tag policy errors
+  tag_policy:
+    errors:
+      create: "You don't have permission to create tags"
+      update: "You don't have permission to update this tag"
+      destroy: "You don't have permission to delete this tag"
+      change_owner: "Only admins can change tag ownership"
+      not_found: "Tag not found"
+
+  # ActiveRecord validation errors
+  activerecord:
+    attributes:
+      tag:
+        name: "Name"
+        content: "Content"
+    errors:
+      messages:
+        blank: "can't be blank"
+        too_long: "is too long (maximum %{count} characters)"
+        taken: "has already been taken"
+        invalid: "is invalid"
+      models:
+        tag:
+          attributes:
+            name:
+              blank: "is required"
+              too_long: "is too long (maximum %{count} characters)"
+              invalid: "can only contain letters, numbers, underscores and hyphens"
+              taken: "already exists in this server"
+            content:
+              blank: "is required"
+              too_long: "is too long (maximum %{count} characters)"
+            discord_uid:
+              not_found: "User with Discord UID '%{discord_uid}' not found"
+

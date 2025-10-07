@@ -6,28 +6,18 @@ require "capybara/cuprite"
 require "capybara-screenshot/rspec"
 
 # ============================================================================
+# CAPYBARA CONFIGURATION
+# ============================================================================
+Capybara.configure do |config|
+  config.test_id = "data-testid"
+end
+
+# ============================================================================
 # STANDARD CAPYBARA-SCREENSHOT CONFIGURATION
 # ============================================================================
 Capybara::Screenshot.autosave_on_failure = true
 Capybara::Screenshot.prune_strategy = :keep_last_run
 Capybara.save_path = Rails.root.join("tmp/capybara")
-
-# Make screenshot paths clickable in Alacritty terminal
-Capybara::Screenshot.class_eval do
-  def self.screenshot_and_save_page
-    return unless Capybara::Screenshot.autosave_on_failure
-
-    filename_prefix = Capybara::Screenshot.filename_prefix_for(:rspec, RSpec.current_example)
-
-    saver = Capybara::Screenshot::Saver.new(Capybara, Capybara.page, true, filename_prefix)
-    saver.save
-
-    # Output with file:// protocol for clickable links in Alacritty
-    saver.screenshot_paths.each do |path|
-      puts "  file://#{File.absolute_path(path)}"
-    end
-  end
-end
 
 # ============================================================================
 # CUPRITE DRIVER CONFIGURATION
@@ -43,7 +33,7 @@ Capybara.register_driver :cuprite do |app|
 
   Capybara::Cuprite::Driver.new(
     app,
-    window_size: [1400, 1400],
+    window_size: [ 1400, 1400 ],
     browser_options: {
       "no-sandbox" => nil,
       "disable-dev-shm-usage" => nil,

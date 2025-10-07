@@ -12,7 +12,6 @@ swarm:
       prompt_file: .claude-on-rails/prompts/architect.md
       vibe: true
 
-    
     models:
       description: "ActiveRecord models, migrations, and database optimization specialist"
       directory: ./app/models
@@ -20,21 +19,14 @@ swarm:
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/models.md
 
-
-      
     controllers:
       description: "Rails controllers, routing, and request handling specialist"
       directory: ./app/controllers
       model: sonnet
 
-
-
-
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/controllers.md
 
-
-    
     views:
       description: "Rails views, layouts, partials, and asset pipeline specialist"
       directory: ./app/views
@@ -45,10 +37,6 @@ swarm:
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/views.md
 
-
-
-
-    
     stimulus:
       description: "Stimulus.js controllers and Turbo integration specialist"
       directory: ./app/javascript
@@ -56,9 +44,6 @@ swarm:
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/stimulus.md
 
-
-
-      
     jobs:
       description: "Background jobs, ActiveJob, and async processing specialist"
       directory: ./app/jobs
@@ -66,20 +51,13 @@ swarm:
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/jobs.md
 
-
-
-
-    
     tests:
       description: "Minitest testing, factories, and test coverage specialist"
-      directory: ./test
+      directory: ./spec
       model: sonnet
       allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
       prompt_file: .claude-on-rails/prompts/tests.md
 
-
-
-    
     devops:
       description: "Deployment, Docker, CI/CD, and production configuration specialist"
       directory: ./config

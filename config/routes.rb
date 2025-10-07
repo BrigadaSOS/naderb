@@ -19,7 +19,7 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   namespace :dashboard do
-    resources :profile, only: [ :index ]
+    resources :profile, only: [ :index, :update ]
 
     namespace :server do
       resources :tags do

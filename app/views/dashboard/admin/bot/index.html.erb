@@ -8,25 +8,25 @@
 
   <div class="flex-1 p-6 overflow-y-auto">
     <div class="mb-8">
-      <h1 class="text-3xl font-bold text-white mb-2">Discord Bot Management</h1>
-      <p class="text-gray-400">Monitor and control the Discord bot</p>
+      <h1 class="text-3xl font-bold text-white mb-2"><%= t(".title") %></h1>
+      <p class="text-gray-400"><%= t(".subtitle") %></p>
     </div>
 
     <div class="space-y-6">
   <!-- Bot Control Panel -->
   <div class="bg-gray-800 rounded-lg p-6">
-    <h2 class="text-xl font-semibold text-white mb-4">Bot Control</h2>
+    <h2 class="text-xl font-semibold text-white mb-4"><%= t(".control_panel") %></h2>
 
     <div class="flex items-center justify-between mb-6">
       <div class="space-y-2">
         <div class="flex items-center gap-3">
-          <span class="text-gray-300">Status:</span>
+          <span class="text-gray-300"><%= t(".status") %>:</span>
           <span data-bot-manager-target="status" class="text-gray-400 bg-gray-400/20 px-2 py-1 rounded text-sm">
             <%= @bot_status[:status].to_s.titleize %>
           </span>
         </div>
         <div class="flex items-center gap-3">
-          <span class="text-gray-300">Uptime:</span>
+          <span class="text-gray-300"><%= t(".uptime") %>:</span>
           <span data-bot-manager-target="uptime" class="text-blue-400 font-mono text-sm">N/A</span>
         </div>
       </div>
@@ -35,22 +35,22 @@
         <button data-bot-manager-target="startBtn"
                 data-action="click->bot-manager#start"
                 class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors">
-          Start
+          <%= t(".start") %>
         </button>
         <button data-bot-manager-target="stopBtn"
                 data-action="click->bot-manager#stop"
                 class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors">
-          Stop
+          <%= t(".stop") %>
         </button>
         <button data-bot-manager-target="restartBtn"
                 data-action="click->bot-manager#restart"
                 class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded transition-colors">
-          Restart
+          <%= t(".restart") %>
         </button>
         <button data-bot-manager-target="forceStopBtn"
                 data-action="click->bot-manager#forceStop"
                 class="px-4 py-2 bg-red-900 hover:bg-red-800 text-white rounded transition-colors border-2 border-red-500">
-          Force Stop
+          <%= t(".force_stop") %>
         </button>
       </div>
     </div>
@@ -61,37 +61,37 @@
 
   <!-- Bot Status -->
   <div class="bg-gray-800 rounded-lg p-6">
-    <h2 class="text-xl font-semibold text-white mb-4">Configuration Status</h2>
+    <h2 class="text-xl font-semibold text-white mb-4"><%= t("dashboard.admin.config.index.discord_integration.title") %></h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div class="space-y-4">
         <div class="flex items-center justify-between">
-          <span class="text-gray-300">Bot Token</span>
+          <span class="text-gray-300"><%= t("dashboard.admin.config.index.discord_integration.bot_token") %></span>
           <span class="<%= ENV['DISCORD_TOKEN'].present? ? 'text-green-400' : 'text-red-400' %>">
-            <%= ENV['DISCORD_TOKEN'].present? ? 'Configured' : 'Missing' %>
+            <%= ENV['DISCORD_TOKEN'].present? ? t("dashboard.admin.config.index.discord_integration.configured") : t("dashboard.admin.config.index.discord_integration.missing") %>
           </span>
         </div>
 
         <div class="flex items-center justify-between">
-          <span class="text-gray-300">Server ID</span>
+          <span class="text-gray-300"><%= t("dashboard.admin.config.index.discord_integration.server_id") %></span>
           <span class="text-blue-400 font-mono text-sm">
-            <%= Setting.discord_server_id || 'Not configured' %>
+            <%= Setting.discord_server_id || t("dashboard.admin.config.index.discord_integration.not_configured") %>
           </span>
         </div>
       </div>
 
       <div class="space-y-4">
         <div class="flex items-center justify-between">
-          <span class="text-gray-300">OAuth Client ID</span>
+          <span class="text-gray-300"><%= t("dashboard.admin.config.index.discord_integration.oauth_client_id") %></span>
           <span class="<%= ENV['DISCORD_OAUTH_CLIENT_ID'].present? ? 'text-green-400' : 'text-red-400' %>">
-            <%= ENV['DISCORD_OAUTH_CLIENT_ID'].present? ? 'Configured' : 'Missing' %>
+            <%= ENV['DISCORD_OAUTH_CLIENT_ID'].present? ? t("dashboard.admin.config.index.discord_integration.configured") : t("dashboard.admin.config.index.discord_integration.missing") %>
           </span>
         </div>
 
         <div class="flex items-center justify-between">
           <span class="text-gray-300">OAuth Secret</span>
           <span class="<%= ENV['DISCORD_OAUTH_CLIENT_SECRET'].present? ? 'text-green-400' : 'text-red-400' %>">
-            <%= ENV['DISCORD_OAUTH_CLIENT_SECRET'].present? ? 'Configured' : 'Missing' %>
+            <%= ENV['DISCORD_OAUTH_CLIENT_SECRET'].present? ? t("dashboard.admin.config.index.discord_integration.configured") : t("dashboard.admin.config.index.discord_integration.missing") %>
           </span>
         </div>
       </div>
@@ -117,17 +117,17 @@
   <!-- Available Commands -->
   <div class="bg-gray-800 rounded-lg p-6">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-xl font-semibold text-white">Available Commands</h2>
+      <h2 class="text-xl font-semibold text-white"><%= t(".commands_title") %></h2>
       <div class="flex gap-2">
         <button data-bot-manager-target="registerGuildBtn"
                 data-action="click->bot-manager#registerGuildCommands"
                 class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded transition-colors">
-          Register Guild Commands
+          <%= t(".register_guild") %>
         </button>
         <button data-bot-manager-target="registerGlobalBtn"
                 data-action="click->bot-manager#registerGlobalCommands"
                 class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded transition-colors">
-          Register Global Commands
+          <%= t(".register_global") %>
         </button>
       </div>
     </div>

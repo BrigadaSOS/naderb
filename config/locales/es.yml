@@ -8,23 +8,186 @@ es:
     database: "Error de base de datos, intenta de nuevo más tarde"
     unexpected: "Error inesperado"
 
-  # Tag errors
-  tags:
-    errors:
-      not_found: "No existe una tag con el nombre '%{name}'"
-      permission_denied: "No tienes permiso para realizar esta acción"
-      validation_failed: "Validación fallida: %{errors}"
-
   # Home page
   home:
     welcome_title: "Bienvenido a la Brigada SOS"
     welcome_subtitle: "Conéctate con Discord para comenzar"
     login_with_discord: "Iniciar sesión con Discord"
 
+  # Navigation
+  nav:
+    dashboard: "Panel"
+    logout: "Cerrar sesión"
+
+  # Sidebar
+  sidebar:
+    profile:
+      title: "Perfil"
+      profile: "Perfil"
+    server:
+      title: "Servidor"
+      tags: "Tags"
+    admin:
+      title: "Admin"
+      config: "Configuración"
+      data: "Datos"
+      bot: "Bot"
+
   # Dashboard
   dashboard:
     welcome_back: "¡Bienvenido de vuelta, %{username}!"
     success_message: "Has iniciado sesión exitosamente en Brigada SOS"
+
+    profile:
+      index:
+        title: "Perfil"
+        subtitle: "Gestiona tu información de perfil y configuración"
+        basic_info: "Información Básica"
+        account_details: "Detalles de la Cuenta"
+        display_name: "Nombre para Mostrar"
+        username: "Nombre de Usuario"
+        email: "Email"
+        member_since: "Miembro Desde"
+        preferred_language: "Idioma Preferido"
+        save: "Guardar"
+        future_updates: "La funcionalidad de edición de perfil se agregará en futuras actualizaciones."
+      update:
+        language_updated: "Preferencia de idioma actualizada exitosamente."
+        language_update_failed: "Error al actualizar la preferencia de idioma."
+
+    server:
+      tags:
+        index:
+          modal:
+            view_title: "Ver Tag"
+            edit_title: "Editar Tag"
+            create_title: "Crear Nueva Tag"
+            update_submit: "Actualizar Tag"
+            create_submit: "Crear Tag"
+        tags_header:
+          title: "Tags"
+          subtitle: "Gestiona y organiza tus tags"
+          add_new: "Crear Tag"
+        tags_search_bar:
+          search_placeholder: "Buscar tags por nombre..."
+          search_button: "Buscar"
+          clear: "Limpiar"
+        tags_list:
+          created_by: "Creada por %{user}"
+          empty_state:
+            title: "No hay tags aún"
+            description: "Crea tu primera tag para comenzar a organizar tu contenido."
+        form:
+          field:
+            name: "Nombre"
+            name_placeholder: "Nombre de la tag"
+            content: "Contenido"
+            content_placeholder: "Contenido de la tag (para imágenes, incluye una URL)"
+            discord_uid: "Discord UID del nuevo autor"
+            discord_uid_placeholder: "Ingresa el Discord UID para cambiar el autor"
+            current_owner: "Autor actual: %{owner}"
+          button:
+            close: "Cerrar"
+            cancel: "Cancelar"
+            edit: "Editar Tag"
+            submit: "Enviar"
+            delete: "Eliminar"
+            delete_confirm: "¿Estás seguro?"
+        new:
+          title: "Crear Nueva Tag"
+          submit: "Crear Tag"
+        show:
+          title:
+            view: "Ver Tag"
+            edit: "Editar Tag"
+          submit: "Actualizar Tag"
+        edit:
+          title:
+            view: "Ver Tag"
+            edit: "Editar Tag"
+          submit: "Actualizar Tag"
+        create:
+          success: "Tag creada exitosamente"
+        update:
+          success: "Tag actualizada exitosamente"
+          title:
+            view: "Ver Tag"
+            edit: "Editar Tag"
+          submit: "Actualizar Tag"
+        destroy:
+          success: "Tag eliminada exitosamente"
+        set_tag:
+          not_found: "Tag no encontrada"
+        require_create_permission:
+          forbidden: "Necesitas un rol de confianza para crear tags"
+        require_edit_permission:
+          forbidden: "No tienes permiso para editar esta tag"
+
+    admin:
+      config:
+        index:
+          title: "Configuración del Sistema"
+          subtitle: "Gestiona la configuración del servicio"
+          sections_title: "Secciones de Configuración"
+          app_settings:
+            title: "Configuración de Aplicación"
+            subtitle: "Configuración principal de la aplicación y variables de entorno"
+            environment: "Entorno"
+            rails_version: "Versión de Rails"
+            ruby_version: "Versión de Ruby"
+          discord_integration:
+            title: "Integración con Discord"
+            subtitle: "Configuración del bot de Discord y OAuth"
+            server_id: "ID del Servidor"
+            bot_token: "Token del Bot"
+            oauth_client_id: "ID de Cliente OAuth"
+            configured: "Configurado"
+            missing: "Falta"
+            not_configured: "No configurado"
+          role_config:
+            title: "Configuración de Roles"
+            subtitle: "Configura qué roles de Discord tienen acceso a funciones de admin, moderador y confianza"
+            refresh_roles: "Actualizar Roles"
+            admin_roles: "Roles de Admin"
+            admin_description: "Los usuarios con estos roles tienen acceso administrativo completo"
+            moderator_roles: "Roles de Moderador"
+            moderator_description: "Los usuarios con estos roles pueden moderar contenido"
+            trusted_roles: "Roles de Usuario de Confianza"
+            trusted_description: "Los usuarios con estos roles pueden crear tags y acceder a funciones adicionales"
+            no_roles: "No hay roles configurados"
+            save_roles: "Guardar Configuración de Roles"
+
+      bot:
+        index:
+          title: "Gestión del Bot de Discord"
+          subtitle: "Monitorea y controla el bot de Discord"
+          control_panel: "Control del Bot"
+          status: "Estado"
+          uptime: "Tiempo Activo"
+          start: "Iniciar"
+          stop: "Detener"
+          restart: "Reiniciar"
+          force_stop: "Forzar Detención"
+          commands_title: "Comandos Slash"
+          commands_subtitle: "Registra comandos slash con Discord"
+          register_guild: "Registrar Comandos del Servidor"
+          register_global: "Registrar Comandos Globales"
+          metrics_title: "Métricas del Bot"
+          guilds: "Servidores"
+          users: "Usuarios"
+          commands: "Comandos"
+
+      data:
+        index:
+          title: "Explorador de Base de Datos"
+          subtitle: "Navega el contenido de la base de datos para depuración"
+          tables_title: "Tablas de Base de Datos"
+          records: "Registros"
+          inspect: "Inspeccionar"
+          error: "Error"
+          activity_log: "Registro de Actividad Reciente"
+          coming_soon: "Registro de actividad próximamente..."
+
     server:
       tags:
         index:
@@ -99,6 +262,13 @@ es:
     try_again: "Intentar de nuevo"
     action_required: "Acción requerida"
     must_join_server: "Debes ser miembro de nuestro servidor de Discord para iniciar sesión.\n¡Únete a nuestra comunidad e inténtalo de nuevo!"
+
+  # Tag errors
+  tags:
+    errors:
+      not_found: "No existe una tag con el nombre '%{name}'"
+      permission_denied: "No tienes permiso para realizar esta acción"
+      validation_failed: "Validación fallida: %{errors}"
 
   # Tag policy errors
   tag_policy:

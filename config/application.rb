@@ -18,7 +18,7 @@ require "action_cable/engine"
 Bundler.require(*Rails.groups)
 
 # Load environment variables early, before initializers
-Dotenv.load
+Dotenv.load if Rails.env.development? || Rails.env.production?
 
 module Nadeshikorb
   class Application < Rails::Application
@@ -43,8 +43,11 @@ module Nadeshikorb
 
     # I18n configuration
     config.i18n.load_path += Dir[Rails.root.join("config", "locales", "**", "*.{rb,yml}")]
-    config.i18n.available_locales = [ :es ]
+    config.i18n.available_locales = [ :es, :en ]
     config.i18n.default_locale = :es
     config.i18n.fallbacks = [ I18n.default_locale ]
+
+    # Ignore Devise mailer since ActionMailer is disabled
+    Rails.autoloaders.main.ignore(Gem.loaded_specs["devise"].full_gem_path + "/app/mailers") if Gem.loaded_specs["devise"]
   end
 end

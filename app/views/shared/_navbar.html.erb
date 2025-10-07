@@ -15,6 +15,8 @@
             <%= render "shared/dev_impersonator" %>
           <% end %>
         <% end %>
+        <!-- Language Switcher -->
+        <%= render "shared/language_switcher" %>
         <!-- Discord Link -->
         <a
           href="https://discord.gg/ajWm26ADEj"
@@ -59,7 +61,7 @@
               "
             >
               <div class="py-1">
-                <%= link_to "Dashboard",
+                <%= link_to t("nav.dashboard"),
                 dashboard_path,
                 class:
                   "block px-4 py-2 text-sm text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200" %>

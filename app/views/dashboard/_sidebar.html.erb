@@ -2,48 +2,53 @@
   <nav class="space-y-6">
     <!-- Profile Settings Section -->
     <div>
-      <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Profile</h3>
+      <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3" data-testid="sidebar-profile-section"><%= t("sidebar.profile.title") %></h3>
       <div class="space-y-1">
         <%= link_to "/dashboard/profile",
+            data: { testid: "sidebar-profile-link" },
             class: "flex items-center space-x-3 w-full p-3 rounded-lg transition-colors #{'bg-gray-700 text-white' if request.path.start_with?('/dashboard/profile')} hover:bg-gray-700 text-gray-300 hover:text-white" do %>
           <span class="text-lg">👤</span>
-          <span>Profile</span>
+          <span><%= t("sidebar.profile.profile") %></span>
         <% end %>
       </div>
     </div>
     <!-- Server Settings Section -->
     <div>
-      <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Server</h3>
+      <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3" data-testid="sidebar-server-section"><%= t("sidebar.server.title") %></h3>
       <div class="space-y-1">
         <%= link_to "/dashboard/server/tags",
+            data: { testid: "sidebar-tags-link" },
             class: "flex items-center space-x-3 w-full p-3 rounded-lg transition-colors #{'bg-gray-700 text-white' if request.path.start_with?('/dashboard/server/tags')} hover:bg-gray-700 text-gray-300 hover:text-white" do %>
           <span class="text-lg">🏷️</span>
-          <span>Tags</span>
+          <span><%= t("sidebar.server.tags") %></span>
         <% end %>
       </div>
     </div>
 
     <% if current_user.admin? %>
     <!-- Admin Section -->
-    <div>
-      <h3 class="text-sm font-semibold text-yellow-400 uppercase tracking-wider mb-3">Admin</h3>
+    <div data-testid="sidebar-admin-section">
+      <h3 class="text-sm font-semibold text-yellow-400 uppercase tracking-wider mb-3" data-testid="sidebar-admin-title"><%= t("sidebar.admin.title") %></h3>
       <div class="space-y-1">
         <%= link_to dashboard_admin_config_index_path,
+            data: { testid: "sidebar-config-link" },
             class: "flex items-center space-x-3 w-full p-3 rounded-lg transition-colors #{'bg-gray-700 text-white' if request.path.start_with?('/dashboard/admin/config')} hover:bg-gray-700 text-gray-300 hover:text-white" do %>
           <span class="text-lg">⚙️</span>
-          <span>Config</span>
+          <span><%= t("sidebar.admin.config") %></span>
         <% end %>
 
         <%= link_to dashboard_admin_data_path,
+            data: { testid: "sidebar-data-link" },
             class: "flex items-center space-x-3 w-full p-3 rounded-lg transition-colors #{'bg-gray-700 text-white' if request.path.start_with?('/dashboard/admin/data')} hover:bg-gray-700 text-gray-300 hover:text-white" do %>
           <span class="text-lg">🗄️</span>
-          <span>Data</span>
+          <span><%= t("sidebar.admin.data") %></span>
         <% end %>
 
         <%= link_to dashboard_admin_bot_index_path,
+            data: { testid: "sidebar-bot-link" },
             class: "flex items-center space-x-3 w-full p-3 rounded-lg transition-colors #{'bg-gray-700 text-white' if request.path.start_with?('/dashboard/admin/bot')} hover:bg-gray-700 text-gray-300 hover:text-white" do %>
           <span class="text-lg">🤖</span>
-          <span>Bot</span>
+          <span><%= t("sidebar.admin.bot") %></span>
         <% end %>
       </div>
     </div>

@@ -41,7 +41,18 @@ RSpec.configure do |config|
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, remove the following line or assign false
   # instead of true.
+  # For JS tests, we need to disable transactional fixtures because the browser
+  # runs in a separate thread and can't see uncommitted data
   config.use_transactional_fixtures = true
+
+  # Disable transactional fixtures for JavaScript tests and clean database
+  config.before(:each, type: :system, js: true) do
+    self.use_transactional_tests = false
+
+    # Clean database before each test to prevent data leakage between tests
+    ActiveRecord::Base.connection.execute("DELETE FROM tags")
+    ActiveRecord::Base.connection.execute("DELETE FROM users")
+  end
 
   # You can uncomment this line to turn off ActiveRecord support entirely.
   # config.use_active_record = false

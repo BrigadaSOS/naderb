@@ -23,7 +23,7 @@
   </div>
 
   <%= form_with model: [:dashboard, :server, tag],
-                url: tag.persisted? ? dashboard_server_tag_path(tag, search: params[:search]) : nil,
+                url: tag.persisted? ? dashboard_server_tag_path(tag, search: params[:search]) : dashboard_server_tags_path,
                 class: "space-y-4",
                 id: "tag-form",
                 data: { turbo_frame: "_top" } do |form| %>
@@ -75,6 +75,7 @@
                        form_toggle_target: "field",
                        testid: "tag-content-input"
                      },
+                     id: "tag-content-display",
                      class:
                        "w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 #{read_only ? "cursor-not-allowed opacity-60" : "focus:outline-none focus:ring-2 focus:ring-blue-500"}",
                      placeholder:
@@ -103,8 +104,8 @@
       </div>
     <% end %>
 
-    <% if read_only %>
-      <div class="flex justify-end space-x-3 pt-4">
+    <div class="flex justify-end space-x-3 pt-4">
+      <% if read_only %>
         <% if can_edit_tag?(tag) %>
           <%= link_to t("dashboard.server.tags.form.button.edit"),
           edit_dashboard_server_tag_path(tag, search: params[:search]),
@@ -112,17 +113,18 @@
           class:
             "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors" %>
         <% end %>
-      </div>
-    <% end %>
+      <% else %>
+        <%= form.button submit_text,
+                    type: "submit",
+                    data: { testid: "submit-tag-button" },
+                    class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors" %>
+      <% end %>
+    </div>
   <% end %>
 
-  <% if !read_only %>
-    <div class="flex justify-end space-x-3 pt-4">
-      <button type="submit" form="tag-form" data-testid="submit-tag-button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
-        <%= submit_text %>
-      </button>
-      <% if tag.persisted? %>
-        <%= button_to t("dashboard.server.tags.form.button.delete"),
+  <% if !read_only && tag.persisted? %>
+    <!-- Delete button outside main form to avoid nesting -->
+    <%= button_to t("dashboard.server.tags.form.button.delete"),
         dashboard_server_tag_path(tag, search: params[:search]),
         method: :delete,
         form: { data: { turbo_frame: "_top" }, class: "inline-block" },
@@ -132,8 +134,6 @@
           testid: "delete-tag-button"
         },
         class:
-          "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors" %>
-      <% end %>
-    </div>
+          "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors mt-3" %>
   <% end %>
 </dialog>

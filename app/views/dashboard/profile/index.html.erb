@@ -3,8 +3,8 @@
 
   <div class="flex-1 p-6 overflow-y-auto">
     <div class="mb-6">
-      <h2 class="text-2xl font-bold text-white mb-2">Profile</h2>
-      <p class="text-gray-400">Manage your profile information and settings</p>
+      <h2 class="text-2xl font-bold text-white mb-2"><%= t(".title") %></h2>
+      <p class="text-gray-400"><%= t(".subtitle") %></p>
     </div>
 
     <div class="bg-gray-800 rounded-lg p-6">
@@ -28,42 +28,56 @@
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <h4 class="text-lg font-medium text-white mb-3">Basic Information</h4>
+          <h4 class="text-lg font-medium text-white mb-3"><%= t(".basic_info") %></h4>
           <div class="space-y-3">
             <% if current_user.display_name.present? && current_user.display_name != current_user.username %>
             <div>
-              <label class="block text-sm font-medium text-gray-400">Display Name</label>
+              <label class="block text-sm font-medium text-gray-400"><%= t(".display_name") %></label>
               <p class="text-white"><%= current_user.display_name %></p>
             </div>
             <% end %>
             <div>
-              <label class="block text-sm font-medium text-gray-400">Username</label>
+              <label class="block text-sm font-medium text-gray-400"><%= t(".username") %></label>
               <p class="text-white">@<%= current_user.username %></p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-400">Email</label>
+              <label class="block text-sm font-medium text-gray-400"><%= t(".email") %></label>
               <p class="text-white"><%= current_user.email %></p>
             </div>
           </div>
         </div>
 
         <div>
-          <h4 class="text-lg font-medium text-white mb-3">Account Details</h4>
+          <h4 class="text-lg font-medium text-white mb-3"><%= t(".account_details") %></h4>
           <div class="space-y-3">
             <div>
-              <label class="block text-sm font-medium text-gray-400">Member Since</label>
+              <label class="block text-sm font-medium text-gray-400"><%= t(".member_since") %></label>
               <% member_date = current_user.discord_joined_at || current_user.created_at %>
               <p class="text-white">
                 <%= member_date.strftime("%B %Y") %>
                 <span class="text-gray-400 text-sm ml-2"><%= time_ago_in_words_detailed(member_date) %></span>
               </p>
             </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-400 mb-2"><%= t(".preferred_language") %></label>
+              <%= form_with url: dashboard_profile_path(current_user), method: :patch, data: { turbo_frame: "_top" }, class: "flex items-center space-x-2" do |f| %>
+                <%= f.select :locale,
+                    options_for_select([
+                      ["🇪🇸 Español", "es"],
+                      ["🇬🇧 English", "en"]
+                    ], current_user.locale || I18n.default_locale.to_s),
+                    {},
+                    data: { action: "change->form#submit" },
+                    class: "bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+                <%= f.submit t(".save"), class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors", data: { testid: "save-locale-button" } %>
+              <% end %>
+            </div>
           </div>
         </div>
       </div>
 
       <div class="mt-6 pt-6 border-t border-gray-700">
-        <p class="text-gray-400 text-sm">Profile editing functionality will be added in future updates.</p>
+        <p class="text-gray-400 text-sm"><%= t(".future_updates") %></p>
       </div>
     </div>
   </div>
