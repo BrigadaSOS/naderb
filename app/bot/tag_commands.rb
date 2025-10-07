@@ -2,17 +2,30 @@ module TagCommands
   extend Discordrb::EventContainer
   extend CommandRegistry::Helpers
 
+  # Message handler for ?tag get <tag_name>
+  message(start_with: "?tag get ") do |event|
+    tag_name = event.message.content.sub(/^\?tag get\s+/, "").strip
+    next if tag_name.empty?
+
+    tag = Tag.find_by_name(tag_name)
+
+    if tag.nil?
+      event.respond "❌ No existe una tag con el nombre de `#{tag_name}`"
+      next
+    end
+
+    content = self.format_tag_response(tag)
+    event.respond content
+  end
+
   define_subcommand(:tag, :get) do |event, params|
     event.defer(ephemeral: false)
 
     tag = self.find_tag_or_respond!(event, params[:name])
     return unless tag
 
-    if tag.image_url?
-      event.edit_response(content: tag.content)
-    else
-      event.edit_response(content: "**#{tag.name}**: #{tag.content}")
-    end
+    content = self.format_tag_response(tag)
+    event.edit_response(content: content)
   end
 
   define_subcommand(:tag, :create) do |event, params|
@@ -142,5 +155,13 @@ module TagCommands
       discord_uid: event.user.id.to_s,
       discord_user: event.user
     )
+  end
+
+  def self.format_tag_response(tag)
+    if tag.image_url?
+      tag.content
+    else
+      "**#{tag.name}**: #{tag.content}"
+    end
   end
 end
