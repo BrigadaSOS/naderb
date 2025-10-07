@@ -4,6 +4,7 @@ class DiscordBotManagerService
 
   CACHE_KEY = "discord_bot:should_run"
   STARTED_AT_KEY = "discord_bot:started_at"
+  BOT_READY_KEY = "discord_bot:ready"
 
   class << self
     def start_bot
@@ -25,6 +26,7 @@ class DiscordBotManagerService
         return { success: false, message: "Bot is not running" } unless should_run?
 
         Rails.cache.write(CACHE_KEY, false)
+        Rails.cache.delete(BOT_READY_KEY)
       end
 
       broadcast_log("Stop signal sent - bot will shutdown gracefully")
@@ -47,6 +49,11 @@ class DiscordBotManagerService
 
     def set_bot_instance(bot)
       @bot_instance = bot
+      Rails.cache.write(BOT_READY_KEY, true, expires_in: 1.hour)
+    end
+
+    def bot_ready?
+      Rails.cache.read(BOT_READY_KEY) || @bot_instance.present?
     end
 
     def status
@@ -60,26 +67,30 @@ class DiscordBotManagerService
     end
 
     def register_guild_commands
-      return { success: false, message: "Bot is not running" } unless @bot_instance
-
-      CommandRegistry.register_all_commands(@bot_instance, guild_only: true)
-      { success: true, message: "Guild commands registered" }
+      # Use Discord HTTP API directly (works across processes, bot doesn't need to be running)
+      result = DiscordBotApiService.new.register_guild_commands
+      broadcast_log(result[:message], result[:success] ? "info" : "error")
+      result
     rescue StandardError => e
       broadcast_log("Error registering guild commands: #{e.message}", "error")
       { success: false, message: e.message }
     end
 
     def register_global_commands
-      return { success: false, message: "Bot is not running" } unless @bot_instance
-
-      CommandRegistry.register_all_commands(@bot_instance, guild_only: false)
-      { success: true, message: "Global commands registered (may take up to 1 hour to propagate)" }
+      # Use Discord HTTP API directly (works across processes, bot doesn't need to be running)
+      result = DiscordBotApiService.new.register_global_commands
+      broadcast_log(result[:message], result[:success] ? "info" : "error")
+      result
     rescue StandardError => e
       broadcast_log("Error registering global commands: #{e.message}", "error")
       { success: false, message: e.message }
     end
 
     private
+
+    def clear_bot_ready
+      Rails.cache.delete(BOT_READY_KEY)
+    end
 
     def broadcast_log(message, level = "info")
       ActionCable.server.broadcast(

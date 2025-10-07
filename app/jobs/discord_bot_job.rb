@@ -33,11 +33,13 @@ class DiscordBotJob < ApplicationJob
 
     broadcast_log "Stopping bot..."
     bot.stop
+    DiscordBotManagerService.send(:clear_bot_ready)
     broadcast_log "Bot stopped gracefully"
   rescue StandardError => e
     broadcast_error("ERROR: #{e.message}")
     logger.error "#{e.message}\n#{e.backtrace.join("\n")}"
     bot&.stop rescue nil
+    DiscordBotManagerService.send(:clear_bot_ready)
     raise
   end
 

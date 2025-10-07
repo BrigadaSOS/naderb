@@ -39,27 +39,24 @@ class DiscordBotApiService
     return { success: false, message: "Application ID not configured" } if application_id.blank?
 
     commands = build_command_payloads
-    registered_count = 0
 
-    commands.each do |command|
-      response = self.class.put("#{BASE_URL}/applications/#{application_id}/commands", {
-        headers: {
-          "Authorization" => "Bot #{@bot_token}",
-          "Content-Type" => "application/json",
-          "User-Agent" => "DiscordBot (Nadeshikorb, 1.0)"
-        },
-        body: command.to_json
-      })
+    # Bulk register all commands at once
+    response = self.class.put("#{BASE_URL}/applications/#{application_id}/commands", {
+      headers: {
+        "Authorization" => "Bot #{@bot_token}",
+        "Content-Type" => "application/json",
+        "User-Agent" => "DiscordBot (Nadeshikorb, 1.0)"
+      },
+      body: commands.to_json
+    })
 
-      if response.success?
-        registered_count += 1
-        Rails.logger.info "Registered global command: #{command[:name]}"
-      else
-        Rails.logger.error "Failed to register command #{command[:name]}: #{response.code} #{response.message}"
-      end
+    if response.success?
+      Rails.logger.info "Registered #{commands.size} global commands"
+      { success: true, message: "Registered #{commands.size} global commands (may take up to 1 hour to propagate)" }
+    else
+      Rails.logger.error "Failed to register global commands: #{response.code} #{response.body}"
+      { success: false, message: "Failed: #{response.code} - #{response.message}" }
     end
-
-    { success: true, message: "Registered #{registered_count} global commands" }
   rescue => e
     Rails.logger.error "Discord Bot API error registering global commands: #{e.message}"
     { success: false, message: e.message }
@@ -74,27 +71,24 @@ class DiscordBotApiService
     return { success: false, message: "Server ID not configured" } if guild_id.blank?
 
     commands = build_command_payloads
-    registered_count = 0
 
-    commands.each do |command|
-      response = self.class.post("#{BASE_URL}/applications/#{application_id}/guilds/#{guild_id}/commands", {
-        headers: {
-          "Authorization" => "Bot #{@bot_token}",
-          "Content-Type" => "application/json",
-          "User-Agent" => "DiscordBot (Nadeshikorb, 1.0)"
-        },
-        body: command.to_json
-      })
+    # Bulk register all commands at once
+    response = self.class.put("#{BASE_URL}/applications/#{application_id}/guilds/#{guild_id}/commands", {
+      headers: {
+        "Authorization" => "Bot #{@bot_token}",
+        "Content-Type" => "application/json",
+        "User-Agent" => "DiscordBot (Nadeshikorb, 1.0)"
+      },
+      body: commands.to_json
+    })
 
-      if response.success?
-        registered_count += 1
-        Rails.logger.info "Registered guild command: #{command[:name]}"
-      else
-        Rails.logger.error "Failed to register command #{command[:name]}: #{response.code} #{response.message}"
-      end
+    if response.success?
+      Rails.logger.info "Registered #{commands.size} guild commands"
+      { success: true, message: "Registered #{commands.size} guild commands" }
+    else
+      Rails.logger.error "Failed to register guild commands: #{response.code} #{response.body}"
+      { success: false, message: "Failed: #{response.code} - #{response.message}" }
     end
-
-    { success: true, message: "Registered #{registered_count} guild commands" }
   rescue => e
     Rails.logger.error "Discord Bot API error registering guild commands: #{e.message}"
     { success: false, message: e.message }
