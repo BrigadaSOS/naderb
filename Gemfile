@@ -73,6 +73,7 @@ group :test do
   gem "capybara-screenshot"
   gem "webmock"
   gem "faker"
+  gem "database_cleaner-active_record"
 end
 
 gem "devise", "~> 4.9"

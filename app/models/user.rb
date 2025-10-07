@@ -86,7 +86,7 @@ class User < ApplicationRecord
   end
 
   def impersonated_roles=(roles)
-    unless Rails.env.development?
+    unless Rails.env.development? || Rails.env.test?
       Rails.logger.warn "Attempted to set impersonated_roles in #{Rails.env} environment - ignoring"
       return
     end

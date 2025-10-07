@@ -8,8 +8,6 @@ RSpec.describe "Dashboard Authentication", type: :system do
       it "redirects to home page" do
         visit dashboard_path
 
-        # Devise will redirect to root when not authenticated
-        # Adjust this based on your actual authentication redirect
         expect(page).to have_current_path(root_path)
       end
     end
@@ -17,7 +15,7 @@ RSpec.describe "Dashboard Authentication", type: :system do
     context "when logged in" do
       before do
         setup_discord_settings
-        stub_discord_member_no_roles
+        stub_discord_member(server_id: Setting.discord_server_id, user_id: user.discord_uid, roles: [])
 
         # Use Warden helper to sign in without going through the UI
         login_as(user, scope: :user)

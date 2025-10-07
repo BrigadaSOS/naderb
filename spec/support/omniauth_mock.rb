@@ -1,9 +1,7 @@
 module OmniauthMock
-  # Setup OmniAuth test mode with Discord mock
   def setup_omniauth_discord_mock(custom_attributes = {})
     OmniAuth.config.test_mode = true
 
-    # Build Discord auth hash (Faker doesn't have built-in Discord support)
     base_auth = {
       provider: 'discord',
       uid: Faker::Number.number(digits: 18).to_s,
@@ -24,7 +22,6 @@ module OmniauthMock
       }
     }
 
-    # Merge custom attributes if provided
     if custom_attributes.any?
       base_auth[:uid] = custom_attributes[:uid] if custom_attributes[:uid]
       base_auth[:info].merge!(custom_attributes[:info]) if custom_attributes[:info]
@@ -35,18 +32,15 @@ module OmniauthMock
     OmniAuth.config.mock_auth[:discord] = OmniAuth::AuthHash.new(base_auth)
   end
 
-  # Setup OmniAuth failure scenario
   def setup_omniauth_failure(strategy: :discord, error: :invalid_credentials)
     OmniAuth.config.test_mode = true
     OmniAuth.config.mock_auth[strategy] = error
   end
 
-  # Get the current Discord mock auth hash
   def discord_auth_hash
     OmniAuth.config.mock_auth[:discord]
   end
 
-  # Teardown OmniAuth test mode
   def teardown_omniauth_mock
     OmniAuth.config.test_mode = false
     OmniAuth.config.mock_auth[:discord] = nil

@@ -22,7 +22,6 @@ require 'rspec/rails'
 # of increasing the boot-up time by auto-requiring all files in the support
 # directory. Alternatively, in the individual `*_spec.rb` files, manually
 # require only the support files necessary.
-#
 Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
 
 # Checks for pending migrations and applies them before tests are run.
@@ -33,6 +32,17 @@ rescue ActiveRecord::PendingMigrationError => e
   abort e.to_s.strip
 end
 RSpec.configure do |config|
+  # Reset Faker unique generators before each test suite
+  config.before(:suite) do
+    Faker::Config.random = Random.new(42) # Consistent random seed for reproducibility
+    Faker::UniqueGenerator.clear
+  end
+
+  # Reset Faker unique generators before each test
+  config.before(:each) do
+    Faker::UniqueGenerator.clear
+  end
+
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_paths = [
     Rails.root.join('spec/fixtures')
@@ -43,7 +53,7 @@ RSpec.configure do |config|
   # instead of true.
   # For JS tests, we need to disable transactional fixtures because the browser
   # runs in a separate thread and can't see uncommitted data
-  config.use_transactional_fixtures = true
+  config.use_transactional_fixtures = false
 
   # Disable transactional fixtures for JavaScript tests and clean database
   config.before(:each, type: :system, js: true) do

@@ -5,23 +5,21 @@ require "capybara/rspec"
 require "capybara/cuprite"
 require "capybara-screenshot/rspec"
 
-# ============================================================================
-# CAPYBARA CONFIGURATION
-# ============================================================================
 Capybara.configure do |config|
+  config.default_max_wait_time = 5
   config.test_id = "data-testid"
 end
 
-# ============================================================================
-# STANDARD CAPYBARA-SCREENSHOT CONFIGURATION
-# ============================================================================
+Capybara.add_selector(:test_id) do
+  css do |value|
+    "[data-testid='#{value}']"
+  end
+end
+
 Capybara::Screenshot.autosave_on_failure = true
 Capybara::Screenshot.prune_strategy = :keep_last_run
 Capybara.save_path = Rails.root.join("tmp/capybara")
 
-# ============================================================================
-# CUPRITE DRIVER CONFIGURATION
-# ============================================================================
 Capybara.register_driver :cuprite do |app|
   # Environment variables for debugging:
   # HEADLESS=0     - Show browser window
@@ -48,9 +46,6 @@ Capybara.register_driver :cuprite do |app|
   )
 end
 
-# ============================================================================
-# RSPEC CONFIGURATION
-# ============================================================================
 RSpec.configure do |config|
   # Use fast rack_test for non-JS tests
   config.before(:each, type: :system) do
@@ -64,15 +59,12 @@ RSpec.configure do |config|
   end
 end
 
-# ============================================================================
-# CUSTOM HELPERS
-# ============================================================================
 module CupriteHelpers
   # Pause test execution and open Chrome DevTools
   # Usage: Run test with INSPECTOR=true, then call pause_and_inspect in your test
   # Open chrome://inspect in Chrome to connect
   def pause_and_inspect
-    return unless ENV["INSPECTOR"]
+    # return unless ENV["INSPECTOR"]
 
     puts "\n🔍 Test paused. Open chrome://inspect in Chrome to debug."
     puts "Press Enter in terminal to continue...\n"

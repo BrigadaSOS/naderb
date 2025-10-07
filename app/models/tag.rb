@@ -20,12 +20,20 @@ class Tag < ApplicationRecord
   def image_url?
     return false unless content.present?
 
-    # Check if the content is a valid URL and has an image extension
+    # Check if the content is a valid URL
     uri = URI.parse(content.strip)
     return false unless uri.scheme&.match?(/^https?$/)
 
-    # Check for common image extensions
-    uri.path.match?(/\.(jpe?g|png|gif|webp|bmp|svg)$/i)
+    # More lenient: check for image extensions OR assume it could be an image
+    # This handles dynamic image services like picsum.photos, imgur, etc.
+    has_image_extension = uri.path.match?(/\.(jpe?g|png|gif|webp|bmp|svg)$/i)
+
+    # If it has an extension, it must be an image extension
+    has_extension = uri.path.match?(/\.[a-z0-9]+$/i)
+    return false if has_extension && !has_image_extension
+
+    # Otherwise, try to display it as an image (no extension or has image extension)
+    true
   rescue URI::InvalidURIError
     false
   end

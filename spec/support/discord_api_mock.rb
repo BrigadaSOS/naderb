@@ -1,5 +1,4 @@
 module DiscordApiMock
-  # Stub Discord member endpoint with custom roles
   def stub_discord_member(server_id:, user_id: "123456789", roles: [], status: 200)
     response_body = if status == 200
       {
@@ -22,10 +21,9 @@ module DiscordApiMock
       )
   end
 
-  # Stub Discord guilds endpoint (fallback endpoint)
   def stub_discord_guilds(server_id: Setting.discord_server_id, status: 200, in_server: true)
     response_body = if status == 200 && in_server
-      [{ "id" => server_id }].to_json
+      [ { "id" => server_id } ].to_json
     elsif status == 200 && !in_server
       [].to_json
     else
@@ -40,15 +38,9 @@ module DiscordApiMock
       )
   end
 
-  # Stub Discord API failure (both endpoints)
   def stub_discord_api_failure
     stub_discord_member(server_id: Setting.discord_server_id, status: 401)
     stub_discord_guilds(status: 401)
-  end
-
-  # Stub successful Discord member response with no roles
-  def stub_discord_member_no_roles(server_id: Setting.discord_server_id, user_id: "123456789")
-    stub_discord_member(server_id: server_id, user_id: user_id, roles: [])
   end
 end
 

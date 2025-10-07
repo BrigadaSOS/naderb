@@ -17,8 +17,8 @@ module Capybara
 
         def output_screenshot_info(example)
           return unless (screenshot = example.metadata[:screenshot])
-          output.puts("  Screenshot: file://#{screenshot[:image]}") if screenshot[:image]
-          output.puts("  HTML: file://#{screenshot[:html]}") if screenshot[:html]
+          output.puts("> Screenshot: file://#{screenshot[:image]}") if screenshot[:image]
+          output.puts("> HTML: file://#{screenshot[:html]}") if screenshot[:html]
         end
       end
     end
