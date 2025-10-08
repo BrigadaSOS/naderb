@@ -1,7 +1,7 @@
-<div class="flex h-full w-full">
+<div class="flex h-full w-full relative">
   <%= render "dashboard/sidebar" %>
 
-  <div class="flex-1 p-6 overflow-y-auto">
+  <div class="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto">
     <%= render "tags_content", tags: @tags %>
   </div>
 </div>

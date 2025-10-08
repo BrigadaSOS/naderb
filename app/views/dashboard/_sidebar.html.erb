@@ -1,11 +1,72 @@
-<div class="w-80 bg-background h-full p-4 flex-shrink-0 border-r border-border">
-  <nav class="space-y-6">
+<!-- Mobile Menu Toggle (hidden checkbox) -->
+<input type="checkbox" id="mobile-menu-toggle" class="hidden peer">
+<!-- Overlay for mobile (dark backdrop when menu is open) -->
+<label
+  for="mobile-menu-toggle"
+  class="
+    hidden peer-checked:block lg:peer-checked:hidden fixed top-16 left-0 right-0
+    bottom-0 bg-black/50 z-30
+  "
+></label>
+<div
+  class="
+    w-80 bg-background flex-shrink-0 border-r border-border fixed lg:static top-16
+    lg:top-0 left-0 bottom-0 z-40 h-[calc(100vh-4rem)] lg:h-full -translate-x-full
+    lg:translate-x-0 peer-checked:translate-x-0 transition-transform duration-300
+    ease-in-out overflow-y-auto flex flex-col
+  "
+>
+
+  <nav class="space-y-4 p-4 flex-1">
     <!-- Profile Settings Section -->
     <div>
-      <h3 class="text-sm font-semibold uppercase tracking-wider mb-3 <%= request.path.start_with?('/dashboard/profile') ? 'text-primary' : 'text-muted-foreground' %>" data-testid="sidebar-profile-section"><%= t("sidebar.profile.title") %></h3>
-      <div class="space-y-1">
+      <input type="checkbox" id="sidebar-profile-toggle" class="hidden peer"
+        checked>
+      <label
+        for="sidebar-profile-toggle"
+        class="flex items-center justify-between cursor-pointer group mb-3"
+      >
+        <div class="flex items-center space-x-2">
+          <% if request.path.start_with?('/dashboard/profile') %>
+            <div class="w-1 h-5 bg-primary rounded-full"></div>
+          <% end %>
+          <h3
+            class="
+              text-sm font-semibold uppercase tracking-wider
+              <%= request.path.start_with?('/dashboard/profile') ? 'text-primary' : 'text-muted-foreground' %> group-hover:text-primary
+              transition-colors
+            "
+            data-testid="sidebar-profile-section"
+          >
+            <%= t("sidebar.profile.title") %>
+          </h3>
+        </div>
+        <svg
+          class="
+            w-4 h-4 text-muted-foreground group-hover:text-primary transition-all
+            duration-200 peer-checked:rotate-180
+          "
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 9l-7 7-7-7"
+          />
+        </svg>
+      </label>
+      <div
+        class="
+          space-y-1 overflow-hidden max-h-0 peer-checked:max-h-96 transition-all
+          duration-300
+        "
+      >
         <%= link_to "/dashboard/profile",
             data: { testid: "sidebar-profile-link" },
+            onclick: "if (window.innerWidth < 1024) { document.getElementById('mobile-menu-toggle').checked = false; }",
             class: "flex items-center space-x-3 w-full p-3 rounded transition-colors #{'bg-card text-primary' if request.path.start_with?('/dashboard/profile')} hover:bg-card text-muted-foreground hover:text-primary" do %>
           <span class="text-lg">👤</span>
           <span><%= t("sidebar.profile.profile") %></span>
@@ -14,10 +75,53 @@
     </div>
     <!-- Server Settings Section -->
     <div>
-      <h3 class="text-sm font-semibold uppercase tracking-wider mb-3 <%= request.path.start_with?('/dashboard/server') ? 'text-primary' : 'text-muted-foreground' %>" data-testid="sidebar-server-section"><%= t("sidebar.server.title") %></h3>
-      <div class="space-y-1">
+      <input type="checkbox" id="sidebar-server-toggle" class="hidden peer"
+        checked>
+      <label
+        for="sidebar-server-toggle"
+        class="flex items-center justify-between cursor-pointer group mb-3"
+      >
+        <div class="flex items-center space-x-2">
+          <% if request.path.start_with?('/dashboard/server') %>
+            <div class="w-1 h-5 bg-primary rounded-full"></div>
+          <% end %>
+          <h3
+            class="
+              text-sm font-semibold uppercase tracking-wider
+              <%= request.path.start_with?('/dashboard/server') ? 'text-primary' : 'text-muted-foreground' %> group-hover:text-primary
+              transition-colors
+            "
+            data-testid="sidebar-server-section"
+          >
+            <%= t("sidebar.server.title") %>
+          </h3>
+        </div>
+        <svg
+          class="
+            w-4 h-4 text-muted-foreground group-hover:text-primary transition-all
+            duration-200 peer-checked:rotate-180
+          "
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 9l-7 7-7-7"
+          />
+        </svg>
+      </label>
+      <div
+        class="
+          space-y-1 overflow-hidden max-h-0 peer-checked:max-h-96 transition-all
+          duration-300
+        "
+      >
         <%= link_to "/dashboard/server/tags",
             data: { testid: "sidebar-tags-link" },
+            onclick: "if (window.innerWidth < 1024) { document.getElementById('mobile-menu-toggle').checked = false; }",
             class: "flex items-center space-x-3 w-full p-3 rounded transition-colors #{'bg-card text-primary' if request.path.start_with?('/dashboard/server/tags')} hover:bg-card text-muted-foreground hover:text-primary" do %>
           <span class="text-lg">🏷️</span>
           <span><%= t("sidebar.server.tags") %></span>
@@ -26,32 +130,147 @@
     </div>
 
     <% if current_user.admin? %>
-    <!-- Admin Section -->
-    <div data-testid="sidebar-admin-section">
-      <h3 class="text-sm font-semibold uppercase tracking-wider mb-3 <%= request.path.start_with?('/dashboard/admin') ? 'text-primary' : 'text-accent' %>" data-testid="sidebar-admin-title"><%= t("sidebar.admin.title") %></h3>
-      <div class="space-y-1">
-        <%= link_to dashboard_admin_config_index_path,
+      <!-- Admin Section -->
+      <div data-testid="sidebar-admin-section">
+        <input type="checkbox" id="sidebar-admin-toggle" class="hidden peer"
+          checked>
+        <label
+          for="sidebar-admin-toggle"
+          class="flex items-center justify-between cursor-pointer group mb-3"
+        >
+          <div class="flex items-center space-x-2">
+            <% if request.path.start_with?('/dashboard/admin') %>
+              <div class="w-1 h-5 bg-primary rounded-full"></div>
+            <% end %>
+            <h3
+              class="
+                text-sm font-semibold uppercase tracking-wider
+                <%= request.path.start_with?('/dashboard/admin') ? 'text-primary' : 'text-accent' %> group-hover:text-primary
+                transition-colors
+              "
+              data-testid="sidebar-admin-title"
+            >
+              <%= t("sidebar.admin.title") %>
+            </h3>
+          </div>
+          <svg
+            class="
+              w-4 h-4 text-muted-foreground group-hover:text-primary transition-all
+              duration-200 peer-checked:rotate-180
+            "
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </label>
+        <div
+          class="
+            space-y-1 overflow-hidden max-h-0 peer-checked:max-h-[500px] transition-all
+            duration-300
+          "
+        >
+          <%= link_to dashboard_admin_config_index_path,
             data: { testid: "sidebar-config-link" },
+            onclick: "if (window.innerWidth < 1024) { document.getElementById('mobile-menu-toggle').checked = false; }",
             class: "flex items-center space-x-3 w-full p-3 rounded transition-colors #{'bg-card text-primary' if request.path.start_with?('/dashboard/admin/config')} hover:bg-card text-muted-foreground hover:text-primary" do %>
-          <span class="text-lg">⚙️</span>
-          <span><%= t("sidebar.admin.config") %></span>
-        <% end %>
+            <span class="text-lg">⚙️</span>
+            <span><%= t("sidebar.admin.config") %></span>
+          <% end %>
 
-        <%= link_to dashboard_admin_data_path,
+          <%= link_to dashboard_admin_data_path,
             data: { testid: "sidebar-data-link" },
+            onclick: "if (window.innerWidth < 1024) { document.getElementById('mobile-menu-toggle').checked = false; }",
             class: "flex items-center space-x-3 w-full p-3 rounded transition-colors #{'bg-card text-primary' if request.path.start_with?('/dashboard/admin/data')} hover:bg-card text-muted-foreground hover:text-primary" do %>
-          <span class="text-lg">🗄️</span>
-          <span><%= t("sidebar.admin.data") %></span>
-        <% end %>
+            <span class="text-lg">🗄️</span>
+            <span><%= t("sidebar.admin.data") %></span>
+          <% end %>
 
-        <%= link_to dashboard_admin_bot_index_path,
+          <%= link_to dashboard_admin_bot_index_path,
             data: { testid: "sidebar-bot-link" },
+            onclick: "if (window.innerWidth < 1024) { document.getElementById('mobile-menu-toggle').checked = false; }",
             class: "flex items-center space-x-3 w-full p-3 rounded transition-colors #{'bg-card text-primary' if request.path.start_with?('/dashboard/admin/bot')} hover:bg-card text-muted-foreground hover:text-primary" do %>
-          <span class="text-lg">🤖</span>
-          <span><%= t("sidebar.admin.bot") %></span>
-        <% end %>
+            <span class="text-lg">🤖</span>
+            <span><%= t("sidebar.admin.bot") %></span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+    <!-- DEV: Dev Tools Section (Development Only) -->
+    <% if Rails.env.development? %>
+      <div class="border-t border-border pt-6 mt-6">
+        <h3
+          class="
+            text-sm font-semibold uppercase tracking-wider mb-3 text-yellow-500
+          "
+          data-testid="sidebar-dev-section"
+        >Dev Tools</h3>
+        <div class="space-y-1">
+          <%= render "shared/dev_impersonator_sidebar" %>
+        </div>
+      </div>
+    <% end %>
+    <!-- Mobile-only: Language Section -->
+    <div class="lg:hidden border-t border-border pt-4 mt-4">
+      <!-- Language Switcher -->
+      <div>
+        <input type="checkbox" id="sidebar-language-toggle" class="hidden peer">
+        <label
+          for="sidebar-language-toggle"
+          class="flex items-center justify-between cursor-pointer group mb-3"
+        >
+          <div class="flex items-center space-x-2">
+            <h3
+              class="
+                text-sm font-semibold uppercase tracking-wider text-muted-foreground
+                group-hover:text-primary transition-colors
+              "
+            >
+              <%= t("sidebar.language.title", default: "Language") %>
+            </h3>
+          </div>
+          <svg
+            class="
+              w-4 h-4 text-muted-foreground group-hover:text-primary transition-all
+              duration-200 peer-checked:rotate-180
+            "
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </label>
+        <div
+          class="
+            space-y-1 overflow-hidden max-h-0 peer-checked:max-h-96 transition-all
+            duration-300
+          "
+        >
+          <%= link_to url_for(locale: :es),
+              class: "flex items-center space-x-3 w-full p-3 rounded transition-colors #{I18n.locale == :es ? 'bg-card text-primary' : 'text-muted-foreground'} hover:bg-card hover:text-primary" do %>
+            <span class="text-lg">🇪🇸</span>
+            <span>Español</span>
+          <% end %>
+
+          <%= link_to url_for(locale: :en),
+              class: "flex items-center space-x-3 w-full p-3 rounded transition-colors #{I18n.locale == :en ? 'bg-card text-primary' : 'text-muted-foreground'} hover:bg-card hover:text-primary" do %>
+            <span class="text-lg">🇬🇧</span>
+            <span>English</span>
+          <% end %>
+        </div>
       </div>
     </div>
-    <% end %>
   </nav>
 </div>

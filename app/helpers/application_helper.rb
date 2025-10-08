@@ -59,7 +59,7 @@ module ApplicationHelper
       "bg-muted hover:bg-muted/90 text-foreground"
     end
 
-    [base_classes, variant_classes, additional_classes].compact.join(" ")
+    [ base_classes, variant_classes, additional_classes ].compact.join(" ")
   end
 
   def button_link(text, path, variant: :primary, data: {}, html_options: {})

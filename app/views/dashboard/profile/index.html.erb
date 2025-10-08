@@ -1,20 +1,26 @@
-<div class="flex h-full w-full">
+<div class="flex h-full w-full relative">
   <%= render "dashboard/sidebar" %>
 
-  <div class="flex-1 p-6 overflow-y-auto">
+  <div class="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto">
     <!-- Header -->
-    <div class="mb-6">
-      <h2 class="text-2xl font-bold text-primary mb-2"><%= t(".title") %></h2>
-      <p class="text-muted-foreground"><%= t(".subtitle") %></p>
+    <div class="mb-4 sm:mb-6">
+      <h2 class="text-xl sm:text-2xl font-bold text-primary mb-2"><%= t(".title") %></h2>
+      <p class="text-sm sm:text-base text-muted-foreground"><%= t(".subtitle") %></p>
     </div>
-
     <!-- Profile Card -->
-    <div class="bg-card rounded p-6">
+    <div class="bg-card rounded p-4 sm:p-6">
       <!-- Profile Header -->
       <div class="flex items-center space-x-4 mb-6">
-        <div class="w-16 h-16 bg-background rounded-full flex items-center justify-center overflow-hidden">
+        <div
+          class="
+            w-16 h-16 bg-background rounded-full flex items-center justify-center
+            overflow-hidden
+          "
+        >
           <% if current_user.profile_image_url.present? %>
-            <%= image_tag current_user.profile_image_url, alt: current_user.username, class: "w-full h-full object-cover" %>
+            <%= image_tag current_user.profile_image_url,
+            alt: current_user.username,
+            class: "w-full h-full object-cover" %>
           <% else %>
             <span class="text-2xl">👤</span>
           <% end %>
@@ -24,7 +30,6 @@
           <p class="text-muted-foreground">@<%= current_user.username %></p>
         </div>
       </div>
-
       <!-- Info Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <!-- Basic Info -->
@@ -32,10 +37,10 @@
           <h4 class="text-lg font-medium text-primary mb-4"><%= t(".basic_info") %></h4>
           <div class="space-y-3">
             <% if current_user.display_name.present? && current_user.display_name != current_user.username %>
-            <div>
-              <label class="block text-sm font-medium text-muted-foreground"><%= t(".display_name") %></label>
-              <p class="text-foreground"><%= current_user.display_name %></p>
-            </div>
+              <div>
+                <label class="block text-sm font-medium text-muted-foreground"><%= t(".display_name") %></label>
+                <p class="text-foreground"><%= current_user.display_name %></p>
+              </div>
             <% end %>
             <div>
               <label class="block text-sm font-medium text-muted-foreground"><%= t(".username") %></label>
@@ -47,7 +52,6 @@
             </div>
           </div>
         </div>
-
         <!-- Account Details -->
         <div>
           <h4 class="text-lg font-medium text-primary mb-4"><%= t(".account_details") %></h4>
@@ -64,23 +68,50 @@
               <label class="block text-sm font-medium text-muted-foreground mb-2"><%= t(".preferred_language") %></label>
               <%= form_with url: dashboard_profile_path(current_user), method: :patch, data: { turbo_frame: "_top" }, class: "flex items-center space-x-2" do |f| %>
                 <%= f.select :locale,
-                    options_for_select([
-                      ["🇪🇸 Español", "es"],
-                      ["🇬🇧 English", "en"]
-                    ], current_user.locale || I18n.default_locale.to_s),
-                    {},
-                    data: { action: "change->form#submit" },
-                    class: "bg-input border border-border rounded px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring" %>
-                <%= f.submit t(".save"), class: "bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded transition-colors", data: { testid: "save-locale-button" } %>
+                         options_for_select(
+                           [["🇪🇸 Español", "es"], ["🇬🇧 English", "en"]],
+                           current_user.locale || I18n.default_locale.to_s,
+                         ),
+                         {},
+                         data: {
+                           action: "change->form#submit",
+                         },
+                         class:
+                           "bg-input border border-border rounded px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring" %>
+                <%= f.submit t(".save"),
+                         class:
+                           "bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded transition-colors",
+                         data: {
+                           testid: "save-locale-button",
+                         } %>
               <% end %>
             </div>
           </div>
         </div>
       </div>
-
       <!-- Footer -->
-      <div class="border-t border-border pt-4">
-        <p class="text-muted-foreground text-sm"><%= t(".future_updates") %></p>
+      <div class="border-t border-border pt-6">
+        <div
+          class="
+            flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4
+          "
+        >
+          <p class="text-muted-foreground text-sm"><%= t(".future_updates") %></p>
+          <%= button_to "/users/sign_out",
+              method: :delete,
+              class: "flex items-center space-x-2 bg-destructive hover:bg-destructive/90 text-destructive-foreground px-4 py-2 rounded transition-colors",
+              data: { turbo: false, testid: "logout-button" } do %>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              />
+            </svg>
+            <span><%= t("nav.logout") %></span>
+          <% end %>
+        </div>
       </div>
     </div>
   </div>

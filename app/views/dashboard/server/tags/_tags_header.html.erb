@@ -1,7 +1,12 @@
-<div class="mb-6 flex items-center justify-between">
+<div
+  class="
+    mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3
+    sm:gap-0
+  "
+>
   <div>
-    <h2 class="text-2xl font-bold text-primary mb-2"><%= t(".title") %></h2>
-    <p class="text-muted-foreground"><%= t(".subtitle") %></p>
+    <h2 class="text-xl sm:text-2xl font-bold text-primary mb-1 sm:mb-2"><%= t(".title") %></h2>
+    <p class="text-sm sm:text-base text-muted-foreground"><%= t(".subtitle") %></p>
   </div>
 
   <% if current_user.trusted_user? %>
@@ -11,7 +16,10 @@
     data: {
       turbo_frame: "tags_content",
       turbo_action: "advance",
-      testid: "new-tag-button"
+      testid: "new-tag-button",
+    },
+    html_options: {
+      class: "text-center",
     } %>
   <% end %>
 </div>

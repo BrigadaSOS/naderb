@@ -1,6 +1,11 @@
 <%= turbo_frame_tag "tags_list" do %>
   <% if tags&.any? %>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+    <div
+      class="
+        grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6
+        gap-4
+      "
+    >
       <% tags.each do |tag| %>
         <% url =
           (
@@ -18,12 +23,17 @@
             <div class="mb-3 flex-grow flex items-center justify-center">
               <img
                 src="<%= tag.content.strip %>"
-                alt="<%= tag.content %>"
+                alt="<%= tag.content.strip %>"
                 class="w-full h-40 object-contain rounded"
               >
             </div>
           <% else %>
-            <div class="text-muted-foreground text-xs leading-relaxed mb-3 break-words flex-grow overflow-hidden">
+            <div
+              class="
+                text-muted-foreground text-xs leading-relaxed mb-3 break-words flex-grow
+                overflow-hidden
+              "
+            >
               <div class="line-clamp-4">
                 <%= tag.content %>
               </div>

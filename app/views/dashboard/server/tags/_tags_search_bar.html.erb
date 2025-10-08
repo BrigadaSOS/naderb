@@ -3,8 +3,8 @@
       turbo_action: "advance",
       controller: "search-filter",
       search_filter_target: "form"
-    }, class: "mb-4" do |form| %>
-  <div class="flex gap-2">
+    }, class: "mb-3 sm:mb-4" do |form| %>
+  <div class="flex flex-col sm:flex-row gap-2">
     <%= form.text_field :search,
                     value: params[:search].presence,
                     placeholder: t(".search_placeholder"),
@@ -13,10 +13,10 @@
                       search_filter_target: "input",
                       action: "input->search-filter#filter",
                       turbo_permanent: true,
-                      testid: "search-input"
+                      testid: "search-input",
                     },
                     class:
-                      "flex-1 bg-input border border-border rounded px-4 py-2 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" %>
+                      "flex-1 sm:flex-1 bg-input border border-border rounded px-3 sm:px-4 py-2 text-sm sm:text-base text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" %>
 
     <% if params[:search].present? %>
       <%= link_to t(".clear"),
@@ -25,7 +25,7 @@
         turbo_action: "advance",
         search_filter_target: "clearButton",
         action: "click->search-filter#clear",
-        testid: "clear-search-button"
+        testid: "clear-search-button",
       },
       class: button_classes(:secondary) %>
     <% end %>
