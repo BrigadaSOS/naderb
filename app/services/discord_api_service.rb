@@ -2,7 +2,7 @@ class DiscordApiService
   include HTTParty
   BASE_URL = "https://discord.com/api/v10"
 
-  debug_output $stdout
+  debug_output $stdout if Rails.env.development?
 
   def initialize(discord_uid:)
     @user = User.find_by(discord_uid: discord_uid)
@@ -12,12 +12,12 @@ class DiscordApiService
     user_guilds = fetch_user_guilds()
     return false unless user_guilds
 
-    required_server_id = Setting.discord_server_id
+    required_server_id = Setting.discord_server_id.to_s
     user_guilds.any? { |guild| guild["id"] == required_server_id }
   end
 
   def fetch_member_info
-    required_server_id = Setting.discord_server_id
+    required_server_id = Setting.discord_server_id.to_s
 
     # Use the guilds.members.read scope endpoint to get user's member info in the specific guild
     member_response = self.class.get("#{BASE_URL}/users/@me/guilds/#{required_server_id}/member", {
@@ -95,7 +95,16 @@ class DiscordApiService
     })
 
     if response.success?
-      response.parsed_response
+      guilds = response.parsed_response
+      if Rails.env.development?
+        Rails.logger.info "=== USER GUILDS RESPONSE ==="
+        Rails.logger.info "User #{@user.discord_uid} is in #{guilds.length} servers:"
+        guilds.each do |guild|
+          Rails.logger.info "  - #{guild['name']} (ID: #{guild['id']})"
+        end
+        Rails.logger.info "============================"
+      end
+      guilds
     else
       Rails.logger.error "Failed to fetch user guilds: #{response.code} #{response.message}"
       nil

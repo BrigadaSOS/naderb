@@ -78,7 +78,7 @@ class User < ApplicationRecord
   end
 
   def has_discord_role?(role_id)
-    discord_roles.any? { |role| role["id"] == role_id }
+    discord_roles.any? { |role| role["id"].to_s == role_id.to_s }
   end
 
   def has_any_discord_role?(role_ids)
