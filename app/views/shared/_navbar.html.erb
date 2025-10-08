@@ -1,4 +1,4 @@
-<nav class="bg-primary shadow-lg" data-turbo-permanent>
+<nav class="<%= request.path == '/' ? 'absolute top-0 left-0 right-0 z-50' : 'bg-primary shadow-lg' %>" data-turbo-permanent>
   <div class="px-3 sm:px-6">
     <div class="flex justify-between items-center h-16">
       <!-- Left side: Hamburger (mobile only) + Logo -->
