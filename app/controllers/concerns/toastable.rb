@@ -32,4 +32,3 @@ module Toastable
     turbo_stream.append("toast_container", partial: "shared/toast_notification")
   end
 end
-

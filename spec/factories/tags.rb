@@ -7,29 +7,29 @@ FactoryBot.define do
 
     # Image variations
     trait :with_image_url do
-      content { Faker::LoremFlickr.image(size: "400x300", search_terms: ['cat']) }
+      content { Faker::LoremFlickr.image(size: "400x300", search_terms: [ 'cat' ]) }
     end
 
     trait :with_random_image do
       content do
         search_term = %w[cat dog nature space city technology food].sample
-        Faker::LoremFlickr.image(size: "#{rand(300..600)}x#{rand(300..600)}", search_terms: [search_term])
+        Faker::LoremFlickr.image(size: "#{rand(300..600)}x#{rand(300..600)}", search_terms: [ search_term ])
       end
     end
 
     trait :with_grayscale_image do
-      content { Faker::LoremFlickr.grayscale_image(size: "400x300", search_terms: ['nature']) }
+      content { Faker::LoremFlickr.grayscale_image(size: "400x300", search_terms: [ 'nature' ]) }
     end
 
     trait :with_colorized_image do
       content do
         color = %w[red green blue].sample
-        Faker::LoremFlickr.colorized_image(size: "400x300", color: color, search_terms: ['abstract'])
+        Faker::LoremFlickr.colorized_image(size: "400x300", color: color, search_terms: [ 'abstract' ])
       end
     end
 
     trait :with_pixelated_image do
-      content { Faker::LoremFlickr.pixelated_image(size: "400x300", search_terms: ['retro', 'gaming']) }
+      content { Faker::LoremFlickr.pixelated_image(size: "400x300", search_terms: [ 'retro', 'gaming' ]) }
     end
 
     # Content length variations

@@ -1,7 +1,7 @@
 # Development-only controller for testing role and user impersonation
 class DevController < ApplicationController
   before_action :ensure_development_environment
-  skip_before_action :verify_authenticity_token, only: [:impersonate]
+  skip_before_action :verify_authenticity_token, only: [ :impersonate ]
 
   def impersonate
     role_ids = params[:role_ids]&.reject(&:blank?) || []

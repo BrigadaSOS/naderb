@@ -30,4 +30,3 @@ class Dashboard::Admin::ConfigController < ApplicationController
     redirect_to dashboard_admin_config_index_path, alert: "Failed to update configuration: #{e.message}"
   end
 end
-

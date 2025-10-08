@@ -15,7 +15,7 @@ RSpec.describe "Users::OmniauthCallbacks", type: :request do
         before do
           setup_omniauth_discord_mock
           stub_discord_guilds(server_id: Setting.discord_server_id, in_server: true)
-          stub_discord_member(server_id: Setting.discord_server_id, roles: ["member_role"])
+          stub_discord_member(server_id: Setting.discord_server_id, roles: [ "member_role" ])
         end
 
         context "for a new user" do

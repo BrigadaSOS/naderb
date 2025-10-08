@@ -66,4 +66,3 @@ class Dashboard::Admin::DataController < ApplicationController
     allowed_tables.include?(table_name)
   end
 end
-
