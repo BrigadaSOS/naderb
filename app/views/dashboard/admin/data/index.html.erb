@@ -3,37 +3,38 @@
 
   <div class="flex-1 p-6 overflow-y-auto">
     <div class="mb-8">
-      <h1 class="text-3xl font-bold text-white mb-2"><%= t(".title") %></h1>
-      <p class="text-gray-400"><%= t(".subtitle") %></p>
+      <h1 class="text-3xl font-bold text-foreground mb-2"><%= t(".title") %></h1>
+      <p class="text-muted-foreground"><%= t(".subtitle") %></p>
     </div>
 
-    <div class="space-y-6" data-controller="table-inspect">
-  <div class="bg-gray-800 rounded-lg p-6">
-    <h2 class="text-xl font-semibold text-white mb-4"><%= t(".tables_title") %></h2>
+    <div class="space-y-8" data-controller="table-inspect">
+  <!-- Tables Section -->
+  <div>
+    <h2 class="text-xl font-semibold text-foreground mb-4"><%= t(".tables_title") %></h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <% ApplicationRecord.connection.tables.sort.each do |table_name| %>
         <% next if table_name.start_with?('ar_') || table_name == 'schema_migrations' %>
-        <div class="bg-gray-700 rounded-lg p-4">
+        <div class="bg-card rounded-lg p-4">
           <div class="flex items-center justify-between mb-2">
-            <h3 class="text-white font-medium"><%= table_name.titleize %></h3>
-            <span class="text-xs text-gray-400"><%= table_name %></span>
+            <h3 class="text-foreground font-medium"><%= table_name.titleize %></h3>
+            <span class="text-xs text-muted-foreground"><%= table_name %></span>
           </div>
 
           <% begin %>
             <% record_count = ApplicationRecord.connection.execute("SELECT COUNT(*) FROM #{table_name}").first.values.first %>
-            <div class="text-sm text-gray-300">
-              <div><%= t(".records") %>: <span class="text-blue-400"><%= record_count %></span></div>
+            <div class="text-sm text-muted-foreground">
+              <div><%= t(".records") %>: <span class="text-primary"><%= record_count %></span></div>
             </div>
           <% rescue => e %>
-            <div class="text-sm text-red-400"><%= t(".error") %>: <%= e.message %></div>
+            <div class="text-sm text-destructive"><%= t(".error") %>: <%= e.message %></div>
           <% end %>
 
           <div class="mt-3">
             <%= link_to t(".inspect"),
                 inspect_dashboard_admin_datum_path(1, table_name: table_name),
                 data: { turbo_frame: "table-inspection-results" },
-                class: "text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded transition-colors inline-block" %>
+                class: "text-xs bg-primary hover:bg-primary/90 text-primary-foreground px-2 py-1 rounded transition-colors inline-block" %>
           </div>
         </div>
       <% end %>
@@ -43,17 +44,25 @@
   <!-- Table inspection results -->
   <%= turbo_frame_tag "table-inspection-results" %>
 
+  <!-- Separator -->
+  <div class="relative">
+    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+      <div class="w-full border-t border-border"></div>
+    </div>
+    <div class="relative flex justify-center">
+      <span class="bg-background px-3 text-sm text-muted-foreground"><%= t(".activity_log") %></span>
+    </div>
+  </div>
 
-  <div class="bg-gray-800 rounded-lg p-6">
-    <h2 class="text-xl font-semibold text-white mb-4"><%= t(".activity_log") %></h2>
-
-    <div class="bg-gray-700 rounded-lg p-4">
-      <h3 class="text-white font-medium mb-2">Recent Sign-ins</h3>
-      <div class="text-sm text-gray-300">
+  <!-- Activity Log Section -->
+  <div>
+    <div class="bg-card rounded-lg p-4">
+      <h3 class="text-foreground font-medium mb-2">Recent Sign-ins</h3>
+      <div class="text-sm text-muted-foreground">
         <% User.where.not(last_sign_in_at: nil).order(last_sign_in_at: :desc).limit(10).each do |user| %>
-          <div class="py-1 border-b border-gray-600 last:border-b-0">
-            <span class="text-blue-400"><%= user.name %></span>
-            <span class="text-gray-500 ml-2">(<%= user.last_sign_in_at.strftime("%b %d, %Y at %I:%M %p") %>)</span>
+          <div class="py-1 border-b border-border last:border-b-0">
+            <span class="text-primary"><%= user.name %></span>
+            <span class="text-muted-foreground/70 ml-2">(<%= user.last_sign_in_at.strftime("%b %d, %Y at %I:%M %p") %>)</span>
           </div>
         <% end %>
       </div>

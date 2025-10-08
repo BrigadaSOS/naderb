@@ -13,16 +13,16 @@
     <%# Prevent white flash on page load by setting background color before CSS loads %>
     <style>
       html, body {
-        background-color: #111827; /* gray-900 */
-        color: white;
+        background-color: #1d1d1d;
+        color: hsl(210, 20%, 98%);
       }
     </style>
 
     <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
     <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
@@ -31,7 +31,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="bg-gray-900 text-white h-screen overflow-hidden flex flex-col <%= 'dev-impersonation-active' if Rails.env.development? && (session[:impersonated_user_id].present? || session[:impersonated_roles].present?) %>">
+  <body class="bg-background text-foreground h-screen overflow-hidden flex flex-col <%= 'dev-impersonation-active' if Rails.env.development? && (session[:impersonated_user_id].present? || session[:impersonated_roles].present?) %>">
     <!-- Toast Notifications Container - Global, outside Turbo Frames -->
     <%= toast_container %>
 

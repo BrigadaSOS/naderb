@@ -2,18 +2,17 @@
   <%= render "dashboard/sidebar" %>
 
   <div class="flex-1 p-6 overflow-y-auto">
+    <!-- Header -->
     <div class="mb-6">
-      <h2 class="text-2xl font-bold text-white mb-2"><%= t(".title") %></h2>
-      <p class="text-gray-400"><%= t(".subtitle") %></p>
+      <h2 class="text-2xl font-bold text-primary mb-2"><%= t(".title") %></h2>
+      <p class="text-muted-foreground"><%= t(".subtitle") %></p>
     </div>
 
-    <div class="bg-gray-800 rounded-lg p-6">
+    <!-- Profile Card -->
+    <div class="bg-card rounded p-6">
+      <!-- Profile Header -->
       <div class="flex items-center space-x-4 mb-6">
-        <div
-          class="
-            w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center overflow-hidden
-          "
-        >
+        <div class="w-16 h-16 bg-background rounded-full flex items-center justify-center overflow-hidden">
           <% if current_user.profile_image_url.present? %>
             <%= image_tag current_user.profile_image_url, alt: current_user.username, class: "w-full h-full object-cover" %>
           <% else %>
@@ -21,45 +20,48 @@
           <% end %>
         </div>
         <div>
-          <h3 class="text-xl font-semibold text-white"><%= current_user.name %></h3>
-          <p class="text-gray-400">@<%= current_user.username %></p>
+          <h3 class="text-xl font-semibold text-foreground"><%= current_user.name %></h3>
+          <p class="text-muted-foreground">@<%= current_user.username %></p>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Info Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- Basic Info -->
         <div>
-          <h4 class="text-lg font-medium text-white mb-3"><%= t(".basic_info") %></h4>
+          <h4 class="text-lg font-medium text-primary mb-4"><%= t(".basic_info") %></h4>
           <div class="space-y-3">
             <% if current_user.display_name.present? && current_user.display_name != current_user.username %>
             <div>
-              <label class="block text-sm font-medium text-gray-400"><%= t(".display_name") %></label>
-              <p class="text-white"><%= current_user.display_name %></p>
+              <label class="block text-sm font-medium text-muted-foreground"><%= t(".display_name") %></label>
+              <p class="text-foreground"><%= current_user.display_name %></p>
             </div>
             <% end %>
             <div>
-              <label class="block text-sm font-medium text-gray-400"><%= t(".username") %></label>
-              <p class="text-white">@<%= current_user.username %></p>
+              <label class="block text-sm font-medium text-muted-foreground"><%= t(".username") %></label>
+              <p class="text-foreground">@<%= current_user.username %></p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-400"><%= t(".email") %></label>
-              <p class="text-white"><%= current_user.email %></p>
+              <label class="block text-sm font-medium text-muted-foreground"><%= t(".email") %></label>
+              <p class="text-foreground"><%= current_user.email %></p>
             </div>
           </div>
         </div>
 
+        <!-- Account Details -->
         <div>
-          <h4 class="text-lg font-medium text-white mb-3"><%= t(".account_details") %></h4>
+          <h4 class="text-lg font-medium text-primary mb-4"><%= t(".account_details") %></h4>
           <div class="space-y-3">
             <div>
-              <label class="block text-sm font-medium text-gray-400"><%= t(".member_since") %></label>
+              <label class="block text-sm font-medium text-muted-foreground"><%= t(".member_since") %></label>
               <% member_date = current_user.discord_joined_at || current_user.created_at %>
-              <p class="text-white">
+              <p class="text-foreground">
                 <%= member_date.strftime("%B %Y") %>
-                <span class="text-gray-400 text-sm ml-2"><%= time_ago_in_words_detailed(member_date) %></span>
+                <span class="text-muted-foreground text-sm ml-2"><%= time_ago_in_words_detailed(member_date) %></span>
               </p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-400 mb-2"><%= t(".preferred_language") %></label>
+              <label class="block text-sm font-medium text-muted-foreground mb-2"><%= t(".preferred_language") %></label>
               <%= form_with url: dashboard_profile_path(current_user), method: :patch, data: { turbo_frame: "_top" }, class: "flex items-center space-x-2" do |f| %>
                 <%= f.select :locale,
                     options_for_select([
@@ -68,16 +70,17 @@
                     ], current_user.locale || I18n.default_locale.to_s),
                     {},
                     data: { action: "change->form#submit" },
-                    class: "bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" %>
-                <%= f.submit t(".save"), class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors", data: { testid: "save-locale-button" } %>
+                    class: "bg-input border border-border rounded px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring" %>
+                <%= f.submit t(".save"), class: "bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded transition-colors", data: { testid: "save-locale-button" } %>
               <% end %>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="mt-6 pt-6 border-t border-gray-700">
-        <p class="text-gray-400 text-sm"><%= t(".future_updates") %></p>
+      <!-- Footer -->
+      <div class="border-t border-border pt-4">
+        <p class="text-muted-foreground text-sm"><%= t(".future_updates") %></p>
       </div>
     </div>
   </div>

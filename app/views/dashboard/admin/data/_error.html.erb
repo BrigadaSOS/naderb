@@ -1,10 +1,10 @@
 <turbo-frame id="table-inspection-results">
-  <div class="bg-red-900/50 border border-red-700 rounded-lg p-4 mt-6">
+  <div class="bg-destructive/50 border border-destructive rounded-lg p-4 mt-6">
     <div class="flex items-center justify-between">
-      <div class="text-red-200"><%= message %></div>
+      <div class="text-destructive-foreground"><%= message %></div>
       <%= button_tag "✕ Close", type: "button",
           data: { action: "click->table-inspect#close" },
-          class: "text-red-300 hover:text-red-100" %>
+          class: "text-destructive-foreground/70 hover:text-destructive-foreground" %>
     </div>
   </div>
 </turbo-frame>

@@ -44,19 +44,19 @@ module ApplicationHelper
   end
 
   def button_classes(variant = :primary, additional_classes = nil)
-    base_classes = "px-4 py-2 rounded-lg transition-colors"
+    base_classes = "px-4 py-2 rounded transition-colors"
 
     variant_classes = case variant.to_sym
     when :primary
-      "bg-blue-600 hover:bg-blue-700 text-white"
+      "bg-primary hover:bg-primary/90 text-primary-foreground"
     when :secondary
-      "bg-gray-600 hover:bg-gray-700 text-white"
+      "bg-secondary hover:bg-secondary/90 text-secondary-foreground"
     when :danger
-      "bg-red-600 hover:bg-red-700 text-white"
+      "bg-destructive hover:bg-destructive/90 text-destructive-foreground"
     when :success
-      "bg-green-600 hover:bg-green-700 text-white"
+      "bg-accent hover:bg-accent/90 text-accent-foreground"
     else
-      "bg-gray-600 hover:bg-gray-700 text-white"
+      "bg-muted hover:bg-muted/90 text-foreground"
     end
 
     [base_classes, variant_classes, additional_classes].compact.join(" ")

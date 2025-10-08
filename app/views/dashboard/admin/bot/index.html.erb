@@ -8,26 +8,26 @@
 
   <div class="flex-1 p-6 overflow-y-auto">
     <div class="mb-8">
-      <h1 class="text-3xl font-bold text-white mb-2"><%= t(".title") %></h1>
-      <p class="text-gray-400"><%= t(".subtitle") %></p>
+      <h1 class="text-3xl font-bold text-foreground mb-2"><%= t(".title") %></h1>
+      <p class="text-muted-foreground"><%= t(".subtitle") %></p>
     </div>
 
     <div class="space-y-6">
   <!-- Bot Control Panel -->
-  <div class="bg-gray-800 rounded-lg p-6">
-    <h2 class="text-xl font-semibold text-white mb-4"><%= t(".control_panel") %></h2>
+  <div class="bg-card rounded-lg p-6">
+    <h2 class="text-xl font-semibold text-foreground mb-4"><%= t(".control_panel") %></h2>
 
     <div class="flex items-center justify-between mb-6">
       <div class="space-y-2">
         <div class="flex items-center gap-3">
-          <span class="text-gray-300"><%= t(".status") %>:</span>
-          <span data-bot-manager-target="status" class="text-gray-400 bg-gray-400/20 px-2 py-1 rounded text-sm">
+          <span class="text-muted-foreground"><%= t(".status") %>:</span>
+          <span data-bot-manager-target="status" class="text-muted-foreground bg-muted px-2 py-1 rounded text-sm">
             <%= @bot_status[:status].to_s.titleize %>
           </span>
         </div>
         <div class="flex items-center gap-3">
-          <span class="text-gray-300"><%= t(".uptime") %>:</span>
-          <span data-bot-manager-target="uptime" class="text-blue-400 font-mono text-sm">N/A</span>
+          <span class="text-muted-foreground"><%= t(".uptime") %>:</span>
+          <span data-bot-manager-target="uptime" class="text-primary font-mono text-sm">N/A</span>
         </div>
       </div>
 
@@ -39,7 +39,7 @@
         </button>
         <button data-bot-manager-target="stopBtn"
                 data-action="click->bot-manager#stop"
-                class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors">
+                class="px-4 py-2 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded transition-colors">
           <%= t(".stop") %>
         </button>
         <button data-bot-manager-target="restartBtn"
@@ -49,32 +49,32 @@
         </button>
         <button data-bot-manager-target="forceStopBtn"
                 data-action="click->bot-manager#forceStop"
-                class="px-4 py-2 bg-red-900 hover:bg-red-800 text-white rounded transition-colors border-2 border-red-500">
+                class="px-4 py-2 bg-destructive/80 hover:bg-destructive text-destructive-foreground rounded transition-colors border-2 border-destructive">
           <%= t(".force_stop") %>
         </button>
       </div>
     </div>
 
-    <div data-bot-manager-target="errorMessage" class="hidden bg-red-900/20 border border-red-500 rounded p-3 text-red-400 text-sm">
+    <div data-bot-manager-target="errorMessage" class="hidden bg-destructive/20 border border-destructive rounded p-3 text-destructive text-sm">
     </div>
   </div>
 
   <!-- Bot Status -->
-  <div class="bg-gray-800 rounded-lg p-6">
-    <h2 class="text-xl font-semibold text-white mb-4"><%= t("dashboard.admin.config.index.discord_integration.title") %></h2>
+  <div class="bg-card rounded-lg p-6">
+    <h2 class="text-xl font-semibold text-foreground mb-4"><%= t("dashboard.admin.config.index.discord_integration.title") %></h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div class="space-y-4">
         <div class="flex items-center justify-between">
-          <span class="text-gray-300"><%= t("dashboard.admin.config.index.discord_integration.bot_token") %></span>
-          <span class="<%= Rails.application.credentials.discord[:token].present? ? 'text-green-400' : 'text-red-400' %>">
+          <span class="text-muted-foreground"><%= t("dashboard.admin.config.index.discord_integration.bot_token") %></span>
+          <span class="<%= Rails.application.credentials.discord[:token].present? ? 'text-accent' : 'text-destructive' %>">
             <%= Rails.application.credentials.discord[:token].present? ? t("dashboard.admin.config.index.discord_integration.configured") : t("dashboard.admin.config.index.discord_integration.missing") %>
           </span>
         </div>
 
         <div class="flex items-center justify-between">
-          <span class="text-gray-300"><%= t("dashboard.admin.config.index.discord_integration.server_id") %></span>
-          <span class="text-blue-400 font-mono text-sm">
+          <span class="text-muted-foreground"><%= t("dashboard.admin.config.index.discord_integration.server_id") %></span>
+          <span class="text-primary font-mono text-sm">
             <%= Setting.discord_server_id || t("dashboard.admin.config.index.discord_integration.not_configured") %>
           </span>
         </div>
@@ -82,15 +82,15 @@
 
       <div class="space-y-4">
         <div class="flex items-center justify-between">
-          <span class="text-gray-300"><%= t("dashboard.admin.config.index.discord_integration.oauth_client_id") %></span>
-          <span class="<%= Rails.application.credentials.discord[:oauth_client_id].present? ? 'text-green-400' : 'text-red-400' %>">
+          <span class="text-muted-foreground"><%= t("dashboard.admin.config.index.discord_integration.oauth_client_id") %></span>
+          <span class="<%= Rails.application.credentials.discord[:oauth_client_id].present? ? 'text-accent' : 'text-destructive' %>">
             <%= Rails.application.credentials.discord[:oauth_client_id].present? ? t("dashboard.admin.config.index.discord_integration.configured") : t("dashboard.admin.config.index.discord_integration.missing") %>
           </span>
         </div>
 
         <div class="flex items-center justify-between">
-          <span class="text-gray-300">OAuth Secret</span>
-          <span class="<%= Rails.application.credentials.discord[:oauth_client_secret].present? ? 'text-green-400' : 'text-red-400' %>">
+          <span class="text-muted-foreground">OAuth Secret</span>
+          <span class="<%= Rails.application.credentials.discord[:oauth_client_secret].present? ? 'text-accent' : 'text-destructive' %>">
             <%= Rails.application.credentials.discord[:oauth_client_secret].present? ? t("dashboard.admin.config.index.discord_integration.configured") : t("dashboard.admin.config.index.discord_integration.missing") %>
           </span>
         </div>
@@ -99,29 +99,29 @@
   </div>
 
   <!-- Bot Logs -->
-  <div class="bg-gray-800 rounded-lg p-6">
+  <div class="bg-card rounded-lg p-6">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-xl font-semibold text-white">Live Logs</h2>
+      <h2 class="text-xl font-semibold text-foreground">Live Logs</h2>
       <button data-action="click->bot-manager#clearLogs"
-              class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded transition-colors">
+              class="px-3 py-1 bg-muted hover:bg-muted/80 text-muted-foreground text-sm rounded transition-colors">
         Clear
       </button>
     </div>
 
     <div data-bot-manager-target="logs"
-         class="bg-gray-900 rounded p-4 h-96 overflow-y-auto font-mono text-sm space-y-1">
-      <div class="text-gray-500">Waiting for logs...</div>
+         class="bg-background rounded p-4 h-96 overflow-y-auto font-mono text-sm space-y-1">
+      <div class="text-muted-foreground">Waiting for logs...</div>
     </div>
   </div>
 
   <!-- Available Commands -->
-  <div class="bg-gray-800 rounded-lg p-6">
+  <div class="bg-card rounded-lg p-6">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-xl font-semibold text-white"><%= t(".commands_title") %></h2>
+      <h2 class="text-xl font-semibold text-foreground"><%= t(".commands_title") %></h2>
       <div class="flex gap-2">
         <button data-bot-manager-target="registerGuildBtn"
                 data-action="click->bot-manager#registerGuildCommands"
-                class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded transition-colors">
+                class="px-3 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground text-sm rounded transition-colors">
           <%= t(".register_guild") %>
         </button>
         <button data-bot-manager-target="registerGlobalBtn"
@@ -133,29 +133,29 @@
     </div>
 
     <div class="space-y-4">
-      <details class="bg-gray-700 rounded-lg group">
-        <summary class="p-4 cursor-pointer select-none flex items-center justify-between hover:bg-gray-600/50 transition-colors rounded-lg">
-          <h3 class="text-white font-medium">View All Commands</h3>
-          <svg class="w-5 h-5 text-gray-400 transform transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      <details class="group">
+        <summary class="cursor-pointer select-none flex items-center gap-2 text-foreground font-medium hover:text-primary transition-colors">
+          <svg class="w-5 h-5 transform transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
           </svg>
+          View All Commands
         </summary>
-        <div class="px-4 pb-4 pt-2 text-sm text-gray-300 space-y-3">
+        <div class="mt-3 ml-7 text-sm text-muted-foreground space-y-3">
           <% @commands.each do |command| %>
             <% if command[:subcommands].present? %>
               <% command[:subcommands].each do |subcommand| %>
                 <div class="space-y-1">
-                  <div>• <code class="text-blue-400">/<%= command[:name] %> <%= subcommand[:name] %></code> - <%= subcommand[:description] %></div>
+                  <div>• <code class="text-primary">/<%= command[:name] %> <%= subcommand[:name] %></code> - <%= subcommand[:description] %></div>
                   <% if subcommand[:parameters].present? %>
-                    <div class="ml-4 text-xs text-gray-400 space-y-0.5">
+                    <div class="ml-4 text-xs text-muted-foreground space-y-0.5">
                       <% subcommand[:parameters].each do |param| %>
                         <div>
                           <code class="text-purple-400"><%= param[:name] %></code>
-                          <span class="text-gray-500">(<%= param[:type] %>)</span>
+                          <span class="text-muted-foreground/70">(<%= param[:type] %>)</span>
                           <% if param[:required] %>
-                            <span class="text-red-400">required</span>
+                            <span class="text-destructive">required</span>
                           <% else %>
-                            <span class="text-green-400">optional</span>
+                            <span class="text-accent">optional</span>
                           <% end %>
                           - <%= param[:description] %>
                         </div>
@@ -166,17 +166,17 @@
               <% end %>
             <% else %>
               <div class="space-y-1">
-                <div>• <code class="text-blue-400">/<%= command[:name] %></code> - <%= command[:description] %></div>
+                <div>• <code class="text-primary">/<%= command[:name] %></code> - <%= command[:description] %></div>
                 <% if command[:parameters].present? %>
-                  <div class="ml-4 text-xs text-gray-400 space-y-0.5">
+                  <div class="ml-4 text-xs text-muted-foreground space-y-0.5">
                     <% command[:parameters].each do |param| %>
                       <div>
                         <code class="text-purple-400"><%= param[:name] %></code>
-                        <span class="text-gray-500">(<%= param[:type] %>)</span>
+                        <span class="text-muted-foreground/70">(<%= param[:type] %>)</span>
                         <% if param[:required] %>
-                          <span class="text-red-400">required</span>
+                          <span class="text-destructive">required</span>
                         <% else %>
-                          <span class="text-green-400">optional</span>
+                          <span class="text-accent">optional</span>
                         <% end %>
                         - <%= param[:description] %>
                       </div>
@@ -190,8 +190,8 @@
       </details>
     </div>
 
-    <div class="mt-4 text-sm text-gray-400">
-      <p>To configure role permissions, visit the <a href="<%= dashboard_admin_config_index_path %>" class="text-blue-400 hover:underline">Configuration page</a>.</p>
+    <div class="mt-4 text-sm text-muted-foreground">
+      <p>To configure role permissions, visit the <a href="<%= dashboard_admin_config_index_path %>" class="text-primary hover:underline">Configuration page</a>.</p>
     </div>
   </div>
 </div>

@@ -1,13 +1,13 @@
 <turbo-frame id="table-inspection-results">
-  <div class="bg-gray-800 rounded-lg p-6 mt-6 mb-6">
+  <div class="bg-card rounded-lg p-6 mt-6 mb-6">
   <div class="flex items-center justify-between mb-4">
-    <h3 class="text-xl font-semibold text-white">Table: <%= @table_name %></h3>
+    <h3 class="text-xl font-semibold text-foreground">Table: <%= @table_name %></h3>
     <%= button_tag "✕ Close", type: "button",
         data: { action: "click->table-inspect#close" },
-        class: "text-sm text-gray-400 hover:text-white" %>
+        class: "text-sm text-muted-foreground hover:text-foreground" %>
   </div>
 
-  <div class="mb-4 text-sm text-gray-300">
+  <div class="mb-4 text-sm text-muted-foreground">
     Showing <%= @records.length %> of <%= @total_count %> records
     (Page <%= @current_page %> of <%= @total_pages %>)
   </div>
@@ -15,17 +15,17 @@
   <div class="overflow-x-auto">
     <table class="min-w-full text-sm">
       <thead>
-        <tr class="border-b border-gray-600">
+        <tr class="border-b border-border">
           <% @columns.each do |column| %>
-            <th class="text-left py-2 px-3 text-gray-300 font-medium"><%= column %></th>
+            <th class="text-left py-2 px-3 text-muted-foreground font-medium"><%= column %></th>
           <% end %>
         </tr>
       </thead>
       <tbody>
         <% @records.each do |record| %>
-          <tr class="border-b border-gray-700 hover:bg-gray-700/50">
+          <tr class="border-b border-border hover:bg-muted/50">
             <% @columns.each do |column| %>
-              <td class="py-2 px-3 text-gray-300">
+              <td class="py-2 px-3 text-muted-foreground">
                 <div class="max-w-xs truncate" title="<%= record[column] %>">
                   <%= record[column] %>
                 </div>
@@ -43,12 +43,12 @@
         <%= link_to "Previous",
             inspect_dashboard_admin_datum_path(1, table_name: @table_name, page: @current_page - 1),
             data: { turbo_frame: "table-inspection-results" },
-            class: "text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded" %>
+            class: "text-sm bg-primary hover:bg-primary/90 text-primary-foreground px-3 py-1 rounded" %>
       <% else %>
         <div></div>
       <% end %>
 
-      <span class="text-sm text-gray-300">
+      <span class="text-sm text-muted-foreground">
         Page <%= @current_page %> of <%= @total_pages %>
       </span>
 
@@ -56,7 +56,7 @@
         <%= link_to "Next",
             inspect_dashboard_admin_datum_path(1, table_name: @table_name, page: @current_page + 1),
             data: { turbo_frame: "table-inspection-results" },
-            class: "text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded" %>
+            class: "text-sm bg-primary hover:bg-primary/90 text-primary-foreground px-3 py-1 rounded" %>
       <% else %>
         <div></div>
       <% end %>

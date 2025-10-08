@@ -1,10 +1,11 @@
-<nav class="bg-gray-800 shadow-lg" data-turbo-permanent>
+<nav class="bg-primary shadow-lg" data-turbo-permanent>
   <div class="px-6">
     <div class="flex justify-between items-center h-16">
       <!-- Logo and Name -->
-      <div class="flex items-center space-x-2">
-        <%= link_to root_path, class: "text-white font-bold text-xl hover:text-gray-200 transition-colors duration-200" do %>
-          <%= t("app.name") %>
+      <div class="flex items-center space-x-3">
+        <%= link_to root_path, class: "flex items-center space-x-3 text-primary-foreground font-bold text-xl hover:text-primary-foreground/80 transition-colors duration-200" do %>
+          <%= image_tag "icon.png", alt: "Brigada SOS", class: "w-8 h-8" %>
+          <span>Brigada SOS Japonés</span>
         <% end %>
       </div>
       <!-- Right side: Discord Link and Profile -->
@@ -20,7 +21,7 @@
         <!-- Discord Link -->
         <a
           href="https://discord.gg/ajWm26ADEj"
-          class="text-gray-300 hover:text-white transition-colors duration-200"
+          class="text-primary-foreground/80 hover:text-primary-foreground transition-colors duration-200"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -33,7 +34,7 @@
             <button
               data-action="click->dropdown#toggle"
               class="
-                flex items-center space-x-2 text-gray-300 hover:text-white transition-colors
+                flex items-center space-x-2 text-primary-foreground/80 hover:text-primary-foreground transition-colors
                 duration-200 focus:outline-none
               "
             >
@@ -56,21 +57,21 @@
             <div
               data-dropdown-target="menu"
               class="
-                hidden absolute right-0 mt-2 w-48 bg-gray-700 rounded-md shadow-lg border
-                border-gray-600 z-10
+                hidden absolute right-0 mt-2 w-48 bg-popover rounded-md shadow-lg border
+                border-border z-10
               "
             >
               <div class="py-1">
                 <%= link_to t("nav.dashboard"),
                 dashboard_path,
                 class:
-                  "block px-4 py-2 text-sm text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200" %>
+                  "block px-4 py-2 text-sm text-popover-foreground hover:bg-muted hover:text-foreground transition-colors duration-200" %>
 
                 <%= button_to t("nav.logout"),
                 "/users/sign_out",
                 method: :delete,
                 class:
-                  "w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-600 hover:text-red-300 transition-colors duration-200" %>
+                  "w-full text-left px-4 py-2 text-sm text-destructive hover:bg-muted hover:text-destructive-foreground transition-colors duration-200" %>
               </div>
             </div>
           </div>

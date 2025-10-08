@@ -1,16 +1,16 @@
 <dialog
   id="tagModal"
   class="
-    bg-gray-800 border border-gray-700 rounded-lg max-w-2xl w-full mx-auto my-auto
-    max-h-[90vh] overflow-y-auto p-6 shadow-2xl
+    bg-background border border-border rounded max-w-2xl w-full mx-auto my-auto
+    max-h-[90vh] overflow-y-auto shadow-2xl p-6
   "
   open
 >
   <div class="flex items-center justify-between mb-4">
-    <h3 class="text-lg font-semibold text-white"><%= title %></h3>
+    <h3 class="text-lg font-semibold text-foreground"><%= title %></h3>
     <%= link_to dashboard_server_tags_path(search: params[:search]),
           data: { turbo_action: "advance" },
-          class: "text-gray-400 hover:text-white modal-close cursor-pointer" do %>
+          class: "text-muted-foreground hover:text-foreground modal-close cursor-pointer" do %>
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           stroke-linecap="round"
@@ -28,7 +28,7 @@
                 id: "tag-form",
                 data: { turbo_frame: "_top", controller: "tag-preview" } do |form| %>
     <% if tag.errors.any? %>
-      <div class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm">
+      <div class="bg-destructive text-destructive-foreground px-4 py-2 rounded text-sm">
         <ul class="list-disc list-inside space-y-1">
           <% tag.errors.full_messages.each do |message| %>
             <li><%= message %></li>
@@ -40,7 +40,7 @@
     <div>
       <%= form.label :name,
                  t("dashboard.server.tags.form.field.name"),
-                 class: "block text-sm font-medium text-gray-300 mb-1" %>
+                 class: "block text-sm font-medium text-muted-foreground mb-1" %>
       <%= form.text_field :name,
                       disabled: read_only,
                       data: {
@@ -48,7 +48,7 @@
                         testid: "tag-name-input"
                       },
                       class:
-                        "w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 #{read_only ? "cursor-not-allowed opacity-60" : "focus:outline-none focus:ring-2 focus:ring-blue-500"}",
+                        "w-full px-3 py-2 bg-card border border-border rounded text-foreground placeholder-muted-foreground #{read_only ? "cursor-not-allowed opacity-60" : "focus:outline-none focus:ring-2 focus:ring-ring"}",
                       placeholder:
                         t("dashboard.server.tags.form.field.name_placeholder") %>
     </div>
@@ -56,7 +56,7 @@
     <div>
       <%= form.label :content,
                  t("dashboard.server.tags.form.field.content"),
-                 class: "block text-sm font-medium text-gray-300 mb-1" %>
+                 class: "block text-sm font-medium text-muted-foreground mb-1" %>
       <%= form.text_area :content,
                      rows: 4,
                      disabled: read_only,
@@ -68,7 +68,7 @@
                      },
                      id: "tag-content-display",
                      class:
-                       "w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 #{read_only ? "cursor-not-allowed opacity-60" : "focus:outline-none focus:ring-2 focus:ring-blue-500"}",
+                       "w-full px-3 py-2 bg-card border border-border rounded text-foreground placeholder-muted-foreground #{read_only ? "cursor-not-allowed opacity-60" : "focus:outline-none focus:ring-2 focus:ring-ring"}",
                      placeholder:
                        t("dashboard.server.tags.form.field.content_placeholder") %>
       <div data-tag-preview-target="preview" class="<%= tag.image_url? ? 'mt-3 flex justify-center' : 'mt-3 hidden' %>">
@@ -77,7 +77,7 @@
           src="<%= tag.content&.strip %>"
           alt="<%= tag.name %>"
           class="
-            max-w-full max-h-64 object-contain rounded border border-gray-600
+            max-w-full max-h-64 object-contain rounded border border-border
           "
         >
       </div>
@@ -85,12 +85,12 @@
 
     <% if current_user.admin_or_mod? && tag.persisted? %>
       <!-- Admin Section Separator -->
-      <hr class="border-gray-600">
+      <hr class="border-border">
 
       <div>
         <%= form.label :discord_uid,
                    t("dashboard.server.tags.form.field.discord_uid"),
-                   class: "block text-sm font-medium text-gray-300 mb-1" %>
+                   class: "block text-sm font-medium text-muted-foreground mb-1" %>
         <%= text_field :tag,
         :discord_uid,
         value: params.dig(:tag, :discord_uid) || tag.user.discord_uid,
@@ -99,9 +99,9 @@
           form_toggle_target: "field",
         },
         class:
-          "w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 #{read_only ? "cursor-not-allowed opacity-60" : "focus:outline-none focus:ring-2 focus:ring-blue-500"}",
+          "w-full px-3 py-2 bg-card border border-border rounded text-foreground placeholder-muted-foreground #{read_only ? "cursor-not-allowed opacity-60" : "focus:outline-none focus:ring-2 focus:ring-ring"}",
         placeholder: t("dashboard.server.tags.form.field.discord_uid_placeholder") %>
-        <p class="text-xs text-gray-400 mt-1"><%= t("dashboard.server.tags.form.field.current_owner", owner: tag.user.name) %></p>
+        <p class="text-xs text-muted-foreground mt-1"><%= t("dashboard.server.tags.form.field.current_owner", owner: tag.user.name) %></p>
       </div>
     <% end %>
 
@@ -116,9 +116,9 @@
             form: { data: { turbo_frame: "_top" }, style: "display: inline;" },
             data: { testid: "delete-tag-button" },
             onclick: "return confirm('#{j t("dashboard.server.tags.form.button.delete_confirm")}');",
-            class: "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors" %>
+            class: "bg-destructive hover:bg-destructive/90 text-destructive-foreground px-4 py-2 rounded transition-colors" %>
       <% end %>
-      <button type="submit" form="tag-form" data-testid="submit-tag-button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+      <button type="submit" form="tag-form" data-testid="submit-tag-button" class="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded transition-colors">
         <%= submit_text %>
       </button>
     </div>
@@ -131,7 +131,7 @@
         edit_dashboard_server_tag_path(tag, search: params[:search]),
         data: { turbo_action: "advance" },
         class:
-          "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors" %>
+          "bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded transition-colors" %>
       <% end %>
     </div>
   <% end %>

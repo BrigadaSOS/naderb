@@ -3,41 +3,38 @@
 
   <div class="flex-1 p-6 overflow-y-auto min-h-0">
     <div class="mb-8">
-      <h1 class="text-3xl font-bold text-white mb-2"><%= t(".title") %></h1>
-      <p class="text-gray-400"><%= t(".subtitle") %></p>
+      <h1 class="text-3xl font-bold text-foreground mb-2"><%= t(".title") %></h1>
+      <p class="text-muted-foreground"><%= t(".subtitle") %></p>
     </div>
 
-    <div class="bg-gray-800 rounded-lg p-6">
-  <h2 class="text-xl font-semibold text-white mb-4"><%= t(".sections_title") %></h2>
-
-  <div class="space-y-4">
-    <div class="bg-gray-700 rounded-lg p-4">
-      <h3 class="text-lg font-medium text-white mb-2"><%= t(".app_settings.title") %></h3>
-      <p class="text-gray-400 text-sm mb-3"><%= t(".app_settings.subtitle") %></p>
-      <div class="text-gray-300 text-sm space-y-1">
-        <div><%= t(".app_settings.environment") %>: <span class="text-green-400"><%= Rails.env %></span></div>
-        <div><%= t(".app_settings.rails_version") %>: <span class="text-blue-400"><%= Rails.version %></span></div>
+    <div class="space-y-6">
+    <div class="bg-card rounded p-6">
+      <h3 class="text-lg font-medium text-foreground mb-2"><%= t(".app_settings.title") %></h3>
+      <p class="text-muted-foreground text-sm mb-3"><%= t(".app_settings.subtitle") %></p>
+      <div class="text-muted-foreground text-sm space-y-1">
+        <div><%= t(".app_settings.environment") %>: <span class="text-accent"><%= Rails.env %></span></div>
+        <div><%= t(".app_settings.rails_version") %>: <span class="text-primary"><%= Rails.version %></span></div>
         <div><%= t(".app_settings.ruby_version") %>: <span class="text-purple-400"><%= RUBY_VERSION %></span></div>
       </div>
     </div>
 
-    <div class="bg-gray-700 rounded-lg p-4">
-      <h3 class="text-lg font-medium text-white mb-2"><%= t(".discord_integration.title") %></h3>
-      <p class="text-gray-400 text-sm mb-3"><%= t(".discord_integration.subtitle") %></p>
-      <div class="text-gray-300 text-sm space-y-1">
+    <div class="bg-card rounded p-6">
+      <h3 class="text-lg font-medium text-foreground mb-2"><%= t(".discord_integration.title") %></h3>
+      <p class="text-muted-foreground text-sm mb-3"><%= t(".discord_integration.subtitle") %></p>
+      <div class="text-muted-foreground text-sm space-y-1">
         <div><%= t(".discord_integration.server_id") %>: <span class="text-yellow-400"><%= Setting.discord_server_id || t(".discord_integration.not_configured") %></span></div>
         <div><%= t(".discord_integration.bot_token") %>: <span class="text-yellow-400"><%= Setting.discord_bot_token.present? ? t(".discord_integration.configured") : t(".discord_integration.missing") %></span></div>
         <div><%= t(".discord_integration.oauth_client_id") %>: <span class="text-yellow-400"><%= Setting.discord_oauth_client_id.present? ? t(".discord_integration.configured") : t(".discord_integration.missing") %></span></div>
       </div>
     </div>
 
-    <div class="bg-gray-700 rounded-lg p-4">
+    <div class="bg-card rounded p-6">
       <div class="flex items-center justify-between mb-4">
         <div>
-          <h3 class="text-lg font-medium text-white"><%= t(".role_config.title") %></h3>
-          <p class="text-gray-400 text-sm"><%= t(".role_config.subtitle") %></p>
+          <h3 class="text-lg font-medium text-foreground"><%= t(".role_config.title") %></h3>
+          <p class="text-muted-foreground text-sm"><%= t(".role_config.subtitle") %></p>
         </div>
-        <%= button_to refresh_discord_roles_dashboard_admin_config_index_path, method: :post, class: "flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded transition-colors" do %>
+        <%= button_to refresh_discord_roles_dashboard_admin_config_index_path, method: :post, class: "flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium px-4 py-2 rounded transition-colors" do %>
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
@@ -49,14 +46,14 @@
         <div class="space-y-4">
           <!-- Admin Roles -->
           <div>
-            <label class="block text-white text-sm font-medium mb-2"><%= t(".role_config.admin_roles") %></label>
+            <label class="block text-foreground text-sm font-medium mb-2"><%= t(".role_config.admin_roles") %></label>
             <select
               name="admin_roles[]"
               multiple
               size="5"
-              class="w-full bg-gray-800 text-white border border-gray-600 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
+              class="w-full bg-input text-foreground border border-border rounded px-3 py-2 focus:outline-none focus:border-ring">
               <% if @discord_roles.empty? %>
-                <option value="" disabled class="text-red-400"><%= t(".role_config.no_roles") %></option>
+                <option value="" disabled class="text-destructive"><%= t(".role_config.no_roles") %></option>
               <% else %>
                 <% @discord_roles.each do |role| %>
                   <%
@@ -69,19 +66,19 @@
                 <% end %>
               <% end %>
             </select>
-            <p class="text-gray-500 text-xs mt-1"><%= t(".role_config.admin_description") %></p>
+            <p class="text-muted-foreground/70 text-xs mt-1"><%= t(".role_config.admin_description") %></p>
           </div>
 
           <!-- Moderator Roles -->
           <div>
-            <label class="block text-white text-sm font-medium mb-2"><%= t(".role_config.moderator_roles") %></label>
+            <label class="block text-foreground text-sm font-medium mb-2"><%= t(".role_config.moderator_roles") %></label>
             <select
               name="moderator_roles[]"
               multiple
               size="5"
-              class="w-full bg-gray-800 text-white border border-gray-600 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
+              class="w-full bg-input text-foreground border border-border rounded px-3 py-2 focus:outline-none focus:border-ring">
               <% if @discord_roles.empty? %>
-                <option value="" disabled class="text-red-400"><%= t(".role_config.no_roles") %></option>
+                <option value="" disabled class="text-destructive"><%= t(".role_config.no_roles") %></option>
               <% else %>
                 <% @discord_roles.each do |role| %>
                   <%
@@ -94,19 +91,19 @@
                 <% end %>
               <% end %>
             </select>
-            <p class="text-gray-500 text-xs mt-1"><%= t(".role_config.moderator_description") %></p>
+            <p class="text-muted-foreground/70 text-xs mt-1"><%= t(".role_config.moderator_description") %></p>
           </div>
 
           <!-- Trusted Roles -->
           <div>
-            <label class="block text-white text-sm font-medium mb-2"><%= t(".role_config.trusted_roles") %></label>
+            <label class="block text-foreground text-sm font-medium mb-2"><%= t(".role_config.trusted_roles") %></label>
             <select
               name="trusted_roles[]"
               multiple
               size="5"
-              class="w-full bg-gray-800 text-white border border-gray-600 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
+              class="w-full bg-input text-foreground border border-border rounded px-3 py-2 focus:outline-none focus:border-ring">
               <% if @discord_roles.empty? %>
-                <option value="" disabled class="text-red-400"><%= t(".role_config.no_roles") %></option>
+                <option value="" disabled class="text-destructive"><%= t(".role_config.no_roles") %></option>
               <% else %>
                 <% @discord_roles.each do |role| %>
                   <%
@@ -119,21 +116,21 @@
                 <% end %>
               <% end %>
             </select>
-            <p class="text-gray-500 text-xs mt-1"><%= t(".role_config.trusted_description") %></p>
+            <p class="text-muted-foreground/70 text-xs mt-1"><%= t(".role_config.trusted_description") %></p>
           </div>
 
           <!-- Submit Button -->
           <div class="flex justify-end">
-            <%= form.submit t(".role_config.save_roles"), class: "bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded transition-colors cursor-pointer" %>
+            <%= form.submit t(".role_config.save_roles"), class: "bg-primary hover:bg-primary/90 text-primary-foreground font-medium px-6 py-2 rounded transition-colors cursor-pointer" %>
           </div>
         </div>
       <% end %>
     </div>
 
-    <div class="bg-gray-700 rounded-lg p-4">
-      <h3 class="text-lg font-medium text-white mb-2">Database Configuration</h3>
-      <p class="text-gray-400 text-sm mb-3">Database connection and settings</p>
-      <div class="text-gray-300 text-sm space-y-1">
+    <div class="bg-card rounded p-6">
+      <h3 class="text-lg font-medium text-foreground mb-2">Database Configuration</h3>
+      <p class="text-muted-foreground text-sm mb-3">Database connection and settings</p>
+      <div class="text-muted-foreground text-sm space-y-1">
         <div>Adapter: <span class="text-cyan-400"><%= ActiveRecord::Base.connection.adapter_name %></span></div>
         <div>Database: <span class="text-cyan-400">
           <% begin %>
@@ -146,9 +143,8 @@
     </div>
   </div>
 
-  <div class="mt-6 text-sm text-gray-400">
-    <p><strong>Note:</strong> This section will be expanded to allow editing configuration values in future updates.</p>
-  </div>
-</div>
+    <div class="mt-6 text-sm text-muted-foreground">
+      <p><strong>Note:</strong> This section will be expanded to allow editing configuration values in future updates.</p>
+    </div>
   </div>
 </div>
