@@ -60,7 +60,7 @@ RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 FROM base
 
 # Set APP_VERSION build argument and environment variable
-ARG APP_VERSION=unknown
+ARG APP_VERSION
 ENV APP_VERSION=${APP_VERSION}
 
 # Copy built artifacts: gems, application
