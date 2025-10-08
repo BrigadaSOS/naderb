@@ -273,4 +273,12 @@
       </div>
     </div>
   </nav>
+  <!-- Version Info -->
+  <% if app_version.present? %>
+    <div class="p-4 mt-auto">
+      <p class="text-xs text-muted-foreground text-center">
+        v<%= app_version %>
+      </p>
+    </div>
+  <% end %>
 </div>

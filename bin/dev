@@ -8,6 +8,9 @@ fi
 # Default to port 3000 if not specified
 export PORT="${PORT:-3000}"
 
+# Set APP_VERSION from git tag/commit
+export APP_VERSION=$(git describe --tags --always 2>/dev/null || echo "")
+
 # Let the debug gem allow remote connections,
 # but avoid loading until `debugger` is called
 export RUBY_DEBUG_OPEN="true"

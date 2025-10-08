@@ -120,6 +120,10 @@ module ApplicationHelper
     end
   end
 
+  def app_version
+    @app_version ||= ENV["APP_VERSION"].presence
+  end
+
   private
 
   def normalize_flash_type(type)
