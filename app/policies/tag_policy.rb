@@ -29,19 +29,19 @@ class TagPolicy
   end
 
   def authorize_create!
-    raise Tag::PermissionDenied, I18n.t("tag_policy.errors.create") unless can_create?
+    raise TagExceptions::PermissionDenied, I18n.t("tag_policy.errors.create") unless can_create?
   end
 
   def authorize_update!
-    raise Tag::PermissionDenied, I18n.t("tag_policy.errors.update") unless can_update?
+    raise TagExceptions::PermissionDenied, I18n.t("tag_policy.errors.update") unless can_update?
   end
 
   def authorize_destroy!
-    raise Tag::PermissionDenied, I18n.t("tag_policy.errors.destroy") unless can_destroy?
+    raise TagExceptions::PermissionDenied, I18n.t("tag_policy.errors.destroy") unless can_destroy?
   end
 
   def authorize_change_owner!
-    raise Tag::PermissionDenied, I18n.t("tag_policy.errors.change_owner") unless can_change_owner?
+    raise TagExceptions::PermissionDenied, I18n.t("tag_policy.errors.change_owner") unless can_change_owner?
   end
 
   private

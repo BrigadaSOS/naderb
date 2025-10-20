@@ -6,8 +6,8 @@ class TagService
   # Creates a new tag
   # @param tag_params [Hash] Tag attributes (name, content, etc.)
   # @return [Tag] The created tag
-  # @raise [Tag::PermissionDenied] if user lacks create permission
-  # @raise [Tag::ValidationFailed] if tag validations fail
+  # @raise [TagExceptions::PermissionDenied] if user lacks create permission
+  # @raise [TagExceptions::ValidationFailed] if tag validations fail
   def create_tag(tag_params)
     tag = @user.tags.build(tag_params.merge(guild_id: Setting.discord_server_id))
     policy_for(tag).authorize_create!
@@ -21,14 +21,25 @@ class TagService
   # @param tag [Tag] The tag to update
   # @param tag_params [Hash] Tag attributes to update
   # @return [Tag] The updated tag
-  # @raise [Tag::NotFound] if tag is nil
-  # @raise [Tag::PermissionDenied] if user lacks update permission or can't change owner
-  # @raise [Tag::ValidationFailed] if tag validations fail or new owner not found
+  # @raise [TagExceptions::NotFound] if tag is nil
+  # @raise [TagExceptions::PermissionDenied] if user lacks update permission or can't change owner
+  # @raise [TagExceptions::ValidationFailed] if tag validations fail or new owner not found
   def update_tag(tag, tag_params)
     ensure_exists!(tag)
     policy_for(tag).authorize_update!
 
-    update_params = prepare_update_params(tag, tag_params)
+    remove_image = tag_params[:_remove_image].present?
+    new_image = tag_params[:image]
+
+    update_params = prepare_update_params(tag, tag_params.except("_remove_image"))
+
+    # Apply all business logic transformations to update_params
+    if remove_image || new_image
+      update_params[:original_image_url] = nil
+      update_params[:discord_cdn_url] = nil
+      update_params[:image] = nil if remove_image
+    end
+
     db_operation(tag, :update) {
       tag.update(update_params)
     }
@@ -37,9 +48,9 @@ class TagService
   # Destroys a tag
   # @param tag [Tag] The tag to destroy
   # @return [Tag] The destroyed tag
-  # @raise [Tag::NotFound] if tag is nil
-  # @raise [Tag::PermissionDenied] if user lacks destroy permission
-  # @raise [Tag::ValidationFailed] if destruction fails
+  # @raise [TagExceptions::NotFound] if tag is nil
+  # @raise [TagExceptions::PermissionDenied] if user lacks destroy permission
+  # @raise [TagExceptions::ValidationFailed] if destruction fails
   def destroy_tag(tag)
     ensure_exists!(tag)
     policy_for(tag).authorize_destroy!
@@ -59,7 +70,7 @@ class TagService
     unless tag
       # Try to provide a meaningful name for the error message
       tag_name = name || tag&.name || "unknown"
-      raise Tag::NotFound.new(tag_name)
+      raise TagExceptions::NotFound.new(tag_name)
     end
   end
 
@@ -73,8 +84,8 @@ class TagService
       new_owner = User.find_by(discord_uid: discord_uid)
       unless new_owner
         tag.errors.add(:base, I18n.t("activerecord.errors.models.tag.attributes.discord_uid.not_found",
-                                    discord_uid: discord_uid))
-        raise Tag::ValidationFailed.new(tag)
+                                     discord_uid: discord_uid))
+        raise TagExceptions::ValidationFailed.new(tag)
       end
 
       tag_params.except("discord_uid").merge(user: new_owner)
@@ -93,7 +104,7 @@ class TagService
       tag
     else
       Rails.logger.error "Failed to #{operation} tag: #{tag.errors.full_messages.join(', ')}"
-        raise Tag::ValidationFailed.new(tag)
+      raise TagExceptions::ValidationFailed.new(tag)
     end
   rescue ActiveRecord::ActiveRecordError => e
     Rails.logger.error "Database error during tag #{operation}: #{e.message}"

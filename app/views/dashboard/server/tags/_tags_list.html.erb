@@ -19,13 +19,9 @@
         <%= link_to url, data: { turbo_frame: "tags_content", turbo_action: "advance", testid: "tag-#{tag.name}" }, class: "block bg-card rounded p-4 hover:bg-card/80 transition-colors cursor-pointer h-full flex flex-col" do %>
           <h3 class="text-foreground font-semibold text-sm mb-2 truncate"><%= tag.name %></h3>
 
-          <% if tag.image_url? %>
+          <% if tag.image.attached? %>
             <div class="mb-3 flex-grow flex items-center justify-center">
-              <img
-                src="<%= tag.content.strip %>"
-                alt="<%= tag.content.strip %>"
-                class="w-full h-40 object-contain rounded"
-              >
+              <%= image_tag tag.image, alt: tag.name, class: "w-full h-40 object-contain rounded" %>
             </div>
           <% else %>
             <div

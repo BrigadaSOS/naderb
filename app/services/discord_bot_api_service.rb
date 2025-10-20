@@ -96,9 +96,9 @@ class DiscordBotApiService
 
   private
 
-  # Build command payloads from CommandRegistry
+  # Build command payloads from CommandSchema
   def build_command_payloads
-    CommandRegistry.command_definitions.map do |cmd|
+    CommandSchema.to_array.map do |cmd|
       payload = {
         name: cmd[:name],
         description: cmd[:description],
@@ -145,7 +145,6 @@ class DiscordBotApiService
     end
   end
 
-  # Map parameter types to Discord option types
   def map_parameter_type(type)
     case type.to_s.downcase
     when "string" then 3
@@ -155,6 +154,7 @@ class DiscordBotApiService
     when "channel" then 7
     when "role" then 8
     when "mentionable" then 9
+    when "attachment" then 11
     else 3 # Default to string
     end
   end

@@ -5,9 +5,9 @@ class Dashboard::Server::TagsController < ApplicationController
   before_action :require_create_permission!, only: [ :new, :create ]
   before_action :require_edit_permission!, only: [ :edit, :update, :destroy ]
 
-  rescue_from Tag::PermissionDenied, with: :handle_permission_denied
-  rescue_from Tag::ValidationFailed, with: :handle_validation_failed
-  rescue_from Tag::NotFound, with: :handle_not_found
+  rescue_from TagExceptions::PermissionDenied, with: :handle_permission_denied
+  rescue_from TagExceptions::ValidationFailed, with: :handle_validation_failed
+  rescue_from TagExceptions::NotFound, with: :handle_not_found
   rescue_from ActiveRecord::ActiveRecordError, with: :handle_database_error
 
   def index
@@ -44,7 +44,12 @@ class Dashboard::Server::TagsController < ApplicationController
   private
 
   def tag_params
-    params.require("tag").permit("name", "content", "discord_uid")
+    permitted = params.require("tag").permit("name", "content", "discord_uid", "image", "input_mode", "remove_image")
+    permitted["_remove_image"] = permitted["remove_image"] == "true" if permitted["remove_image"].present?
+
+    # TODO: Can we remove input_mode from here?
+    # UI-only params
+    permitted.except("input_mode", "remove_image")
   end
 
   def set_tag

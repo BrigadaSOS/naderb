@@ -8,6 +8,17 @@ return unless Rails.env.development?
 
 require 'faker'
 
+# Clean up all ActiveStorage attachments and blobs
+# This removes any uploaded images from the database and cleans up orphaned files
+puts "Cleaning up ActiveStorage data..."
+attachment_count = ActiveStorage::Attachment.count
+blob_count = ActiveStorage::Blob.count
+
+ActiveStorage::Attachment.destroy_all
+ActiveStorage::Blob.destroy_all
+
+puts "✓ Removed #{attachment_count} attachment(s) and #{blob_count} blob(s)"
+
 guild_id = "999888777"
 
 # Get or create a user to assign tags to

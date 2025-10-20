@@ -16,8 +16,8 @@ class DiscordBotJob < ApplicationJob
     bot = Discordrb::Bot.new(token: Setting.discord_bot_token, intents: [ :server_messages ])
 
     # Include command modules
-    bot.include!(AdminCommands)
-    bot.include!(ProfileCommands)
+    # bot.include!(AdminCommands)
+    # bot.include!(ProfileCommands)
     bot.include!(TagCommands)
 
     DiscordBotManagerService.set_bot_instance(bot)

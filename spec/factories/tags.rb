@@ -10,6 +10,17 @@ FactoryBot.define do
       content { Faker::LoremFlickr.image(size: "400x300", search_terms: [ 'cat' ]) }
     end
 
+    trait :with_attached_image do
+      content { nil }
+      after(:build) do |tag|
+        tag.image.attach(
+          io: File.open(Rails.root.join('spec', 'fixtures', 'files', 'test_image.png')),
+          filename: 'test_image.png',
+          content_type: 'image/png'
+        )
+      end
+    end
+
     trait :with_random_image do
       content do
         search_term = %w[cat dog nature space city technology food].sample

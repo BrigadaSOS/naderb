@@ -1,5 +1,6 @@
 class Tag < ApplicationRecord
   belongs_to :user
+  has_one_attached :image
 
   before_validation :normalize_name
 
@@ -7,69 +8,28 @@ class Tag < ApplicationRecord
                    length: { maximum: 50 },
                    format: { with: /\A[a-zA-Z0-9_-]+\z/ },
                    uniqueness: { scope: :guild_id }
-  validates :content, presence: true, length: { maximum: 2000 }
+  validates :content, length: { maximum: 2000 }, allow_blank: true
+  validate :must_have_content_or_image, on: [ :create, :update ]
 
   attribute :id, :uuid_v7, default: -> { SecureRandom.uuid_v7 }
 
   scope :by_name, ->(name) { where("LOWER(name) = ?", name.downcase) }
 
+  after_commit :queue_image_download, on: [ :create, :update ]
+
   def self.find_by_name(name)
     by_name(name).first
   end
 
-  def image_url?
-    return false unless content.present?
+  def content_is_image_url?
+    return false if content.blank? || image.attached?
 
-    # Check if the content is a valid URL
-    uri = URI.parse(content.strip)
-    return false unless uri.scheme&.match?(/^https?$/)
-
-    # Skip Discord media URLs as they don't resolve without proper referrer
-    return false if discord_media_url?(uri)
-
-    # More lenient: check for image extensions OR assume it could be an image
-    # This handles dynamic image services like picsum.photos, imgur, etc.
-    has_image_extension = uri.path.match?(/\.(jpe?g|png|gif|webp|bmp|svg)$/i)
-
-    # If it has an extension, it must be an image extension
-    has_extension = uri.path.match?(/\.[a-z0-9]+$/i)
-    return false if has_extension && !has_image_extension
-
-    # Otherwise, try to display it as an image (no extension or has image extension)
-    true
-  rescue URI::InvalidURIError
-    false
+    trimmed = content.strip
+    TagImageService.valid_image_url?(trimmed) && trimmed == content.strip
   end
 
-  def discord_media_url?(uri = nil)
-    uri ||= URI.parse(content.strip) rescue nil
-    return false unless uri
-
-    uri.host&.match?(/^(media|cdn)\.discordapp\.(net|com)$/i)
-  rescue URI::InvalidURIError
-    false
-  end
-
-  class PermissionDenied < StandardError
-    def initialize(message = nil)
-      super(message || I18n.t("tags.errors.permission_denied"))
-    end
-  end
-
-  class ValidationFailed < StandardError
-    attr_reader :record
-
-    def initialize(record)
-      @record = record
-      errors = record.errors.full_messages.join(", ")
-      super(I18n.t("tags.errors.validation_failed", errors: errors))
-    end
-  end
-
-  class NotFound < StandardError
-    def initialize(name)
-      super(I18n.t("tags.errors.not_found", name: name))
-    end
+  def discord_cdn_url?
+    discord_cdn_url.present?
   end
 
   private
@@ -78,7 +38,36 @@ class Tag < ApplicationRecord
     self.name = name&.downcase&.strip
   end
 
-  def is_editable_by(user)
-    tag.user == user || user.admin_or_mod?
+  def must_have_content_or_image
+    return if destroyed? || marked_for_destruction?
+
+    has_content = content.present?
+    has_url = discord_cdn_url.present?
+    has_image = image.attached? && !image.attachment&.marked_for_destruction?
+
+    unless has_content || has_image || has_url
+      errors.add(:base, I18n.t("activerecord.errors.models.tag.must_have_content_or_image"))
+    end
+  end
+
+  def queue_image_download
+    return unless !image.attached? && (discord_cdn_url.present? || content_is_image_url?)
+    Rails.logger.info "Queueing image download for tag #{name} (#{id})"
+
+    url = discord_cdn_url || content.strip
+
+    # Do this in a better way
+    update_column(:content, nil) if content_is_image_url?
+
+    update_column(:original_image_url, url)
+
+    service = TagImageService.new(self)
+    service.download_from_url(url, background: false)
+
+  rescue ActiveRecord::RecordNotFound => e
+    Rails.logger.error "Tag #{id} not found: #{e.message}"
+
+  rescue => e
+    Rails.logger.error "Failed to queue image download for tag #{id}: #{e.message}"
   end
 end

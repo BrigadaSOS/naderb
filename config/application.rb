@@ -7,11 +7,9 @@ require "active_job/railtie"
 require "active_record/railtie"
 require "active_storage/engine"
 require "action_controller/railtie"
-# require "action_mailer/railtie"
 require "action_text/engine"
 require "action_view/railtie"
 require "action_cable/engine"
-# require "rails/test_unit/railtie"
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -43,6 +41,12 @@ module Nadeshikorb
     config.i18n.available_locales = [ :es, :en ]
     config.i18n.default_locale = :es
     config.i18n.fallbacks = [ I18n.default_locale ]
+
+    # Configure generators to use UUID primary keys
+    # This ensures ActiveStorage and other generated models use UUIDs instead of integers
+    config.generators do |g|
+      g.orm :active_record, primary_key_type: :uuid
+    end
 
     # Ignore Devise mailer since ActionMailer is disabled
     Rails.autoloaders.main.ignore(Gem.loaded_specs["devise"].full_gem_path + "/app/mailers") if Gem.loaded_specs["devise"]

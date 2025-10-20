@@ -4,7 +4,7 @@ class Dashboard::Admin::BotController < ApplicationController
   before_action :admin_required!
 
   def index
-    @commands = CommandRegistry.command_definitions
+    @commands = CommandSchema.to_array
     @bot_status = DiscordBotManagerService.status
   end
 

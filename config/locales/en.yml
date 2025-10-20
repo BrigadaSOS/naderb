@@ -78,14 +78,20 @@ en:
             title: "No tags yet"
             description: "Create your first tag to start organizing your content."
         form:
+          tab:
+            content: "Text/URL"
+            image: "Image Upload"
           field:
             name: "Tag Name"
             name_placeholder: "Enter tag name"
             content: "Content"
-            content_placeholder: "Enter tag content"
+            content_placeholder: "Enter tag content (optional if image is provided)"
+            image: "Image"
             discord_uid: "Owner Discord UID"
             discord_uid_placeholder: "Enter Discord UID to change owner"
             current_owner: "Current owner: %{owner}"
+          warning:
+            discord_url_expired: "This Discord URL has expired or will expire soon. It will be automatically refreshed when downloading."
           button:
             close: "Close"
             cancel: "Cancel"
@@ -93,6 +99,7 @@ en:
             submit: "Submit"
             delete: "Delete"
             delete_confirm: "Are you sure?"
+            remove_image: "Remove Image"
         new:
           title: "Create New Tag"
           submit: "Create Tag"
@@ -225,6 +232,7 @@ en:
         invalid: "is invalid"
       models:
         tag:
+          must_have_content_or_image: "must have either content or an attached image"
           attributes:
             name:
               blank: "is required"
