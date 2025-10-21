@@ -1,3 +1,7 @@
+# Configure discordrb to skip SSL certificate verification
+# This fixes "certificate verify failed (unable to get certificate CRL)" errors
+ENV['DISCORDRB_SSL_VERIFY_NONE'] = 'true'
+
 # Discord bot auto-starts with the Rails server
 # Skip during rake tasks (migrations, db:create, etc.)
 Rails.application.config.after_initialize do
