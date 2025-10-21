@@ -108,13 +108,15 @@
           </p>
         </div>
 
-        <div>
-          <%= form.label :enabled, "Status", class: "block text-sm font-medium text-muted-foreground mb-2" %>
-          <div class="flex items-center gap-2">
-            <%= form.check_box :enabled, { class: "rounded border-gray-300" } %>
-            <span class="text-sm text-muted-foreground">Enable this message (must be enabled to be sent automatically)</span>
+        <% unless @scheduled_message.new_record? %>
+          <div>
+            <%= form.label :enabled, "Status", class: "block text-sm font-medium text-muted-foreground mb-2" %>
+            <div class="flex items-center gap-2">
+              <%= form.check_box :enabled, { class: "rounded border-gray-300" } %>
+              <span class="text-sm text-muted-foreground">Enable this message (must be enabled to be sent automatically)</span>
+            </div>
           </div>
-        </div>
+        <% end %>
       </div>
     </div>
 
@@ -127,14 +129,11 @@
         <div>
           <%= form.label :data_query, "Data Source (Optional)", class: "block text-sm font-medium text-muted-foreground mb-1" %>
           <%= form.select :data_query,
-                          [
-                            ["None (Static Message)", ""],
-                            ["Users with Birthdays Today", "birthdays_today"]
-                          ],
+                          [["None (Static Message)", ""]] + DataQueryService.available_queries.map { |q| [q[:label], q[:value]] },
                           {},
                           { class: "w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent",
                             data: { action: "change->scheduled-form#onDataQueryChange" } } %>
-          <p class="text-xs text-muted-foreground mt-1">Optional: Fetch data to use in template (e.g., list users with birthdays)</p>
+          <p class="text-xs text-muted-foreground mt-1">Optional: Fetch data to use in template (e.g., list all users with birthdays)</p>
         </div>
 
         <!-- Data Query Variables Card (shown when a query is selected) -->
@@ -165,41 +164,35 @@
         <% end %>
       </div>
 
-      <!-- Conditions -->
-      <div class="bg-card rounded-lg p-6 space-y-4">
-        <h2 class="text-xl font-semibold text-primary">Conditions (Optional)</h2>
-
-        <div>
-          <%= form.label :conditions, "Execution Conditions", class: "block text-sm font-medium text-muted-foreground mb-1" %>
-          <%= form.text_area :conditions,
-                             placeholder: "See examples below...",
-                             rows: 3,
-                             class: "w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent font-mono text-sm" %>
-          <div class="mt-2 p-3 bg-muted rounded-md text-xs text-muted-foreground space-y-2">
-            <p class="font-semibold text-foreground">About Conditions:</p>
-            <p>Conditions are ERB templates that must evaluate to <code>true</code> for the message to be sent. If the condition evaluates to <code>false</code>, the message will be skipped.</p>
-            <div class="mt-2">
-              <p class="font-semibold text-foreground mb-1">Examples:</p>
-              <ul class="list-disc list-inside space-y-1">
-                <li><code>&lt;%= @birthdays_count > 0 %&gt;</code> - Only send if there are birthdays</li>
-                <li><code>&lt;%= @birthdays.any? %&gt;</code> - Same as above</li>
-                <li><code>&lt;%= @birthday_day == 1 %&gt;</code> - Only on the 1st of the month</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Message Template -->
       <div class="bg-card rounded-lg p-6 space-y-4">
-        <h2 class="text-xl font-semibold text-primary">Message Template (ERB)</h2>
+        <h2 class="text-xl font-semibold text-primary">Message Template (Liquid)</h2>
 
         <div>
           <%= form.label :template, "Template Content", class: "block text-sm font-medium text-muted-foreground mb-1" %>
           <%= form.text_area :template,
-                             placeholder: "Enter your message template here...",
+                             placeholder: "Enter your Liquid template here...",
                              rows: 20,
                              class: "w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent font-mono text-sm" %>
+          <div class="mt-2 p-3 bg-muted rounded-md text-xs text-muted-foreground space-y-2">
+            <p class="font-semibold text-foreground">About Liquid Templates:</p>
+            <p>Liquid is a secure templating language. Use <code>{{ variable }}</code> for output and <code>{% for %}</code>, <code>{% if %}</code> for logic.</p>
+            <div class="mt-2">
+              <p class="font-semibold text-foreground mb-1">Quick Reference:</p>
+              <ul class="list-disc list-inside space-y-1">
+                <li><code>{{ variable }}</code> - Output a variable</li>
+                <li><code>{% for item in array %}</code> - Loop through array</li>
+                <li><code>{% if condition %}</code> - Conditional</li>
+                <li><code>{{ array.size }}</code> - Get array size</li>
+                <li><code>{{ "now" | date: "%B %d, %Y" }}</code> - Format current date</li>
+              </ul>
+              <p class="mt-2 font-semibold text-foreground">Conditional Sending:</p>
+              <p>If the template renders to empty/whitespace, the message won't be sent. Use this for conditional logic:</p>
+              <pre class="mt-1 bg-background p-2 rounded text-xs font-mono">{% if birthdays.size > 0 %}
+  Message here...
+{% endif %}</pre>
+            </div>
+          </div>
         </div>
       </div>
     </div>

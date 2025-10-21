@@ -11,8 +11,8 @@ class DataQueryService
     @date = date.in_time_zone(timezone)
 
     case query_type
-    when "birthdays_today"
-      birthdays_today_query
+    when "birthdays"
+      birthdays_query
     else
       Rails.logger.warn "Unknown data query type: #{query_type}"
       {}
@@ -24,30 +24,25 @@ class DataQueryService
   # @return [Hash] Metadata including description and variables
   def self.query_metadata(query_type)
     case query_type
-    when "birthdays_today"
+    when "birthdays"
       {
-        name: "Users with Birthdays Today",
-        description: "Fetches birthdays for the current day",
+        name: "All User Birthdays",
+        description: "Fetches all user birthdays - use Liquid template to filter by day, month, etc.",
         variables: [
           {
-            name: "@birthdays",
+            name: "birthdays",
             type: "Array<Birthday>",
-            description: "Array of Birthday objects for today"
+            description: "Array of all Birthday objects, ordered by month and day"
           },
           {
-            name: "@birthdays_count",
+            name: "current_month",
             type: "Integer",
-            description: "Number of birthdays today"
+            description: "Current month number (1-12)"
           },
           {
-            name: "@current_month",
-            type: "String",
-            description: "Current month name (e.g., 'January')"
-          },
-          {
-            name: "@current_day",
+            name: "current_day",
             type: "Integer",
-            description: "Current day of the month (e.g., 15)"
+            description: "Current day of the month (1-31)"
           }
         ],
         object_properties: [
@@ -61,24 +56,36 @@ class DataQueryService
               { name: "month", type: "Integer", description: "Birth month (1-12)" },
               { name: "day", type: "Integer", description: "Birth day (1-31)" },
               { name: "month_name", type: "String", description: "Birth month name (e.g., 'January')" },
-              { name: "to_s", type: "String", description: "Formatted birthday (e.g., 'January 15')" },
-              { name: "today?(date)", type: "Boolean", description: "Check if birthday is on given date" },
-              { name: "in_month?(month)", type: "Boolean", description: "Check if birthday is in given month" }
+              { name: "to_s", type: "String", description: "Formatted birthday (e.g., 'January 15')" }
             ]
           }
         ],
         example: <<~EXAMPLE
-          🎉 Birthday Celebrations Today! 🎉
+          Filter birthdays today (skips if no birthdays):
+          {% assign today_birthdays = birthdays | where: "month", current_month | where: "day", current_day %}
+          {% if today_birthdays.size > 0 %}
+          🎉 Happy Birthday! 🎉
+          {% for birthday in today_birthdays %}
+          Happy Birthday {{ birthday.mention }}! 🎂
+          {% endfor %}
+          {% endif %}
 
-          <% @birthdays.each do |birthday| %>
-          Happy Birthday <%= birthday.mention %>! 🎂
-          <%= birthday.display_name %> (@<%= birthday.username %>) - Born on <%= birthday.to_s %>
-          <% end %>
+          Filter birthdays this month:
+          {% assign month_birthdays = birthdays | where: "month", current_month %}
+          🎂 {{ "now" | date: "%B" }} Birthdays:
+          {% for birthday in month_birthdays %}
+          • {{ birthday.day }} - {{ birthday.display_name }}
+          {% endfor %}
+          Total: {{ month_birthdays.size }}
 
-          Total birthdays today: <%= @birthdays_count %>
+          All birthdays:
+          {% for birthday in birthdays %}
+          {{ birthday.to_s }} - {{ birthday.username }}
+          {% endfor %}
 
-          You can also filter by month:
-          <% birthdays_this_month = @birthdays.select { |b| b.in_month?(@current_month) } %>
+          Current date helpers:
+          Month name: {{ "now" | date: "%B" }}
+          Full date: {{ "now" | date: "%Y-%m-%d" }}
         EXAMPLE
       }
     else
@@ -100,21 +107,20 @@ class DataQueryService
 
   private
 
-  def birthdays_today_query
-    month = @date.month
-    day = @date.day
-
-    # Find all users with birthdays today
-    users = User.where(birthday_month: month, birthday_day: day, active: true).order(:username)
+  def birthdays_query
+    # Find all active users with birthdays, ordered by month and day
+    users = User.where(active: true)
+                .where.not(birthday_month: nil)
+                .where.not(birthday_day: nil)
+                .order(:birthday_month, :birthday_day, :username)
 
     # Wrap users in Birthday objects
     birthdays = users.map { |user| Birthday.new(user) }
 
     {
       birthdays: birthdays,
-      birthdays_count: birthdays.count,
-      current_month: Date::MONTHNAMES[month],
-      current_day: day
+      current_month: @date.month,
+      current_day: @date.day
     }
   end
 end

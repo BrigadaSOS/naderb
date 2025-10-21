@@ -1,14 +1,15 @@
 FactoryBot.define do
   factory :scheduled_message do
-    name { Faker::Lorem.unique.word.capitalize + " Birthday" }
+    name { Faker::Lorem.unique.word.capitalize + " Message" }
     description { Faker::Lorem.sentence }
-    template { "Happy birthday {name}! 🎉" }
-    schedule_type { "birthday" }
-    schedule_day { 15 }
-    schedule_month { 1 }
-    schedule_time { "08:00" }
+    template { "Test message" }
+    schedule { "every day at 8am" }
+    data_query { nil }
+    consumer_type { "discord" }
+    timezone { "America/Mexico_City" }
     enabled { true }
     channel_id { Faker::Number.number(digits: 18).to_s }
+    conditions { nil }
     created_by { association :user }
   end
 end

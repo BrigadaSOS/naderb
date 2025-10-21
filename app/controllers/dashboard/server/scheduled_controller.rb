@@ -9,7 +9,7 @@ class Dashboard::Server::ScheduledController < ApplicationController
   end
 
   def show
-    @executions = @scheduled_message.executions.order(executed_at: :desc).limit(20)
+    @executions = @scheduled_message.executions.order(executed_at: :desc)
   end
 
   def new

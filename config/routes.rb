@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   if Rails.env.development?
     post "/dev/impersonate", to: "dev#impersonate", as: :dev_impersonate
     post "/dev/clear_impersonation", to: "dev#clear_impersonation", as: :dev_clear_impersonation
+    mount Lookbook::Engine, at: "/lookbook"
   end
 
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)

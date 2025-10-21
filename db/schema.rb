@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_21_115706) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_21_145223) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -47,7 +47,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_21_115706) do
     t.text "result_data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "execution_type", default: "scheduled", null: false
     t.index ["executed_at"], name: "index_scheduled_message_executions_on_executed_at"
+    t.index ["execution_type"], name: "index_scheduled_message_executions_on_execution_type"
     t.index ["scheduled_message_id"], name: "index_scheduled_message_executions_on_scheduled_message_id"
     t.index ["status"], name: "index_scheduled_message_executions_on_status"
   end
@@ -62,13 +64,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_21_115706) do
     t.string "timezone", default: "America/Mexico_City", null: false
     t.boolean "enabled", default: true, null: false
     t.string "channel_id", null: false
-    t.text "conditions"
     t.binary "created_by_id", limit: 16, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "next_run_at"
     t.index ["consumer_type"], name: "index_scheduled_messages_on_consumer_type"
     t.index ["enabled"], name: "index_scheduled_messages_on_enabled"
     t.index ["name"], name: "index_scheduled_messages_on_name", unique: true
+    t.index ["next_run_at"], name: "index_scheduled_messages_on_next_run_at"
   end
 
   create_table "sent_notifications", force: :cascade do |t|

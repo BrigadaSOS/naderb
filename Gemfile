@@ -27,6 +27,8 @@ gem "tzinfo-data", platforms: %i[ windows jruby ]
 gem "solid_cache"
 gem "solid_queue"
 gem "solid_cable"
+gem "fugit"
+gem "liquid"
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
@@ -64,6 +66,7 @@ group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
   gem "claude-on-rails"
+  gem "lookbook", ">= 2.3.13"
 end
 
 group :test do
