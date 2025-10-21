@@ -198,7 +198,7 @@ GEM
       dry-logic (~> 1.4)
       zeitwerk (~> 2.6)
     ed25519 (1.4.0)
-    erb (5.0.3)
+    erb (5.1.1)
     erubi (1.13.1)
     et-orbi (1.4.0)
       tzinfo
@@ -260,7 +260,7 @@ GEM
     herb (0.7.5-aarch64-linux-musl)
     herb (0.7.5-x86_64-linux-gnu)
     herb (0.7.5-x86_64-linux-musl)
-    hotwire-livereload (2.0.0)
+    hotwire-livereload (2.1.1)
       actioncable (>= 7.0.0)
       listen (>= 3.0.0)
       railties (>= 7.0.0)
@@ -411,7 +411,7 @@ GEM
       nio4r (~> 2.0)
     raabro (1.4.0)
     racc (1.8.1)
-    rack (3.2.2)
+    rack (3.2.3)
     rack-protection (4.1.1)
       base64 (>= 0.1.0)
       logger (>= 1.6.0)
@@ -651,7 +651,7 @@ DEPENDENCIES
   discordrb!
   factory_bot_rails
   faker
-  hotwire-livereload (~> 2.0)
+  hotwire-livereload (~> 2.1)
   httparty (~> 0.23.1)
   importmap-rails
   jbuilder

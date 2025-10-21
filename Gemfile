@@ -86,7 +86,7 @@ gem "omniauth-rails_csrf_protection", "~> 1.0"
 
 gem "tailwindcss-rails", "~> 4.3"
 
-gem "hotwire-livereload", "~> 2.0", group: :development
+gem "hotwire-livereload", "~> 2.1", group: :development
 
 gem "httparty", "~> 0.23.1"
 
