@@ -88,7 +88,7 @@ gem "tailwindcss-rails", "~> 4.3"
 
 gem "hotwire-livereload", "~> 2.1", group: :development
 
-gem "httparty", "~> 0.23.1"
+gem "httparty", "~> 0.23.2"
 
 gem "rails-settings-cached", "~> 2.9"
 
