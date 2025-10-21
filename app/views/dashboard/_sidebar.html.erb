@@ -126,6 +126,16 @@
           <span class="text-lg">🏷️</span>
           <span><%= t("sidebar.server.tags") %></span>
         <% end %>
+
+        <% if current_user.moderator? || current_user.admin? %>
+          <%= link_to "/dashboard/server/scheduled",
+              data: { testid: "sidebar-scheduled-link" },
+              onclick: "if (window.innerWidth < 1024) { document.getElementById('mobile-menu-toggle').checked = false; }",
+              class: "flex items-center space-x-3 w-full p-3 rounded transition-colors #{'bg-card text-primary' if request.path.start_with?('/dashboard/server/scheduled')} hover:bg-card text-muted-foreground hover:text-primary" do %>
+            <span class="text-lg">🕒</span>
+            <span><%= t("sidebar.server.scheduled") %></span>
+          <% end %>
+        <% end %>
       </div>
     </div>
 

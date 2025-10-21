@@ -28,6 +28,19 @@ Rails.application.routes.draw do
           get :by_name
         end
       end
+
+      resources :scheduled do
+        collection do
+          get :preview
+          get :channels
+          get :query_variables
+        end
+        member do
+          post :toggle_enabled
+          post :test_execute
+          get :executions
+        end
+      end
     end
 
     namespace :admin do

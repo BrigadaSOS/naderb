@@ -27,6 +27,7 @@ es:
     server:
       title: "Servidor"
       tags: "Tags"
+      scheduled: "Mensajes Programados"
     admin:
       title: "Admin"
       config: "Configuración"
@@ -49,9 +50,22 @@ es:
         email: "Email"
         member_since: "Miembro Desde"
         preferred_language: "Idioma Preferido"
+        birthday_section: "Cumpleaños"
+        birthday_description: "¡Comparte tu cumpleaños (solo mes y día) para que la comunidad pueda celebrar contigo!"
+        birthday_month: "Mes de Nacimiento"
+        birthday_day: "Día de Nacimiento"
+        select_month: "Selecciona un mes..."
+        select_day: "Selecciona un día..."
+        current_birthday: "Actual: %{month} %{day}"
+        unsaved_changes: "¡Tienes cambios sin guardar!"
+        save_changes: "Guardar Cambios"
+        discard_changes: "Descartar Cambios"
+        confirm_leave: "Tienes cambios sin guardar. ¿Estás seguro que quieres salir?"
         save: "Guardar"
         future_updates: "La funcionalidad de edición de perfil se agregará en futuras actualizaciones."
       update:
+        profile_updated: "Perfil actualizado exitosamente."
+        profile_update_failed: "Error al actualizar el perfil."
         language_updated: "Preferencia de idioma actualizada exitosamente."
         language_update_failed: "Error al actualizar la preferencia de idioma."
 

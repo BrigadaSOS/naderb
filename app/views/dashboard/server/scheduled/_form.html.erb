@@ -1,0 +1,207 @@
+<%= form_with model: @scheduled_message, url: @scheduled_message.new_record? ? dashboard_server_scheduled_index_path : dashboard_server_scheduled_path(@scheduled_message), local: true, data: { controller: "scheduled-form" } do |form| %>
+  <% if @scheduled_message.errors.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+      <h2 class="text-red-800 font-semibold mb-2"><%= pluralize(@scheduled_message.errors.count, "error") %> prohibited this message:</h2>
+      <ul class="list-disc list-inside text-red-700">
+        <% @scheduled_message.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <!-- Form Actions at Top -->
+  <div class="flex gap-3 mb-6">
+    <%= form.submit (@scheduled_message.new_record? ? "Create Message" : "Update Message"), class: "px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md transition-colors cursor-pointer" %>
+    <%= link_to "Cancel", dashboard_server_scheduled_index_path, class: "px-4 py-2 bg-muted hover:bg-muted/80 text-foreground rounded-md transition-colors" %>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Left Column -->
+    <div class="space-y-6">
+      <!-- Basic Info -->
+      <div class="bg-card rounded-lg p-6 space-y-4">
+        <h2 class="text-xl font-semibold text-primary">Basic Information</h2>
+
+        <div>
+          <%= form.label :name, "Message Name", class: "block text-sm font-medium text-muted-foreground mb-1" %>
+          <%= form.text_field :name, placeholder: "e.g., Daily Birthday Announcement", class: "w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent" %>
+          <p class="text-xs text-muted-foreground mt-1">A unique name to identify this scheduled message</p>
+        </div>
+
+        <div>
+          <%= form.label :description, "Description (Optional)", class: "block text-sm font-medium text-muted-foreground mb-1" %>
+          <%= form.text_area :description, placeholder: "What is this message for?", rows: 3, class: "w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent" %>
+          <p class="text-xs text-muted-foreground mt-1">A description of this message's purpose</p>
+        </div>
+      </div>
+
+      <!-- Schedule Configuration -->
+      <div class="bg-card rounded-lg p-6 space-y-4">
+        <h2 class="text-xl font-semibold text-primary">Schedule Configuration</h2>
+
+        <div>
+          <%= form.label :schedule, "Schedule (Solid Queue Syntax)", class: "block text-sm font-medium text-muted-foreground mb-1" %>
+          <%= form.text_field :schedule,
+                             placeholder: "e.g., every day at 8am",
+                             class: "w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent font-mono",
+                             data: { action: "input->scheduled-form#updateCountdown" } %>
+          <div class="mt-2 p-3 bg-muted rounded-md text-xs text-muted-foreground space-y-1">
+            <p class="font-semibold text-foreground">Examples:</p>
+            <ul class="list-disc list-inside space-y-0.5">
+              <li><code>every day at 8am</code> - Daily at 8 AM</li>
+              <li><code>every 2 hours</code> - Every 2 hours</li>
+              <li><code>at 3pm on Mondays</code> - Weekly on Mondays at 3 PM</li>
+              <li><code>at 8am on February 14</code> - Annually on specific date</li>
+              <li><code>every week on Tuesday at 9am</code> - Weekly on specific day</li>
+            </ul>
+          </div>
+        </div>
+
+        <div>
+          <%= form.label :timezone, "Timezone", class: "block text-sm font-medium text-muted-foreground mb-1" %>
+          <%= form.select :timezone,
+                          [
+                            ["UTC", "UTC"],
+                            ["Japan (Asia/Tokyo)", "Asia/Tokyo"],
+                            ["Mexico (America/Mexico_City)", "America/Mexico_City"],
+                            ["Argentina (America/Argentina/Buenos_Aires)", "America/Argentina/Buenos_Aires"],
+                            ["Colombia (America/Bogota)", "America/Bogota"]
+                          ],
+                          {},
+                          { class: "w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent",
+                            data: { action: "change->scheduled-form#updateCountdown" } } %>
+          <p class="text-xs text-muted-foreground mt-1">Timezone for schedule execution</p>
+        </div>
+
+        <!-- Next Message Countdown -->
+        <div data-scheduled-form-target="countdown" class="hidden p-3 bg-muted rounded-md">
+          <p class="text-sm font-semibold text-foreground">Next scheduled message:</p>
+          <p data-scheduled-form-target="countdownText" class="text-xs text-muted-foreground mt-1"></p>
+        </div>
+      </div>
+
+      <!-- Delivery Configuration -->
+      <div class="bg-card rounded-lg p-6 space-y-4">
+        <h2 class="text-xl font-semibold text-primary">Delivery Configuration</h2>
+
+        <div>
+          <%= form.label :consumer_type, "Delivery Method", class: "block text-sm font-medium text-muted-foreground mb-1" %>
+          <%= form.select :consumer_type,
+                          [["Discord", "discord"]],
+                          {},
+                          class: "w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent" %>
+          <p class="text-xs text-muted-foreground mt-1">How the message will be delivered (currently only Discord)</p>
+        </div>
+
+        <div>
+          <%= form.label :channel_id, "Target Discord Channel", class: "block text-sm font-medium text-muted-foreground mb-1" %>
+          <%= content_tag :select,
+                          content_tag(:option, "Loading channels...", value: ""),
+                          name: "scheduled_message[channel_id]",
+                          id: "scheduled_message_channel_id",
+                          data: { scheduled_form_target: "channelSelect", current_value: @scheduled_message.channel_id },
+                          class: "w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent" %>
+          <p class="text-xs text-muted-foreground mt-1">The Discord channel where this message will be sent</p>
+          <p data-scheduled-form-target="channelInfo" class="text-xs text-muted-foreground mt-1 hidden">
+            Channel ID: <span data-scheduled-form-target="selectedChannelId" class="font-mono"></span>
+          </p>
+        </div>
+
+        <div>
+          <%= form.label :enabled, "Status", class: "block text-sm font-medium text-muted-foreground mb-2" %>
+          <div class="flex items-center gap-2">
+            <%= form.check_box :enabled, { class: "rounded border-gray-300" } %>
+            <span class="text-sm text-muted-foreground">Enable this message (must be enabled to be sent automatically)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="space-y-6">
+      <!-- Data Query & Variables -->
+      <div class="bg-card rounded-lg p-6 space-y-4">
+        <h2 class="text-xl font-semibold text-primary">Data Query</h2>
+
+        <div>
+          <%= form.label :data_query, "Data Source (Optional)", class: "block text-sm font-medium text-muted-foreground mb-1" %>
+          <%= form.select :data_query,
+                          [
+                            ["None (Static Message)", ""],
+                            ["Users with Birthdays Today", "birthdays_today"]
+                          ],
+                          {},
+                          { class: "w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent",
+                            data: { action: "change->scheduled-form#onDataQueryChange" } } %>
+          <p class="text-xs text-muted-foreground mt-1">Optional: Fetch data to use in template (e.g., list users with birthdays)</p>
+        </div>
+
+        <!-- Data Query Variables Card (shown when a query is selected) -->
+        <div data-scheduled-form-target="variablesCard" class="hidden space-y-3">
+          <div class="p-4 bg-muted rounded-md border border-border">
+            <h4 class="text-sm font-semibold text-foreground mb-3">Available Variables</h4>
+
+            <!-- Variables List -->
+            <div data-scheduled-form-target="variablesList" class="space-y-2 mb-4"></div>
+
+            <!-- Object Properties (if any) -->
+            <div data-scheduled-form-target="objectProperties" class="space-y-2 mb-4"></div>
+
+            <!-- Example Template -->
+            <div data-scheduled-form-target="exampleTemplate">
+              <h5 class="text-xs font-semibold text-foreground mb-2">Example Template:</h5>
+              <pre data-scheduled-form-target="exampleCode" class="text-xs font-mono text-muted-foreground bg-background p-3 rounded border border-border overflow-x-auto whitespace-pre-wrap"></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hidden metadata storage -->
+        <% ScheduledMessage::DATA_QUERIES.each do |query_type| %>
+          <% metadata = DataQueryService.query_metadata(query_type) %>
+          <% if metadata %>
+            <%= content_tag :script, metadata.to_json.html_safe, type: "application/json", "data-query-type": query_type, "data-scheduled-form-target": "queryMetadata" %>
+          <% end %>
+        <% end %>
+      </div>
+
+      <!-- Conditions -->
+      <div class="bg-card rounded-lg p-6 space-y-4">
+        <h2 class="text-xl font-semibold text-primary">Conditions (Optional)</h2>
+
+        <div>
+          <%= form.label :conditions, "Execution Conditions", class: "block text-sm font-medium text-muted-foreground mb-1" %>
+          <%= form.text_area :conditions,
+                             placeholder: "See examples below...",
+                             rows: 3,
+                             class: "w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent font-mono text-sm" %>
+          <div class="mt-2 p-3 bg-muted rounded-md text-xs text-muted-foreground space-y-2">
+            <p class="font-semibold text-foreground">About Conditions:</p>
+            <p>Conditions are ERB templates that must evaluate to <code>true</code> for the message to be sent. If the condition evaluates to <code>false</code>, the message will be skipped.</p>
+            <div class="mt-2">
+              <p class="font-semibold text-foreground mb-1">Examples:</p>
+              <ul class="list-disc list-inside space-y-1">
+                <li><code>&lt;%= @birthdays_count > 0 %&gt;</code> - Only send if there are birthdays</li>
+                <li><code>&lt;%= @birthdays.any? %&gt;</code> - Same as above</li>
+                <li><code>&lt;%= @birthday_day == 1 %&gt;</code> - Only on the 1st of the month</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message Template -->
+      <div class="bg-card rounded-lg p-6 space-y-4">
+        <h2 class="text-xl font-semibold text-primary">Message Template (ERB)</h2>
+
+        <div>
+          <%= form.label :template, "Template Content", class: "block text-sm font-medium text-muted-foreground mb-1" %>
+          <%= form.text_area :template,
+                             placeholder: "Enter your message template here...",
+                             rows: 20,
+                             class: "w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent font-mono text-sm" %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

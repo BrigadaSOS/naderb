@@ -27,6 +27,7 @@ en:
     server:
       title: "Server"
       tags: "Tags"
+      scheduled: "Scheduled Messages"
     admin:
       title: "Admin"
       config: "Config"
@@ -49,9 +50,22 @@ en:
         email: "Email"
         member_since: "Member Since"
         preferred_language: "Preferred Language"
+        birthday_section: "Birthday"
+        birthday_description: "Share your birthday (month and day only) so the community can celebrate with you!"
+        birthday_month: "Birth Month"
+        birthday_day: "Birth Day"
+        select_month: "Select a month..."
+        select_day: "Select a day..."
+        current_birthday: "Current: %{month} %{day}"
+        unsaved_changes: "You have unsaved changes!"
+        save_changes: "Save Changes"
+        discard_changes: "Discard Changes"
+        confirm_leave: "You have unsaved changes. Are you sure you want to leave?"
         save: "Save"
         future_updates: "Profile editing functionality will be added in future updates."
       update:
+        profile_updated: "Profile updated successfully."
+        profile_update_failed: "Failed to update profile."
         language_updated: "Language preference updated successfully."
         language_update_failed: "Failed to update language preference."
 

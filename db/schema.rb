@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_11_130438) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_21_115706) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -37,6 +37,46 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_11_130438) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "scheduled_message_executions", force: :cascade do |t|
+    t.integer "scheduled_message_id", null: false
+    t.datetime "executed_at", null: false
+    t.string "status", null: false
+    t.string "consumer_type", null: false
+    t.text "result_data"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["executed_at"], name: "index_scheduled_message_executions_on_executed_at"
+    t.index ["scheduled_message_id"], name: "index_scheduled_message_executions_on_scheduled_message_id"
+    t.index ["status"], name: "index_scheduled_message_executions_on_status"
+  end
+
+  create_table "scheduled_messages", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.text "template", null: false
+    t.string "schedule", null: false
+    t.string "data_query"
+    t.string "consumer_type", default: "discord", null: false
+    t.string "timezone", default: "America/Mexico_City", null: false
+    t.boolean "enabled", default: true, null: false
+    t.string "channel_id", null: false
+    t.text "conditions"
+    t.binary "created_by_id", limit: 16, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["consumer_type"], name: "index_scheduled_messages_on_consumer_type"
+    t.index ["enabled"], name: "index_scheduled_messages_on_enabled"
+    t.index ["name"], name: "index_scheduled_messages_on_name", unique: true
+  end
+
+  create_table "sent_notifications", force: :cascade do |t|
+    t.integer "scheduled_message_id", null: false
+    t.datetime "sent_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["scheduled_message_id", "sent_at"], name: "index_sent_notifications_unique", unique: true
   end
 
   create_table "settings", force: :cascade do |t|
@@ -82,6 +122,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_11_130438) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "locale"
+    t.integer "birthday_month"
+    t.integer "birthday_day"
     t.index ["active"], name: "index_users_on_active"
     t.index ["discord_uid"], name: "index_users_on_discord_uid", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
@@ -90,4 +132,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_11_130438) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "scheduled_message_executions", "scheduled_messages"
+  add_foreign_key "scheduled_messages", "users", column: "created_by_id"
+  add_foreign_key "sent_notifications", "scheduled_messages"
 end

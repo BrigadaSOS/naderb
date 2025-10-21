@@ -7,8 +7,12 @@ class User < ApplicationRecord
   attr_reader :impersonated_roles
 
   has_many :tags, dependent: :destroy
+  has_many :scheduled_messages, foreign_key: :created_by_id, dependent: :destroy
 
   validates :locale, inclusion: { in: -> { I18n.available_locales.map(&:to_s) }, allow_nil: true }
+  validates :birthday_month, inclusion: { in: 1..12, message: "must be between 1 and 12" }, allow_nil: true
+  validates :birthday_day, inclusion: { in: 1..31, message: "must be between 1 and 31" }, allow_nil: true
+  validate :birthday_month_and_day_together
 
   def self.find_or_create_from_discord(discord_uid:, discord_user: nil)
     where(discord_uid: discord_uid).first_or_create do |user|
@@ -77,6 +81,15 @@ class User < ApplicationRecord
     has_any_discord_role?(Setting.trusted_user_roles)
   end
 
+  def birthday?
+    birthday_month.present? && birthday_day.present?
+  end
+
+  def birthday_today?(date = Time.current)
+    return false unless birthday?
+    date.month == birthday_month && date.day == birthday_day
+  end
+
   def has_discord_role?(role_id)
     discord_roles.any? { |role| role["id"].to_s == role_id.to_s }
   end
@@ -94,6 +107,12 @@ class User < ApplicationRecord
   end
 
   private
+
+  def birthday_month_and_day_together
+    if (birthday_month.present? && birthday_day.blank?) || (birthday_month.blank? && birthday_day.present?)
+      errors.add(:base, "Both birthday month and day must be provided together")
+    end
+  end
 
   # Returns user's Discord roles, using impersonated roles in development if set
   def discord_roles

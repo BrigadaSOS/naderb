@@ -33,6 +33,60 @@ class DiscordBotApiService
     []
   end
 
+  # Fetch all channels for the configured guild
+  def fetch_guild_channels
+    guild_id = Setting.discord_server_id
+    return [] if guild_id.blank?
+
+    response = self.class.get("#{BASE_URL}/guilds/#{guild_id}/channels", {
+      headers: {
+        "Authorization" => "Bot #{@bot_token}",
+        "User-Agent" => "DiscordBot (Nadeshikorb, 1.0)"
+      }
+    })
+
+    if response.success?
+      channels = response.parsed_response
+      # Filter to text channels (type 0) and announcement channels (type 5), sort by position
+      channels.select { |channel| [0, 5].include?(channel["type"]) }
+              .sort_by { |channel| channel["position"] || 999 }
+              .map { |channel| { id: channel["id"], name: channel["name"], type: channel["type"] } }
+    else
+      Rails.logger.error "Failed to fetch guild channels: #{response.code} #{response.message}"
+      []
+    end
+  rescue => e
+    Rails.logger.error "Discord Bot API error fetching channels: #{e.message}"
+    []
+  end
+
+  # Send a message to a Discord channel
+  # @param channel_id [String] The Discord channel ID
+  # @param content [String] The message content
+  # @return [Hash] { success: Boolean, message_id: String (if success), error: String (if failed) }
+  def send_message(channel_id, content)
+    response = self.class.post("#{BASE_URL}/channels/#{channel_id}/messages", {
+      headers: {
+        "Authorization" => "Bot #{@bot_token}",
+        "Content-Type" => "application/json",
+        "User-Agent" => "DiscordBot (Nadeshikorb, 1.0)"
+      },
+      body: { content: content }.to_json
+    })
+
+    if response.success?
+      message_data = response.parsed_response
+      { success: true, message_id: message_data["id"] }
+    else
+      error_message = response.parsed_response["message"] rescue response.message
+      Rails.logger.error "Failed to send Discord message: #{response.code} - #{error_message}"
+      { success: false, error: "HTTP #{response.code}", message: error_message }
+    end
+  rescue => e
+    Rails.logger.error "Discord Bot API error sending message: #{e.message}"
+    { success: false, error: e.class.name, message: e.message }
+  end
+
   # Register application commands globally
   def register_global_commands
     application_id = Setting.discord_application_id

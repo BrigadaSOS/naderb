@@ -256,6 +256,10 @@ GEM
       activesupport (>= 6.1)
     hashdiff (1.2.1)
     hashie (5.0.0)
+    herb (0.7.5)
+    herb (0.7.5-aarch64-linux-musl)
+    herb (0.7.5-x86_64-linux-gnu)
+    herb (0.7.5-x86_64-linux-musl)
     hotwire-livereload (2.0.0)
       actioncable (>= 7.0.0)
       listen (>= 3.0.0)
@@ -461,6 +465,9 @@ GEM
       erb
       psych (>= 4.0.0)
       tsort
+    reactionview (0.1.5)
+      actionview (>= 7.0)
+      herb (>= 0.7.5, < 1.0.0)
     regexp_parser (2.11.3)
     reline (0.6.2)
       io-console (~> 0.5)
@@ -657,6 +664,7 @@ DEPENDENCIES
   puma (>= 5.0)
   rails (~> 8.0.2)
   rails-settings-cached (~> 2.9)
+  reactionview
   rspec-rails (~> 7.1)
   rubocop-rails-omakase
   solid_cable

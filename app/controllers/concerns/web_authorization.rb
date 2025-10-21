@@ -7,6 +7,12 @@ module WebAuthorization
     end
   end
 
+  def moderator_required!
+    unless current_user&.moderator?
+      redirect_to root_path, alert: "Access denied."
+    end
+  end
+
   def admin_or_moderator_required!
     unless current_user&.admin_or_mod?
       redirect_to root_path, alert: "Access denied."

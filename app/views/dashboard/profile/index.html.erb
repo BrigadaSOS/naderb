@@ -7,8 +7,34 @@
       <h2 class="text-xl sm:text-2xl font-bold text-primary mb-2"><%= t(".title") %></h2>
       <p class="text-sm sm:text-base text-muted-foreground"><%= t(".subtitle") %></p>
     </div>
+
+    <%= form_with model: current_user, url: dashboard_profile_path(current_user), method: :patch, data: {
+      controller: "profile-form",
+      profile_form_target: "form",
+      action: "change->profile-form#checkDirty input->profile-form#checkDirty submit->profile-form#submit",
+      turbo_frame: "_top",
+      profile_form_confirm_message_value: t(".confirm_leave")
+    }, local: true do |f| %>
+
     <!-- Profile Card -->
-    <div class="bg-card rounded p-4 sm:p-6">
+    <div class="bg-card rounded p-4 sm:p-6 relative">
+      <!-- Unsaved Changes Banner (sticky) -->
+      <div data-profile-form-target="banner" class="hidden sticky top-0 z-10 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border-l-4 border-amber-500 backdrop-blur-sm -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 px-4 sm:px-6 py-3 mb-4 animate-in slide-in-from-top duration-300">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div class="flex items-center gap-2">
+            <span class="text-amber-500 animate-pulse">⚠️</span>
+            <p class="text-sm font-medium text-foreground">
+              <%= t(".unsaved_changes") %>
+            </p>
+          </div>
+          <div class="flex gap-2">
+            <%= button_tag type: "button", data: { action: "click->profile-form#discard" }, class: "px-3 py-1 text-sm bg-background hover:bg-muted text-foreground border border-border rounded transition-all duration-200 hover:scale-105 active:scale-95" do %>
+              <%= t(".discard_changes") %>
+            <% end %>
+            <%= f.submit t(".save_changes"), class: "px-4 py-1 text-sm bg-primary hover:bg-primary/90 text-primary-foreground rounded transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer shadow-sm hover:shadow-md" %>
+          </div>
+        </div>
+      </div>
       <!-- Profile Header -->
       <div class="flex items-center space-x-4 mb-6">
         <div
@@ -32,30 +58,68 @@
       </div>
       <!-- Info Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <!-- Basic Info -->
-        <div>
-          <h4 class="text-lg font-medium text-primary mb-4"><%= t(".basic_info") %></h4>
-          <div class="space-y-3">
-            <% if current_user.display_name.present? && current_user.display_name != current_user.username %>
+        <!-- Left Column -->
+        <div class="space-y-6">
+          <!-- Basic Info -->
+          <div>
+            <h4 class="text-lg font-medium text-primary mb-4"><%= t(".basic_info") %></h4>
+            <div class="space-y-3">
+              <% if current_user.display_name.present? && current_user.display_name != current_user.username %>
+                <div>
+                  <label class="block text-sm font-medium text-muted-foreground"><%= t(".display_name") %></label>
+                  <p class="text-foreground"><%= current_user.display_name %></p>
+                </div>
+              <% end %>
               <div>
-                <label class="block text-sm font-medium text-muted-foreground"><%= t(".display_name") %></label>
-                <p class="text-foreground"><%= current_user.display_name %></p>
+                <label class="block text-sm font-medium text-muted-foreground"><%= t(".username") %></label>
+                <p class="text-foreground">@<%= current_user.username %></p>
               </div>
-            <% end %>
-            <div>
-              <label class="block text-sm font-medium text-muted-foreground"><%= t(".username") %></label>
-              <p class="text-foreground">@<%= current_user.username %></p>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-muted-foreground"><%= t(".email") %></label>
-              <p class="text-foreground"><%= current_user.email %></p>
+              <div>
+                <label class="block text-sm font-medium text-muted-foreground"><%= t(".email") %></label>
+                <p class="text-foreground"><%= current_user.email %></p>
+              </div>
             </div>
           </div>
+
+          <!-- Birthday Section -->
+          <div>
+            <h4 class="text-lg font-medium text-primary mb-4"><%= t(".birthday_section") %></h4>
+            <p class="text-xs text-muted-foreground mb-3">
+              <%= t(".birthday_description") %>
+            </p>
+            <div class="flex gap-3 max-w-md">
+              <!-- Month Dropdown -->
+              <div class="flex-1">
+                <%= f.label :birthday_month, t(".birthday_month"), class: "block text-sm font-medium text-muted-foreground mb-1" %>
+                <%= f.select :birthday_month,
+                         (1..12).map { |m| [Date::MONTHNAMES[m], m] },
+                         { include_blank: t(".select_month") },
+                         { class: "w-full bg-background border border-border rounded px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring" } %>
+              </div>
+
+              <!-- Day Dropdown -->
+              <div class="flex-1">
+                <%= f.label :birthday_day, t(".birthday_day"), class: "block text-sm font-medium text-muted-foreground mb-1" %>
+                <%= f.select :birthday_day,
+                         (1..31).map { |d| [d, d] },
+                         { include_blank: t(".select_day") },
+                         { class: "w-full bg-background border border-border rounded px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring" } %>
+              </div>
+            </div>
+
+            <% if current_user.birthday? %>
+              <p class="text-xs text-muted-foreground mt-2">
+                <%= t(".current_birthday", month: Date::MONTHNAMES[current_user.birthday_month], day: current_user.birthday_day) %>
+              </p>
+            <% end %>
+          </div>
         </div>
-        <!-- Account Details -->
+
+        <!-- Right Column: Account Details -->
         <div>
           <h4 class="text-lg font-medium text-primary mb-4"><%= t(".account_details") %></h4>
-          <div class="space-y-3">
+          <div class="space-y-4">
+            <!-- Member Since (read-only) -->
             <div>
               <label class="block text-sm font-medium text-muted-foreground"><%= t(".member_since") %></label>
               <% member_date = current_user.discord_joined_at || current_user.created_at %>
@@ -64,27 +128,18 @@
                 <span class="text-muted-foreground text-sm ml-2"><%= time_ago_in_words_detailed(member_date) %></span>
               </p>
             </div>
-            <div>
+
+            <!-- Preferred Language -->
+            <div class="max-w-xs">
               <label class="block text-sm font-medium text-muted-foreground mb-2"><%= t(".preferred_language") %></label>
-              <%= form_with url: dashboard_profile_path(current_user), method: :patch, data: { turbo_frame: "_top" }, class: "flex items-center space-x-2" do |f| %>
-                <%= f.select :locale,
-                         options_for_select(
-                           [["🇪🇸 Español", "es"], ["🇬🇧 English", "en"]],
-                           current_user.locale || I18n.default_locale.to_s,
-                         ),
-                         {},
-                         data: {
-                           action: "change->form#submit",
-                         },
-                         class:
-                           "bg-input border border-border rounded px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring" %>
-                <%= f.submit t(".save"),
-                         class:
-                           "bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded transition-colors",
-                         data: {
-                           testid: "save-locale-button",
-                         } %>
-              <% end %>
+              <%= f.select :locale,
+                       options_for_select(
+                         [["🇪🇸 Español", "es"], ["🇬🇧 English", "en"]],
+                         current_user.locale || I18n.default_locale.to_s,
+                       ),
+                       {},
+                       class:
+                         "w-full bg-background border border-border rounded px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring" %>
             </div>
           </div>
         </div>
@@ -114,5 +169,6 @@
         </div>
       </div>
     </div>
+    <% end %>
   </div>
 </div>

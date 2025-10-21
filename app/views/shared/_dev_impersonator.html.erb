@@ -37,9 +37,7 @@
             class="w-full bg-gray-800 text-white text-sm border border-gray-600 rounded px-2 py-1 focus:outline-none focus:border-yellow-400">
             <option value="">Use current user (<%= true_user&.name || current_user.name %>)</option>
             <% User.order(:username).each do |user| %>
-              <option value="<%= user.id %>" <%= 'selected' if current_user != true_user && current_user == user %>>
-                <%= user.name %> (<%= user.email %>)
-              </option>
+              <%= content_tag :option, "#{user.name} (#{user.email})", value: user.id, selected: (current_user != true_user && current_user == user) %>
             <% end %>
           </select>
         </div>
@@ -60,9 +58,7 @@
                   is_selected = session[:impersonated_roles]&.include?(role["id"])
                   color_style = role["color"] && role["color"] != 0 ? "color: ##{role['color'].to_s(16).rjust(6, '0')}" : ""
                 %>
-                <option value="<%= role["id"] %>" <%= 'selected' if is_selected %> style="<%= color_style %>">
-                  <%= role["name"] %>
-                </option>
+                <%= content_tag :option, role["name"], value: role["id"], selected: is_selected, style: color_style %>
               <% end %>
             <% end %>
           </select>
