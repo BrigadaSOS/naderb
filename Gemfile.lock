@@ -480,18 +480,18 @@ GEM
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
     rexml (3.4.4)
-    rspec-core (3.13.5)
+    rspec-core (3.13.6)
       rspec-support (~> 3.13.0)
     rspec-expectations (3.13.5)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
-    rspec-mocks (3.13.5)
+    rspec-mocks (3.13.6)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
-    rspec-rails (7.1.1)
-      actionpack (>= 7.0)
-      activesupport (>= 7.0)
-      railties (>= 7.0)
+    rspec-rails (8.0.2)
+      actionpack (>= 7.2)
+      activesupport (>= 7.2)
+      railties (>= 7.2)
       rspec-core (~> 3.13)
       rspec-expectations (~> 3.13)
       rspec-mocks (~> 3.13)
@@ -665,7 +665,7 @@ DEPENDENCIES
   rails (~> 8.0.2)
   rails-settings-cached (~> 2.9)
   reactionview
-  rspec-rails (~> 7.1)
+  rspec-rails (~> 8.0)
   rubocop-rails-omakase
   solid_cable
   solid_cache
