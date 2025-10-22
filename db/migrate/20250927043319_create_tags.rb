@@ -7,7 +7,9 @@ class CreateTags < ActiveRecord::Migration[8.0]
       t.string :guild_id, null: false
 
       t.string :name, null: false
-      t.text :content, null: false
+      t.text :content
+      t.text :original_image_url
+      t.text :discord_cdn_url
 
       t.timestamps null: false
     end

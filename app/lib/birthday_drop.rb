@@ -1,39 +1,47 @@
-# Liquid Drop for Birthday objects
-# This safely exposes Birthday data to Liquid templates without allowing arbitrary method calls
+# Liquid Drop for User birthday data
+# This safely exposes User birthday data to Liquid templates without allowing arbitrary method calls
 class BirthdayDrop < Liquid::Drop
-  def initialize(birthday)
-    @birthday = birthday
+  def initialize(user)
+    @user = user
   end
 
   def display_name
-    @birthday.display_name
+    @user.display_name
   end
 
   def username
-    @birthday.username
+    @user.username
   end
 
   def discord_uid
-    @birthday.discord_uid
+    @user.discord_uid
   end
 
   def mention
-    @birthday.mention
+    "<@#{@user.discord_uid}>"
   end
 
   def month
-    @birthday.month
+    @user.birthday_month
   end
 
   def day
-    @birthday.day
+    @user.birthday_day
   end
 
   def month_name
-    @birthday.month_name
+    Date::MONTHNAMES[@user.birthday_month] if @user.birthday_month
+  end
+
+  def today?(date = Time.current)
+    date.month == @user.birthday_month && date.day == @user.birthday_day
+  end
+
+  def in_month?(month_number)
+    @user.birthday_month == month_number
   end
 
   def to_s
-    @birthday.to_s
+    "#{month_name} #{@user.birthday_day}"
   end
 end

@@ -7,7 +7,7 @@ class Dashboard::Admin::ConfigController < ApplicationController
     # Load Discord roles for the config form
     @discord_roles = Rails.cache.fetch("discord_guild_roles", expires_in: 1.day) do
       begin
-        DiscordBotApiService.new.fetch_guild_roles
+        Discord::Api::BotService.new.fetch_guild_roles
       rescue => e
         Rails.logger.error "Failed to fetch Discord roles: #{e.message}"
         []

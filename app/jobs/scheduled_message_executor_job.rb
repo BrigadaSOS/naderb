@@ -3,7 +3,7 @@ class ScheduledMessageExecutorJob < ApplicationJob
 
   # Execute all scheduled messages that are due
   def perform
-    result = ScheduledMessageExecutorService.new.execute_due_messages
+    result = Messaging::Executor.new.execute_due_messages
 
     if result[:success]
       Rails.logger.info "ScheduledMessageExecutorJob completed successfully. Executions: #{result[:executions].count}"

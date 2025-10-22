@@ -55,7 +55,7 @@ class Dashboard::Server::ScheduledController < ApplicationController
 
   # Test execute a message manually
   def test_execute
-    executor = ScheduledMessageExecutorService.new
+    executor = Messaging::Executor.new
     result = executor.execute_message(@scheduled_message)
 
     respond_to do |format|
@@ -85,7 +85,7 @@ class Dashboard::Server::ScheduledController < ApplicationController
     if @preview_message.valid?
       # Get preview data based on query type
       preview_locals = if @preview_message.data_query.present?
-        DataQueryService.new.execute(
+        Messaging::DataQueryService.new.execute(
           @preview_message.data_query,
           date: Time.current,
           timezone: @preview_message.timezone
@@ -104,7 +104,7 @@ class Dashboard::Server::ScheduledController < ApplicationController
   # Fetch Discord channels for the guild
   def channels
     channels = Rails.cache.fetch("discord_guild_channels", expires_in: 1.hour) do
-      DiscordBotApiService.new.fetch_guild_channels
+      Discord::Api::BotService.new.fetch_guild_channels
     end
 
     render json: { success: true, channels: channels }
@@ -122,7 +122,7 @@ class Dashboard::Server::ScheduledController < ApplicationController
       return
     end
 
-    metadata = DataQueryService.query_metadata(query_type)
+    metadata = Messaging::DataQueryService.query_metadata(query_type)
 
     if metadata
       render json: { success: true, metadata: metadata }

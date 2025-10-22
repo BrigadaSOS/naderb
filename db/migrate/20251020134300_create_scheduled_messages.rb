@@ -16,7 +16,7 @@ class CreateScheduledMessages < ActiveRecord::Migration[8.0]
       t.string :timezone, null: false, default: "America/Mexico_City"
       t.boolean :enabled, null: false, default: true
       t.string :channel_id, null: false
-      t.text :conditions
+      t.datetime :next_run_at
       t.binary :created_by_id, limit: 16, null: false
 
       t.timestamps
@@ -25,6 +25,7 @@ class CreateScheduledMessages < ActiveRecord::Migration[8.0]
     add_index :scheduled_messages, :name, unique: true
     add_index :scheduled_messages, :enabled
     add_index :scheduled_messages, :consumer_type
+    add_index :scheduled_messages, :next_run_at
     add_foreign_key :scheduled_messages, :users, column: :created_by_id
 
     # Recreate sent_notifications with auto-increment integer ID
@@ -45,6 +46,7 @@ class CreateScheduledMessages < ActiveRecord::Migration[8.0]
       t.datetime :executed_at, null: false
       t.string :status, null: false
       t.string :consumer_type, null: false
+      t.string :execution_type, null: false, default: "scheduled"
       t.text :result_data
 
       t.timestamps
@@ -53,6 +55,7 @@ class CreateScheduledMessages < ActiveRecord::Migration[8.0]
     add_index :scheduled_message_executions, :scheduled_message_id
     add_index :scheduled_message_executions, :executed_at
     add_index :scheduled_message_executions, :status
+    add_index :scheduled_message_executions, :execution_type
     add_foreign_key :scheduled_message_executions, :scheduled_messages
   end
 

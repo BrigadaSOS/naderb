@@ -6,7 +6,7 @@ ENV['DISCORDRB_SSL_VERIFY_NONE'] = 'true'
 # Skip during rake tasks (migrations, db:create, etc.)
 Rails.application.config.after_initialize do
   unless defined?(Rake)
-    DiscordBotManagerService.start_bot
+    Discord::BotManager.start_bot
   end
 end
 
@@ -15,9 +15,9 @@ Signal.trap("INT") do
   Rails.logger.info "Received SIGINT (Ctrl+C), gracefully shutting down Discord bot..."
 
   begin
-    if DiscordBotManagerService.running_or_starting?
+    if Discord::BotManager.running_or_starting?
       Rails.logger.info "Setting stop signal for bot..."
-      DiscordBotManagerService.stop_bot
+      Discord::BotManager.stop_bot
 
       # Give the job a moment to detect the signal and shut down gracefully
       sleep 5
@@ -35,9 +35,9 @@ Signal.trap("TERM") do
   Rails.logger.info "Received SIGTERM, gracefully shutting down Discord bot..."
 
   begin
-    if DiscordBotManagerService.running_or_starting?
+    if Discord::BotManager.running_or_starting?
       Rails.logger.info "Setting stop signal for bot..."
-      DiscordBotManagerService.stop_bot
+      Discord::BotManager.stop_bot
       sleep 5
       Rails.logger.info "Bot shutdown signal sent"
     end

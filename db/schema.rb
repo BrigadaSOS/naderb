@@ -10,44 +10,28 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_21_145223) do
-  create_table "active_storage_attachments", force: :cascade do |t|
-    t.string "name", null: false
-    t.string "record_type", null: false
-    t.binary "record_id", limit: 16, null: false
-    t.bigint "blob_id", null: false
-    t.datetime "created_at", null: false
-    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
-    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
-  end
+ActiveRecord::Schema[8.0].define(version: 2025_10_22_142912) do
+# Could not dump table "active_storage_attachments" because of following StandardError
+#   Unknown type '' for column 'id'
 
-  create_table "active_storage_blobs", force: :cascade do |t|
-    t.string "key", null: false
-    t.string "filename", null: false
-    t.string "content_type"
-    t.text "metadata"
-    t.string "service_name", null: false
-    t.bigint "byte_size", null: false
-    t.string "checksum"
-    t.datetime "created_at", null: false
-    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
-  end
 
-  create_table "active_storage_variant_records", force: :cascade do |t|
-    t.bigint "blob_id", null: false
-    t.string "variation_digest", null: false
-    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
-  end
+# Could not dump table "active_storage_blobs" because of following StandardError
+#   Unknown type 'uuid' for column 'id'
+
+
+# Could not dump table "active_storage_variant_records" because of following StandardError
+#   Unknown type 'uuid' for column 'id'
+
 
   create_table "scheduled_message_executions", force: :cascade do |t|
     t.integer "scheduled_message_id", null: false
     t.datetime "executed_at", null: false
     t.string "status", null: false
     t.string "consumer_type", null: false
+    t.string "execution_type", default: "scheduled", null: false
     t.text "result_data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "execution_type", default: "scheduled", null: false
     t.index ["executed_at"], name: "index_scheduled_message_executions_on_executed_at"
     t.index ["execution_type"], name: "index_scheduled_message_executions_on_execution_type"
     t.index ["scheduled_message_id"], name: "index_scheduled_message_executions_on_scheduled_message_id"
@@ -64,10 +48,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_21_145223) do
     t.string "timezone", default: "America/Mexico_City", null: false
     t.boolean "enabled", default: true, null: false
     t.string "channel_id", null: false
+    t.datetime "next_run_at"
     t.binary "created_by_id", limit: 16, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.datetime "next_run_at"
     t.index ["consumer_type"], name: "index_scheduled_messages_on_consumer_type"
     t.index ["enabled"], name: "index_scheduled_messages_on_enabled"
     t.index ["name"], name: "index_scheduled_messages_on_name", unique: true
@@ -95,10 +79,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_21_145223) do
     t.string "guild_id", null: false
     t.string "name", null: false
     t.text "content"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
     t.text "original_image_url"
     t.text "discord_cdn_url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["id"], name: "index_tags_on_id", unique: true
     t.index ["name", "guild_id"], name: "index_tags_on_name_and_guild_id", unique: true
     t.index ["user_id"], name: "index_tags_on_user_id"
@@ -122,11 +106,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_21_145223) do
     t.string "discord_refresh_token"
     t.datetime "discord_token_expires_at"
     t.boolean "active", default: true, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
     t.string "locale"
     t.integer "birthday_month"
     t.integer "birthday_day"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["active"], name: "index_users_on_active"
     t.index ["discord_uid"], name: "index_users_on_discord_uid", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true

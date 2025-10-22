@@ -32,6 +32,13 @@ class DeviseCreateUsers < ActiveRecord::Migration[8.0]
       # Status
       t.boolean :active, default: true, null: false
 
+      # Locale
+      t.string :locale, default: nil
+
+      # Birthday
+      t.integer :birthday_month, comment: "Month of birth (1-12), nil if not set"
+      t.integer :birthday_day, comment: "Day of birth (1-31), nil if not set"
+
       t.timestamps null: false
     end
 

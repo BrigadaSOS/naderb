@@ -25,7 +25,7 @@ class Tag < ApplicationRecord
     return false if content.blank? || image.attached?
 
     trimmed = content.strip
-    TagImageService.valid_image_url?(trimmed) && trimmed == content.strip
+    Tags::ImageHandler.valid_image_url?(trimmed) && trimmed == content.strip
   end
 
   def discord_cdn_url?
@@ -61,8 +61,8 @@ class Tag < ApplicationRecord
 
     update_column(:original_image_url, url)
 
-    service = TagImageService.new(self)
-    service.download_from_url(url, background: false)
+    service = Tags::ImageHandler.new(self)
+    service.download_from_url(url)
 
   rescue ActiveRecord::RecordNotFound => e
     Rails.logger.error "Tag #{id} not found: #{e.message}"

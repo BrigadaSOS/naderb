@@ -35,6 +35,7 @@ module Nadeshikorb
 
     # Add bot directory to autoload paths
     config.autoload_paths += %W[#{config.root}/app/bot]
+    config.autoload_paths += %W[#{config.root}/app/bot/commands]
 
     # I18n configuration
     config.i18n.load_path += Dir[Rails.root.join("config", "locales", "**", "*.{rb,yml}")]

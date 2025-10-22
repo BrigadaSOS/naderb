@@ -5,49 +5,49 @@ class Dashboard::Admin::BotController < ApplicationController
 
   def index
     @commands = CommandSchema.to_array
-    @bot_status = DiscordBotManagerService.status
+    @bot_status = Discord::BotManager.status
   end
 
   def start
-    result = DiscordBotManagerService.start_bot
+    result = Discord::BotManager.start_bot
     render json: result
-  rescue DiscordBotManagerService::BotAlreadyRunningError => e
+  rescue Discord::BotManager::BotAlreadyRunningError => e
     render json: { success: false, message: e.message }, status: :unprocessable_entity
   end
 
   def stop
-    result = DiscordBotManagerService.stop_bot
+    result = Discord::BotManager.stop_bot
     render json: result
-  rescue DiscordBotManagerService::BotNotRunningError => e
+  rescue Discord::BotManager::BotNotRunningError => e
     render json: { success: false, message: e.message }, status: :unprocessable_entity
   end
 
   def restart
-    result = DiscordBotManagerService.restart_bot
+    result = Discord::BotManager.restart_bot
     render json: result
   end
 
   def status
-    result = DiscordBotManagerService.status
+    result = Discord::BotManager.status
     render json: result
   end
 
   def force_stop
-    result = DiscordBotManagerService.force_stop
+    result = Discord::BotManager.force_stop
     render json: result
   end
 
   def register_guild_commands
-    result = DiscordBotManagerService.register_guild_commands
+    result = Discord::BotManager.register_guild_commands
     render json: result
-  rescue DiscordBotManagerService::BotNotRunningError => e
+  rescue Discord::BotManager::BotNotRunningError => e
     render json: { success: false, message: e.message }, status: :unprocessable_entity
   end
 
   def register_global_commands
-    result = DiscordBotManagerService.register_global_commands
+    result = Discord::BotManager.register_global_commands
     render json: result
-  rescue DiscordBotManagerService::BotNotRunningError => e
+  rescue Discord::BotManager::BotNotRunningError => e
     render json: { success: false, message: e.message }, status: :unprocessable_entity
   end
 end

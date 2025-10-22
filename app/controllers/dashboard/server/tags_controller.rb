@@ -1,14 +1,11 @@
 class Dashboard::Server::TagsController < ApplicationController
+  include ErrorHandler
+
   before_action :authenticate_user!
   before_action :set_tags, only: [ :index, :new, :edit ]
   before_action :set_tag, only: [ :show, :edit, :update, :destroy ]
   before_action :require_create_permission!, only: [ :new, :create ]
   before_action :require_edit_permission!, only: [ :edit, :update, :destroy ]
-
-  rescue_from TagExceptions::PermissionDenied, with: :handle_permission_denied
-  rescue_from TagExceptions::ValidationFailed, with: :handle_validation_failed
-  rescue_from TagExceptions::NotFound, with: :handle_not_found
-  rescue_from ActiveRecord::ActiveRecordError, with: :handle_database_error
 
   def index
   end
@@ -24,32 +21,46 @@ class Dashboard::Server::TagsController < ApplicationController
   end
 
   def create
-    tag_service.create_tag(tag_params)
-    flash[:success] = t(".success")
-    redirect_to dashboard_server_tags_path, status: :see_other
+    result = handle_tag_errors { tag_service.create_tag(tag_params) }
+
+    if result.success?
+      flash[:success] = t(".success")
+      redirect_to dashboard_server_tags_path, status: :see_other
+    else
+      handle_error_result(result, :new)
+    end
   end
 
   def update
-    tag_service.update_tag(@tag, tag_params)
-    flash[:success] = t(".success")
-    redirect_to dashboard_server_tags_path(search: params[:search]), status: :see_other
+    result = handle_tag_errors { tag_service.update_tag(@tag, tag_params) }
+
+    if result.success?
+      flash[:success] = t(".success")
+      redirect_to dashboard_server_tags_path(search: params[:search]), status: :see_other
+    else
+      handle_error_result(result, :edit)
+    end
   end
 
   def destroy
-    tag_service.destroy_tag(@tag)
-    flash[:success] = t(".success")
-    redirect_to dashboard_server_tags_path(search: params[:search]), status: :see_other
+    result = handle_tag_errors { tag_service.destroy_tag(@tag) }
+
+    if result.success?
+      flash[:success] = t(".success")
+      redirect_to dashboard_server_tags_path(search: params[:search]), status: :see_other
+    else
+      handle_error_result(result, :index)
+    end
   end
 
   private
 
   def tag_params
-    permitted = params.require("tag").permit("name", "content", "discord_uid", "image", "input_mode", "remove_image")
+    permitted = params.require("tag").permit("name", "content", "discord_uid", "image", "remove_image")
     permitted["_remove_image"] = permitted["remove_image"] == "true" if permitted["remove_image"].present?
 
-    # TODO: Can we remove input_mode from here?
-    # UI-only params
-    permitted.except("input_mode", "remove_image")
+    # Exclude UI-only params
+    permitted.except("remove_image")
   end
 
   def set_tag
@@ -92,35 +103,29 @@ class Dashboard::Server::TagsController < ApplicationController
   helper_method :can_edit_tag?
 
   def tag_service
-    @tag_service ||= TagService.new(current_user)
+    @tag_service ||= Tags::TagService.new(current_user)
   end
 
-  def handle_permission_denied(exception)
-    flash[:error] = exception.message
-    redirect_to dashboard_server_tags_path, status: :forbidden
-  end
+  def handle_error_result(result, render_template)
+    error = result.error
 
-  def handle_validation_failed(exception)
-    @tag = exception.record
-    set_tags
-
-    template = case action_name
-    when "create" then :new
-    when "update" then :edit
-    else action_name.to_sym
+    case error[:type]
+    when :permission_denied
+      flash[:error] = error[:message]
+      redirect_to dashboard_server_tags_path, status: :forbidden
+    when :validation_failed
+      @tag = error[:record]
+      set_tags
+      render render_template, status: :unprocessable_entity
+    when :not_found
+      flash[:error] = error[:message]
+      redirect_to dashboard_server_tags_path
+    when :database_error, :unexpected_error
+      flash[:error] = t("errors.database")
+      redirect_to dashboard_server_tags_path, status: :service_unavailable
+    else
+      flash[:error] = error[:message] || t("errors.generic")
+      redirect_to dashboard_server_tags_path
     end
-
-    render template, status: :unprocessable_entity
-  end
-
-  def handle_not_found(exception)
-    flash[:error] = exception.message
-    redirect_to dashboard_server_tags_path
-  end
-
-  def handle_database_error(exception)
-    Rails.logger.error "Database error: #{exception.message}"
-    flash[:error] = t("errors.database")
-    redirect_to dashboard_server_tags_path, status: :service_unavailable
   end
 end

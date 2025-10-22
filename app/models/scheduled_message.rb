@@ -5,7 +5,7 @@ class ScheduledMessage < ApplicationRecord
   attribute :created_by_id, :uuid_v7
 
   belongs_to :created_by, class_name: "User"
-  has_many :sent_notifications, dependent: :destroy
+  has_many :message_deliveries, class_name: "MessageDelivery", dependent: :destroy
   has_many :executions, class_name: "ScheduledMessageExecution", dependent: :destroy
 
   validates :name, presence: true, uniqueness: true
@@ -29,20 +29,7 @@ class ScheduledMessage < ApplicationRecord
   # Render the Liquid template with provided locals
   # Returns plain text output
   def render_template(locals = {})
-    # Convert Birthday objects to BirthdayDrops for safe template access
-    if locals[:birthdays].is_a?(Array)
-      locals[:birthdays] = locals[:birthdays].map { |b| BirthdayDrop.new(b) }
-    end
-
-    # Liquid requires string keys
-    string_locals = locals.deep_stringify_keys
-
-    # Parse and render Liquid template with strict mode
-    liquid_template = Liquid::Template.parse(template)
-    liquid_template.render(string_locals, strict_variables: true, strict_filters: true)
-  rescue Liquid::Error => e
-    Rails.logger.error "Liquid template error for message #{id}: #{e.message}"
-    raise "Template error: #{e.message}"
+    ScheduledMessages::TemplateRenderer.render(template, locals, scheduled_message_id: id)
   end
 
   # Calculate the next time this message should run based on its schedule
