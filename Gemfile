@@ -87,7 +87,7 @@ gem "omniauth-discord", "~> 1.2"
 
 gem "omniauth-rails_csrf_protection", "~> 1.0"
 
-gem "tailwindcss-rails", "~> 4.3"
+gem "tailwindcss-rails", "~> 4.4"
 
 gem "hotwire-livereload", "~> 2.1", group: :development
 
